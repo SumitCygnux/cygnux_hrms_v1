@@ -1,18 +1,22 @@
 import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 
 export const validate =(schema: any) =>(req: Request,res: Response,next: NextFunction) => {
-    try {
+     try {
       schema.parse(req.body);
       next();
-    } catch (error: any) {
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          success: false,
+          message: error.issues[0].message,
+          errors: error.issues,
+        });
+      }
 
-  console.log(error);
-
-  return res.status(400).json({
-    success: false,
-    errors: error.errors,
-    message: error.message,
-  });
-
-}
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
 };

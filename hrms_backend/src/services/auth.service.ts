@@ -12,7 +12,7 @@ export const loginService = async (email: string, password: string) => {
     });
 
     if (!user) {
-        throw new Error("Invalid Email or Password");
+        throw new Error("Invalid Email");
     }
 
     const isPasswordMatch = await bcrypt.compare(
@@ -21,7 +21,7 @@ export const loginService = async (email: string, password: string) => {
     );
 
     if (!isPasswordMatch) {
-        throw new Error("Invalid Email or Password");
+        throw new Error("Invalid password");
     }
 
     const token = generateToken({

@@ -10,10 +10,9 @@ export const registerCompanySchema =
       .string()
       .email(),
 
-    phone: z
-      .string()
-      .min(10)
-      .max(10),
+ phone: z
+  .string()
+   .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
 
     industry: z
       .string(),
@@ -43,5 +42,6 @@ export const registerCompanySchema =
 
     password: z
       .string()
-      .min(8),
+        .min(3, "Password must be at least 3 characters"),
+
   });
