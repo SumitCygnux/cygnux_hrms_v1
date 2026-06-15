@@ -36,7 +36,7 @@ function App() {
 
             {/* Authenticated Dashboard Routes */}
             <Route element={<DashboardLayout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/register" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeList />} />
               <Route path="/employees/:id" element={<EmployeeProfile />} />

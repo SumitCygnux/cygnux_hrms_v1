@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerCompany } from "../../services/auth.service";
 import logo from '../../assets/hrms_logo.png';
 
-// Country, State, City ના પેકેજમાંથી ડેટા ઈમ્પોર્ટ કર્યો
 import { Country, State, City } from "country-state-city";
 import { toast } from "react-toastify";
 
@@ -12,7 +11,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
 
-  // લિસ્ટ સ્ટોર કરવા માટે સ્ટેટ્સ
   const [countriesList, setCountriesList] = useState([]);
   const [statesList, setStatesList] = useState([]);
   const [citiesList, setCitiesList] = useState([]);
@@ -23,11 +21,11 @@ const Register = () => {
     phone: "",
     industry: "",
     companySize: "",
-    country: "",      // આમાં Country Code (જેમ કે 'IN') સ્ટોર થશે
-    countryName: "",  // બેકએન્ડમાં મોકલવા માટે પૂરું નામ
-    state: "",        // State Code (જેમ કે 'GJ')
-    stateName: "",    // બેકએન્ડમાં મોકલવા માટે પૂરું નામ
-    city: "",         // City Name
+    country: "",     
+    countryName: "",  
+    state: "",       
+    stateName: "",    
+    city: "",         
     address: "",
     adminName: "",
     adminEmail: "",
@@ -35,27 +33,25 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  // પેજ લોડ થાય ત્યારે બધા દેશોનું લિસ્ટ લોડ થશે
   useEffect(() => {
     setCountriesList(Country.getAllCountries());
   }, []);
 
-  // જ્યારે પણ દેશ (Country) બદલાય ત્યારે તેના રાજ્યો (States) લોડ થશે
+
   useEffect(() => {
     if (formData.country) {
       const states = State.getStatesOfCountry(formData.country);
       setStatesList(states);
-      setCitiesList([]); // દેશ બદલાય એટલે સીટી ક્લીયર થઈ જાય
+      setCitiesList([]); 
       setFormData((prev) => ({ ...prev, state: "", stateName: "", city: "" }));
     }
   }, [formData.country]);
 
-  // જ્યારે પણ રાજ્ય (State) બદલાય ત્યારે તેના શહેરો (Cities) લોડ થશે
   useEffect(() => {
     if (formData.country && formData.state) {
       const cities = City.getCitiesOfState(formData.country, formData.state);
       setCitiesList(cities);
-      setFormData((prev) => ({ ...prev, city: "" })); // રાજ્ય બદલાય એટલે સીટી ક્લીયર
+      setFormData((prev) => ({ ...prev, city: "" })); 
     }
   }, [formData.state, formData.country]);
 
@@ -99,7 +95,6 @@ const Register = () => {
 
     try {
       setLoading(true);
-      // બેકએન્ડમાં આપણે કોડની જગ્યાએ આખા નામ (countryName, stateName) મોકલીશું
       await registerCompany({
         companyName: formData.companyName,
         companyEmail: formData.companyEmail,
@@ -118,7 +113,7 @@ const Register = () => {
        toast.success('regisetr Successfully!');
       navigate("/login");
     } catch (error) {
-      // alert(error?.response?.data?.message || "Registration Failed");
+
         toast.error(error.response.data.message  || "Invalid Credentials");
       
     } finally {
@@ -130,7 +125,7 @@ const Register = () => {
     <div className="h-screen w-screen bg-gray-50 flex items-center justify-center p-4 font-sans overflow-hidden">
       <div className="max-w-3xl w-full p-6 bg-white border border-gray-200 rounded-3xl shadow-lg flex flex-col max-h-[95vh] overflow-y-auto">
         
-        {/* Header */}
+      
         <div className="flex flex-col items-center text-center w-full max-w-lg mx-auto mb-4 flex-shrink-0">
           <img src={logo} alt="HRMS Logo" className="h-14 w-auto object-contain mb-1" />
           <h2 className="text-2xl font-extrabold text-black">
@@ -141,7 +136,7 @@ const Register = () => {
           </p>
         </div>
 
-        {/* Form */}
+     
         <form className="w-full flex-1 flex flex-col justify-between" onSubmit={step === 1 ? handleNextStep : handleSubmit}>
           <div className="space-y-4">
             {step === 1 && (
