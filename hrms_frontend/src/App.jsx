@@ -22,6 +22,7 @@ import Designations from "./pages/Designations/Designations";
 import Reports from "./pages/Reports/Reports";
 import Calendar from "./pages/Calendar/Calendar";
 import Settings from "./pages/Settings/Settings";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (

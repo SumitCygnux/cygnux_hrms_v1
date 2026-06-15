@@ -1,4 +1,6 @@
 import { NavLink } from "react-router-dom";
+// import {logo} from '../../assets/hrms_logo.png'
+import logo from "../../assets/logowhite.png";
 import {
   MdDashboard,
   MdPeople,
@@ -14,10 +16,15 @@ import {
   MdSettings,
   MdMenuOpen,
   MdMenu,
-  MdTrackChanges
+  MdTrackChanges,
 } from "react-icons/md";
 
-const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) => {
+const Sidebar = ({
+  isCollapsed,
+  setIsCollapsed,
+  isMobileOpen,
+  setIsMobileOpen,
+}) => {
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: <MdDashboard /> },
     { name: "Staff Management", path: "/employees", icon: <MdPeople /> },
@@ -30,7 +37,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
     { name: "Designations", path: "/designations", icon: <MdBadge /> },
     { name: "Reports", path: "/reports", icon: <MdAssessment /> },
     { name: "Calendar", path: "/calendar", icon: <MdCalendarToday /> },
-    { name: "Settings", path: "/settings", icon: <MdSettings /> }
+    { name: "Settings", path: "/settings", icon: <MdSettings /> },
   ];
 
   return (
@@ -48,9 +55,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         } ${isCollapsed ? "w-[72px]" : "w-[260px]"}`}
       >
-        <div className="h-[70px] flex items-center px-6 border-b border-white/5 overflow-hidden gap-3 shrink-0">
-          <MdTrackChanges className="text-primary text-2xl shrink-0" />
-          {!isCollapsed && <span className="text-white font-bold text-lg tracking-wider whitespace-nowrap">Cygnux HRMS</span>}
+       
+        <div className=" h-[70px] flex items-center justify-center px-6 border-b border-white/1 shrink-0">
+          <img
+            src={logo}
+            alt="HRMS Logo"
+            className="h-22 w-auto object-contain"
+          />
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-5 flex flex-col gap-1">
@@ -60,13 +71,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen })
               to={item.path}
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 rounded-lg hover:bg-bg-sidebar-hover hover:text-white transition-all text-sm font-medium gap-3 whitespace-nowrap ${
-                  isActive ? "bg-primary text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.3)]" : "text-gray-400"
+                  isActive
+                    ? "bg-primary text-white shadow-[0_4px_14px_0_rgba(37,99,235,0.3)]"
+                    : "text-gray-400"
                 }`
               }
               onClick={() => setIsMobileOpen(false)}
             >
               <span className="text-xl shrink-0">{item.icon}</span>
-              <span className={`transition-opacity duration-300 ${isCollapsed ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}`}>
+              <span
+                className={`transition-opacity duration-300 ${isCollapsed ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}`}
+              >
                 {item.name}
               </span>
             </NavLink>
