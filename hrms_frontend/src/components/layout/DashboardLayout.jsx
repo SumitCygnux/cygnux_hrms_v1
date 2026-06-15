@@ -8,7 +8,7 @@ const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-bg-primary transition-all duration-300">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/30 to-slate-200 transition-all duration-300">
       <Sidebar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}

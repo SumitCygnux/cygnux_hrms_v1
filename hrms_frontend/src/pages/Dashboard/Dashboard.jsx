@@ -146,29 +146,29 @@ const Dashboard = () => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-7">
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm">
-          <div className="text-base font-bold text-text-primary mb-5 flex items-center justify-between">
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
+          <div className="text-base font-bold text-slate-800 mb-5 flex items-center justify-between">
             <span>Attendance Trend (%)</span>
-            <span className="text-xs text-text-muted font-normal">Last 6 Days</span>
+            <span className="text-xs text-slate-400 font-normal">Last 6 Days</span>
           </div>
           <AreaChartComponent data={attendanceTrendData} xKey="name" yKey="value" color="#2563EB" />
         </div>
 
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm">
-          <div className="text-base font-bold text-text-primary mb-5 flex items-center justify-between">
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
+          <div className="text-base font-bold text-slate-800 mb-5 flex items-center justify-between">
             <span>Employee Headcount Growth</span>
-            <span className="text-xs text-text-muted font-normal">Cumulative</span>
+            <span className="text-xs text-slate-400 font-normal">Cumulative</span>
           </div>
           <BarChartComponent data={employeeGrowthData} xKey="name" yKey="value" color="#10B981" label="Total Staff" />
         </div>
 
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm">
-          <div className="text-base font-bold text-text-primary mb-5">Department Headcount Distribution</div>
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
+          <div className="text-base font-bold text-slate-800 mb-5">Department Headcount Distribution</div>
           <PieChartComponent data={departmentData} nameKey="name" valueKey="value" />
         </div>
 
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm">
-          <div className="text-base font-bold text-text-primary mb-5">Requested Leave Types</div>
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
+          <div className="text-base font-bold text-slate-800 mb-5">Requested Leave Types</div>
           <BarChartComponent data={leaveAnalyticsData} xKey="name" yKey="value" color="#F59E0B" label="Requests" />
         </div>
       </div>
@@ -176,22 +176,22 @@ const Dashboard = () => {
       {/* Widgets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* Pending Approvals */}
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm flex flex-col h-[380px]">
-          <div className="text-base font-bold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[380px]">
+          <div className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <MdHourglassEmpty className="text-amber-500 text-lg" />
             <span>Pending Approvals ({pendingApprovals.length})</span>
           </div>
           <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
             {pendingApprovals.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-sm text-text-muted">
+              <div className="flex flex-col items-center justify-center h-full text-sm text-slate-400">
                 All requests approved!
               </div>
             ) : (
               pendingApprovals.map((req) => (
-                <div key={req.id} className="flex items-center justify-between p-2.5 bg-bg-primary rounded-md border border-border-color transition-all hover:border-primary hover:translate-x-0.5">
+                <div key={req.id} className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100 transition-all hover:border-blue-500/20 hover:translate-x-0.5">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold text-text-primary">{req.employeeName}</span>
-                    <span className="text-[10px] text-text-secondary">
+                    <span className="text-xs font-semibold text-slate-700">{req.employeeName}</span>
+                    <span className="text-[10px] text-slate-400">
                       {req.leaveType} | {req.totalDays} Days ({req.startDate})
                     </span>
                   </div>
@@ -222,26 +222,26 @@ const Dashboard = () => {
         </div>
 
         {/* Upcoming Holidays & Events */}
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm flex flex-col h-[380px]">
-          <div className="text-base font-bold text-text-primary mb-4 flex items-center gap-2">
-            <MdEvent className="text-blue-500 text-lg" />
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[380px]">
+          <div className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <MdEvent className="text-blue-600 text-lg" />
             <span>Holidays & Events</span>
           </div>
           <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
             {upcomingHolidays.map((holiday) => (
-              <div key={holiday.id} className="flex items-center justify-between p-2.5 bg-bg-primary rounded-md border border-border-color transition-all hover:border-primary hover:translate-x-0.5">
+              <div key={holiday.id} className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100 transition-all hover:border-blue-500/20 hover:translate-x-0.5">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-semibold text-text-primary">{holiday.title}</span>
-                  <span className="text-[10px] text-text-secondary">Public Holiday</span>
+                  <span className="text-xs font-semibold text-slate-700">{holiday.title}</span>
+                  <span className="text-[10px] text-slate-400">Public Holiday</span>
                 </div>
                 <Badge status="WFH">{new Date(holiday.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</Badge>
               </div>
             ))}
             {companyEvents.slice(0, 1).map((ev) => (
-              <div key={ev.id} className="flex items-center justify-between p-2.5 bg-bg-primary rounded-md border border-border-color transition-all hover:border-primary hover:translate-x-0.5 border-l-4 border-l-primary">
+              <div key={ev.id} className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100 transition-all hover:border-blue-500/20 hover:translate-x-0.5 border-l-4 border-l-blue-600">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-semibold text-text-primary">{ev.title}</span>
-                  <span className="text-[10px] text-text-secondary">{ev.time}</span>
+                  <span className="text-xs font-semibold text-slate-700">{ev.title}</span>
+                  <span className="text-[10px] text-slate-400">{ev.time}</span>
                 </div>
                 <Badge status="Active">{new Date(ev.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</Badge>
               </div>
@@ -250,19 +250,19 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activities */}
-        <div className="bg-bg-secondary border border-border-color rounded-lg p-6 shadow-sm flex flex-col h-[380px]">
-          <div className="text-base font-bold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[380px]">
+          <div className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <MdSchedule className="text-emerald-500 text-lg" />
             <span>Recent Activities</span>
           </div>
           <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
             {recentActivities.map((act) => (
-              <div key={act.id} className="flex items-center justify-between p-2.5 bg-bg-primary rounded-md border border-border-color transition-all hover:border-primary hover:translate-x-0.5">
+              <div key={act.id} className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100 transition-all hover:border-blue-500/20 hover:translate-x-0.5">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-semibold text-text-primary">{act.title}</span>
-                  <span className="text-[10px] text-text-secondary">{act.subtitle}</span>
+                  <span className="text-xs font-semibold text-slate-700">{act.title}</span>
+                  <span className="text-[10px] text-slate-400">{act.subtitle}</span>
                 </div>
-                <span className="text-xs text-text-muted font-semibold">{act.time}</span>
+                <span className="text-xs text-slate-400 font-semibold">{act.time}</span>
               </div>
             ))}
           </div>
