@@ -2,18 +2,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app";
-import { AppDataSource } from "./connection/dataSource";
+
+import DatabaseConnection from "./connection/postgresql.connection";
+import { seedRoles } from "./seeders/roles.seeder";
 
 const PORT = process.env.PORT || 5000;
 
-AppDataSource.initialize()
-  .then(() => {
-
-    
-    console.log("Database Connected");
+DatabaseConnection.initialize()
+  .then(async () => {
+    console.log("Master Database Connected");
+    await seedRoles();
 
     app.listen(PORT, () => {
-      console.log( `Server Running On Port ${PORT}`);
+      console.log(`Server Running On Port ${PORT}`);
     });
   })
   .catch((error) => {

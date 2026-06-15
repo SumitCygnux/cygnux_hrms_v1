@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../services/auth.service";
 import logo from '../../assets/hrms_logo.png';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,10 +34,11 @@ console.log(response.data);
       localStorage.setItem("token",  response.data.data.token);
 
       localStorage.setItem("user", JSON.stringify(response.data.data.user));
-
+  toast.success('Login Successfully!');
       navigate("/dashboard");
     } catch (error) {
-      alert(error?.response?.data?.message || "Invalid Credentials");
+      // alert(error?.response?.data?.message || "Invalid Credentials");
+     toast.error(error.response.data.message  || "Invalid Credentials");
     } finally {
       setLoading(false);
     }
@@ -57,12 +59,11 @@ console.log(response.data);
       {/* LEFT SIDE */}
       <div className="hidden md:flex flex-col justify-center px-12 lg:px-16 bg-slate-50/40 border-r border-slate-100">
         
-        {/* લોગો કન્ટેનર - ડાબી બાજુ પ્રોપર અલાઈનમેન્ટ અને માર્જિન બોટમ સાથે */}
         <div className=" flex items-center">
           <img 
             src={logo} 
             alt="HRMS Logo" 
-            className="h-24 w-auto object-contain" // h-12 થી લોગો એકદમ પ્રોફેશનલ સાઇઝમાં આવી જશે
+            className="h-24 w-auto object-contain" 
           />
         </div>
      
