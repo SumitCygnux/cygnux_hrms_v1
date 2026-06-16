@@ -4,23 +4,64 @@ import PageHeader from "../../components/layout/PageHeader";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import DetailModal from "../../components/modals/DetailModal";
-import { MdAdd } from "react-icons/md";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { getDesignations, createDesignation } from "../../services/designation.service";
+import { getDepartments } from "../../services/department.service";
+import { MdEdit, MdDelete, MdAdd } from "react-icons/md";
 
 const Designations = () => {
-  const { designations, departments } = useHRMSData();
+  const [designations, setDesignations] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    department: "Engineering",
-    grade: "L1",
-    baseSalary: 60000
+    title: "",
+    department_id: "",
+    baseSalary: ""
   });
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    loadDepartments();
+    loadDesignations();
+  }, []);
+
+  const loadDepartments = async () => {
+    try {
+      const res = await getDepartments();
+      setDepartments(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const loadDesignations = async () => {
+    try {
+      console.log(designations);
+      const res = await getDesignations();
+      console.log(res.data.data);
+
+      setDesignations(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Static addition (visual mock)
-    setIsModalOpen(false);
+    try {
+      await createDesignation(formData);
+      toast.success("Designation Created");
+      loadDesignations();
+      setFormData({
+        title: "",
+        department_id: "",
+        baseSalary: "",
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    }
   };
 
   return (
@@ -40,15 +81,26 @@ const Designations = () => {
           <div key={desg.id} className="bg-bg-secondary border border-border-color rounded-lg p-5 shadow-sm flex flex-col gap-3 transition-all duration-150 hover:border-primary hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
-                <span className="text-base font-bold text-text-primary leading-tight">{desg.name}</span>
-                <span className="text-xs text-text-secondary font-medium">{desg.department}</span>
+                <span className="text-base font-bold text-text-primary leading-tight">{desg.title}</span>
+                <span className="text-xs text-text-secondary font-medium">{departments.find(d => d.id === desg.department_id)?.name || "-"}</span>
               </div>
-              <Badge status="WFH">{desg.grade}</Badge>
+              {/* <Badge status="WFH">{desg.grade}</Badge> */}
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <div className="flex text-primary gap-2">
+                  <button onClick={() => handleEdit(desg)}>
+                    <MdEdit />
+                  </button>
+
+                  <button onClick={() => handleDelete(desg.id)}>
+                    <MdDelete />
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-between items-center mt-2 border-t border-border-color pt-3 text-sm">
               <span className="text-text-secondary">Base Salary</span>
-              <span className="font-bold text-text-primary">${desg.baseSalary.toLocaleString()} / yr</span>
+              <span className="font-bold text-text-primary">${Number(desg.baseSalary || 0).toLocaleString()} / yr</span>
             </div>
           </div>
         ))}
@@ -68,8 +120,8 @@ const Designations = () => {
               type="text"
               required
               placeholder="e.g. Lead QA Engineer"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
             />
           </div>
@@ -77,12 +129,12 @@ const Designations = () => {
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold text-gray-600">Department</label>
             <select
-              value={formData.department}
-              onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+              value={formData.department_id}
+              onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
               className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
             >
               {departments.map((d) => (
-                <option key={d.id} value={d.name}>
+                <option key={d.id} value={d.id}>
                   {d.name}
                 </option>
               ))}
@@ -90,7 +142,7 @@ const Designations = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-gray-600">Grade / Level</label>
               <input
                 type="text"
@@ -99,7 +151,7 @@ const Designations = () => {
                 onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
                 className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
               />
-            </div>
+            </div> */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-semibold text-gray-600">Base Salary ($ / yr)</label>
               <input

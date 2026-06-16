@@ -59,12 +59,11 @@ console.log(response.data);
       {/* LEFT SIDE */}
       <div className="hidden md:flex flex-col justify-center px-12 lg:px-16 bg-slate-50/40 border-r border-slate-100">
         
-        {/* લોગો કન્ટેનર - ડાબી બાજુ પ્રોપર અલાઈનમેન્ટ અને માર્જિન બોટમ સાથે */}
         <div className=" flex items-center">
           <img 
             src={logo} 
             alt="HRMS Logo" 
-            className="h-24 w-auto object-contain" // h-12 થી લોગો એકદમ પ્રોફેશનલ સાઇઝમાં આવી જશે
+            className="h-24 w-auto object-contain" 
           />
         </div>
      

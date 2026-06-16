@@ -1,7 +1,7 @@
-import {Request,Response,NextFunction,} from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-export const authenticate = (req: Request,res: Response,next: NextFunction) => {
 
+export const authMiddleware = (req: Request,res: Response,next: NextFunction): any => {
   try {
     const authHeader =req.headers.authorization;
 
@@ -14,13 +14,6 @@ export const authenticate = (req: Request,res: Response,next: NextFunction) => {
 
     const token = authHeader.split(" ")[1];
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Token",
-      });
-    }
-
     const decoded =
       jwt.verify(
         token,
@@ -28,11 +21,10 @@ export const authenticate = (req: Request,res: Response,next: NextFunction) => {
       );
     (req as any).user = decoded;
     next();
-
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorized",
+      message: "Invalid Token",
     });
   }
 };
