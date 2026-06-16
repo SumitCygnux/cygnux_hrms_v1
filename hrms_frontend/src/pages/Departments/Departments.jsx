@@ -6,9 +6,12 @@ import Avatar from "../../components/common/Avatar";
 import Badge from "../../components/common/Badge";
 import DetailModal from "../../components/modals/DetailModal";
 import { MdAdd, MdBusiness } from "react-icons/md";
+import { useEffect } from "react";
+import { getDepartments, createDepartment } from "../../services/department.service";
+import { MdEdit, MdDelete } from "react-icons/md";
 
 const Departments = () => {
-  const { departments, setDepartments } = useHRMSData();
+  const [departments, setDepartments] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,25 +21,39 @@ const Departments = () => {
     openPositions: 1
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newDept = {
-      id: `DEPT-0${departments.length + 1}`,
-      name: formData.name,
-      manager: formData.manager,
-      headcount: 0,
-      budget: parseInt(formData.budget),
-      openPositions: parseInt(formData.openPositions)
-    };
+  const fetchDepartments = async () => {
+    try {
+      const response = await getDepartments();
+      setDepartments(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    setDepartments((prev) => [...prev, newDept]);
-    setIsModalOpen(false);
-    setFormData({
-      name: "",
-      manager: "",
-      budget: 500000,
-      openPositions: 1
-    });
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await createDepartment({
+        name: formData.name,
+        manager: formData.manager,
+        budget: Number(formData.budget),
+        openPositions: Number(formData.openPositions)
+      });
+      await fetchDepartments();
+      setIsModalOpen(false);
+      setFormData({
+        name: "",
+        manager: "",
+        budget: 500000,
+        openPositions: 1
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
 
@@ -61,7 +78,7 @@ const Departments = () => {
                 <MdBusiness className="text-2xl text-blue-500" />
                 <span className="text-base font-bold text-text-primary">{dept.name}</span>
               </div>
-              <Badge status="Active">{dept.id}</Badge>
+              <Badge status="Active">Active</Badge>
             </div>
 
             <div className="flex items-center gap-3.5 border-b border-border-color pb-3">
@@ -69,6 +86,17 @@ const Departments = () => {
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] text-text-secondary uppercase font-semibold">Department Head</span>
                 <span className="text-xs font-semibold text-text-primary">{dept.manager}</span>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <div className="flex text-primary gap-2">
+                  <button onClick={() => handleEdit(desg)}>
+                    <MdEdit />
+                  </button>
+
+                  <button onClick={() => handleDelete(desg.id)}>
+                    <MdDelete />
+                  </button>
+                </div>
               </div>
             </div>
 
