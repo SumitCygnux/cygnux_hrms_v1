@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../../services/auth.service";
+import { login } from "../../services/api";
 import logo from '../../assets/hrms_logo.png';
 import { toast } from 'react-toastify';
 
