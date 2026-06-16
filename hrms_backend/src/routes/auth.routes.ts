@@ -1,10 +1,17 @@
 import { Router } from "express";
-import {login} from "../controllers/auth.controller";
-import {validate} from "../middleware/validate";
-import {loginSchema} from "../validations/auth.validation";
+import { registerCompany,login }from "../controllers/auth.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/login",validate(loginSchema),login);
+router.post("/register-company",registerCompany);
+router.post("/login",login);
+router.get("/profile",authMiddleware,(req, res) => {
+    return res.json({
+      success: true,
+      user: (req as any).user,
+    });
+}
+);
 
 export default router;
