@@ -8,6 +8,8 @@ import { seedRoles } from "./seeders/roles.seeder";
 
 const PORT = process.env.PORT || 5001;
 
+
+
 DatabaseConnection.initialize()
   .then(async () => {
     console.log("Master Database Connected");

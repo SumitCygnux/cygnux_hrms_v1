@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
-import Avatar from "../../components/common/Avatar";
-import DetailModal from "../../components/modals/DetailModal";
+
+import PageHeader from "../../../components/layouts/PageHeader";
+import DataTable from "../../../components/tables/DataTable";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
+import Avatar from "../../../components/common/Avatar";
+import DetailModal from "../../../components/modals/DetailModal";
 import {
   MdSearch,
   MdPersonAdd,
@@ -14,7 +14,7 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
-import { getAllStaff, createStaff } from "../../services/staff.service";
+import { getAllStaff, createStaff } from "../../../services/staff.service";
 
 
 const EmployeeList = () => {

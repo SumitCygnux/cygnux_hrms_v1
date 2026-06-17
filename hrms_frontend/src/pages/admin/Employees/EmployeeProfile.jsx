@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import Avatar from "../../components/common/Avatar";
-import Badge from "../../components/common/Badge";
-import Button from "../../components/common/Button";
-import Tabs from "../../components/common/Tabs";
-import DetailModal from "../../components/modals/DetailModal";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import Avatar from "../../../components/common/Avatar";
+import Badge from "../../../components/common/Badge";
+import Button from "../../../components/common/Button";
+import Tabs from "../../../components/common/Tabs";
+import DetailModal from "../../../components/modals/DetailModal";
 import {
   MdDescription,
   MdFileDownload,

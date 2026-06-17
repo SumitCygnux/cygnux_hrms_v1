@@ -1,64 +1,58 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
 
+
 export const registerCompany = (data) =>
-  api.post("/auth/register-company", data
-  );
+  api.post("/auth/register-company", data);
 
 export const login = (data) =>
-  api.post("/auth/login",data
-  );
+  api.post("/auth/login", data);
 
 export const getProfile = () =>
-  api.get("/auth/profile"
-  );
+  api.get("/auth/profile");
+
 
 
 
 export const getDepartments = () =>
-  api.get("/departments"
-  );
+  api.get("/departments");
 
 export const createDepartment = (data) =>
-  api.post("/departments",data
-  );
+  api.post("/departments", data);
 
-export const updateDepartment = (id,data) =>
-  api.put(`/departments/${id}`,data
-  );
+export const updateDepartment = (id, data) =>
+  api.put(`/departments/${id}`, data);
 
 export const deleteDepartment = (id) =>
-  api.delete(`/departments/${id}`
-  );
+  api.delete(`/departments/${id}`);
+
 
 
 
 export const getDesignations = () =>
-  api.get("/designations"
-  );
+  api.get("/designations");
 
 export const createDesignation = (data) =>
-  api.post("/designations",data
-  );
+  api.post("/designations", data);
 
-export const updateDesignation = (id,data) =>
-  api.put(`/designations/${id}`,data
-  );
+export const updateDesignation = (id, data) =>
+  api.put(`/designations/${id}`, data);
 
 export const deleteDesignation = (id) =>
-  api.delete(`/designations/${id}`
-  );
+  api.delete(`/designations/${id}`);
 
 export default api;
