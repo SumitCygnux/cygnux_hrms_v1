@@ -22,6 +22,7 @@ export const authMiddleware = (req: Request,res: Response,next: NextFunction): a
     (req as any).user = decoded;
     next();
   } catch (error) {
+     console.log("JWT Error:", error);
     return res.status(401).json({
       success: false,
       message: "Invalid Token",
