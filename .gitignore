@@ -1,0 +1,4 @@
+hrms_backend/.env
+/hrms_backend
+hrms_backend/src/server.ts
+hrms_backend/src/server.ts

@@ -6,7 +6,7 @@ import app from "./app";
 import DatabaseConnection from "./connection/postgresql.connection";
 import { seedRoles } from "./seeders/roles.seeder";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 DatabaseConnection.initialize()
   .then(async () => {
