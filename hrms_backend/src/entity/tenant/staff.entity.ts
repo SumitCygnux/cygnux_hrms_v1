@@ -40,6 +40,12 @@ designationId!: string;
   @Column("text")
   address!: string;
 
+  @Column({
+  type: "varchar",
+  default: "Active",
+})
+status!: string;
+
   @CreateDateColumn()
   createdAt!: Date;
 }

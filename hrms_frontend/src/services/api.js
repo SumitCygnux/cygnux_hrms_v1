@@ -61,4 +61,15 @@ export const deleteDesignation = (id) =>
   api.delete(`/designations/${id}`
   );
 
+  export const getAllStaff = () =>
+  api.get("/staff");
+
+export const createStaff = (data) => {
+  console.log("SENDING DATA:", data);
+  return api.post("/staff", data);
+};
+
+export const deleteStaff = (id) =>
+  api.delete(`/staff/${id}`);
+
 export default api;

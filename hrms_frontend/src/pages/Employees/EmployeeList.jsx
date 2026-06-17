@@ -14,9 +14,19 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
-import { getAllStaff, createStaff } from "../../services/staff.service";
-import { getDepartments } from "../../services/department.service";
-import { getDesignations } from "../../services/designation.service";
+import {
+  getDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
+  getDesignations,
+  createDesignation,
+  updateDesignation,
+  deleteDesignation,
+  getAllStaff,
+  createStaff,
+  deleteStaff,
+} from "../../services/api";
 
 const EmployeeList = () => {
   // const { employees, addEmployee, deleteEmployee, departments, designations } = useHRMSData();
@@ -81,29 +91,6 @@ const loadData = async () => {
 };
 
 
-  // Filter logic
-  // const filteredEmployees = useMemo(() => {
-  //   return employees.filter((emp) => {
-  //     const name = emp?.name ?? "";
-  //     const id = emp?.id ?? "";
-  //     const email = emp?.email ?? "";
-
-  //     const search = searchQuery.toLowerCase();
-
-  //     const matchesSearch =
-  //       name.toLowerCase().includes(search) ||
-  //       id.toLowerCase().includes(search) ||
-  //       email.toLowerCase().includes(search);
-
-  //     const matchesDept =
-  //       selectedDept === "All" || emp?.department === selectedDept;
-
-  //     const matchesStatus =
-  //       selectedStatus === "All" || emp?.status === selectedStatus;
-
-  //     return matchesSearch && matchesDept && matchesStatus;
-  //   });
-  // }, [employees, searchQuery, selectedDept, selectedStatus]);
 
   const filteredEmployees = useMemo(() => {
   return employees.filter((emp) => {
@@ -188,6 +175,29 @@ const loadData = async () => {
     );
     a.click();
   };
+
+
+  const deleteEmployee = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this employee?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteStaff(id);
+
+   
+    setEmployees((prev) =>
+      prev.filter((emp) => emp.id !== id)
+    );
+
+    alert("Employee deleted successfully");
+  } catch (error) {
+    console.error("Delete Error:", error);
+    alert("Failed to delete employee");
+  }
+};
 
   // Table columns definition
   const columns = [
