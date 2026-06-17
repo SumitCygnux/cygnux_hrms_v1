@@ -15,8 +15,7 @@ import {
   MdVisibility,
 } from "react-icons/md";
 import { getAllStaff, createStaff } from "../../services/staff.service";
-import { getDepartments } from "../../services/department.service";
-import { getDesignations } from "../../services/designation.service";
+
 
 const EmployeeList = () => {
   // const { employees, addEmployee, deleteEmployee, departments, designations } = useHRMSData();
