@@ -16,13 +16,7 @@ import {
 } from "react-icons/md";
 import {
   getDepartments,
-  createDepartment,
-  updateDepartment,
-  deleteDepartment,
   getDesignations,
-  createDesignation,
-  updateDesignation,
-  deleteDesignation,
   getAllStaff,
   createStaff,
   deleteStaff,
@@ -53,6 +47,7 @@ const EmployeeList = () => {
     gender: "Male",
     dob: "1994-01-01",
     address: "",
+    role: "",
     salary: "8000",
   });
 
@@ -135,6 +130,7 @@ const loadData = async () => {
         dob: formData.dob,
         joiningDate: formData.joiningDate,
         salary: Number(formData.salary),
+        role: formData.role,
         address: formData.address,
       };
 
@@ -220,6 +216,7 @@ const loadData = async () => {
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
     { header: "Joining Date", accessor: "joiningDate", sortable: true },
+    { header: "Role", accessor: "role", sortable: true},
     {
       header: "Status",
       accessor: "status",
@@ -501,6 +498,22 @@ const loadData = async () => {
                 name="salary"
                 value={formData.salary}
                 onChange={handleChange}
+                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+             {/*Role*/ }
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                Role
+              </label>
+              <input
+                type="text"
+                required
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                placeholder="e.g. Jr.developer"
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               />
             </div>

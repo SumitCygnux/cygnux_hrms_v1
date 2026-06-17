@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useHRMSData } from "../../context/HRMSDataContext";
 import PageHeader from "../../components/layout/PageHeader";
@@ -6,6 +6,7 @@ import Avatar from "../../components/common/Avatar";
 import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
 import Tabs from "../../components/common/Tabs";
+import { getStaffById } from "../../services/api";
 import DetailModal from "../../components/modals/DetailModal";
 import {
   MdDescription,
@@ -17,14 +18,31 @@ import {
 
 const EmployeeProfile = () => {
   const { id } = useParams();
-  const { employees, attendanceLogs, leaveRequests, handleClockInOut } = useHRMSData();
+  const { attendanceLogs, leaveRequests, handleClockInOut } = useHRMSData();
+
+const [employee, setEmployee] = useState(null);
+
+useEffect(() => {
+  loadEmployee();
+}, []);
+
+const loadEmployee = async () => {
+  try {
+    const res = await getStaffById(id);
+
+    console.log(res.data);
+
+    setEmployee(res.data.data);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   const [activeTab, setActiveTab] = useState("personal");
   const [isPayslipOpen, setIsPayslipOpen] = useState(false);
   const [selectedPayslipMonth, setSelectedPayslipMonth] = useState("May 2026");
 
-  // Find Employee
-  const employee = employees.find((emp) => emp.id === id);
+
 
   if (!employee) {
     return (
@@ -59,7 +77,7 @@ const EmployeeProfile = () => {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Employee Profile"
-        subtitle={`Viewing full records for ${employee.name}`}
+        subtitle={`Viewing full records for ${employee.fullName}`}
         actions={
           <Link to="/employees">
             <Button variant="secondary" iconBefore={<MdArrowBack />}>
@@ -74,13 +92,13 @@ const EmployeeProfile = () => {
         <div className="h-[120px] bg-gradient-to-r from-primary to-blue-500 relative" />
         <div className="px-6 pb-6 flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-[60px] relative z-[2] text-center sm:text-left">
           <div className="border-4 border-bg-secondary shadow-md rounded-full overflow-hidden bg-bg-secondary">
-            <Avatar name={employee.name} color={employee.avatarColor} size={110} />
+            <Avatar name={employee.fullName} color={employee.avatarColor} size={110} />
           </div>
           <div className="flex-1 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-3 sm:gap-0 w-full">
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-extrabold text-text-primary leading-[1.2]">{employee.name}</h2>
+              <h2 className="text-2xl font-extrabold text-text-primary leading-[1.2]">{employee.fullName}</h2>
               <span className="text-sm text-text-secondary font-medium">
-                {employee.designation} | {employee.department}
+                {employee.designationName} | {employee.departmentName} | {employee.role}
               </span>
             </div>
             <div>
@@ -125,7 +143,7 @@ const EmployeeProfile = () => {
           </div>
 
           <div className="text-xs font-bold text-text-primary uppercase tracking-wider border-b border-border-color pb-2">Operations</div>
-          <Button variant="outline" size="sm" onClick={() => handleClockInOut(employee.id)}>
+          <Button variant="outline" size="sm" onClick={() => handleClockInOut(employee?.id)}>
             Simulate Clock In/Out
           </Button>
         </div>
@@ -141,7 +159,7 @@ const EmployeeProfile = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex justify-between text-sm border-b border-border-color/50 pb-2">
                   <span className="text-text-secondary font-medium">Date of Birth</span>
-                  <span className="text-text-primary font-semibold">{employee.dateOfBirth}</span>
+                  <span className="text-text-primary font-semibold">{new Date(employee.dob).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between text-sm border-b border-border-color/50 pb-2">
                   <span className="text-text-secondary font-medium">Gender</span>
@@ -155,6 +173,12 @@ const EmployeeProfile = () => {
                   <span className="text-text-secondary font-medium">Employee ID</span>
                   <span className="text-text-primary font-semibold">{employee.id}</span>
                 </div>
+                                <div className="flex justify-between text-sm border-b border-border-color/50 pb-2">
+                  <span className="text-text-secondary font-medium">Joining Date</span>
+                  <span className="text-text-primary font-semibold">
+                    {new Date(employee.joiningDate).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -166,7 +190,7 @@ const EmployeeProfile = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex justify-between text-sm border-b border-border-color/50 pb-2">
                   <span className="text-text-secondary font-medium">Basic Salary</span>
-                  <span className="text-text-primary font-semibold">${employee.payroll?.basic.toLocaleString()} / mo</span>
+                  <span className="text-text-primary font-semibold">${employee.payroll?.salary.toLocaleString()} / mo</span>
                 </div>
                 <div className="flex justify-between text-sm border-b border-border-color/50 pb-2">
                   <span className="text-text-secondary font-medium">Allowances</span>

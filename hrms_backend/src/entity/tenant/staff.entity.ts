@@ -48,4 +48,9 @@ status!: string;
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({
+  nullable: true,
+})
+role!: string;
 }
