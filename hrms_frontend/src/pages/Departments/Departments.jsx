@@ -39,6 +39,8 @@ const Departments = () => {
     try {
       await deleteDepartment(id);
       fetchDepartments();
+            toast.success("Department deleted successfully! ")
+
     } catch (error) {
       toast.error("Department contains designations. Delete designations first")
       console.log(error);
