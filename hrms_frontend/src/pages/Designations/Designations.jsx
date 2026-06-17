@@ -61,9 +61,7 @@ const Designations = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete =
-      window.confirm("Delete Designation?");
-    if (!confirmDelete) return;
+  
     try {
       await deleteDesignation(id);
       toast.success("Designation Deleted");

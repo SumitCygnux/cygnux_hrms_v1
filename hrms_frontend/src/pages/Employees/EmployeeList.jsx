@@ -7,6 +7,7 @@ import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
 import Avatar from "../../components/common/Avatar";
 import DetailModal from "../../components/modals/DetailModal";
+import { toast } from "react-toastify";
 import {
   MdSearch,
   MdPersonAdd,
@@ -82,9 +83,10 @@ const loadData = async () => {
     console.log("Employees", formattedEmployees);
   } catch (err) {
     console.log(err);
+
+    toast.error("Failed to load data");
   }
 };
-
 
 
   const filteredEmployees = useMemo(() => {
@@ -117,6 +119,16 @@ const loadData = async () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.departmentId) {
+  toast.warning("Please select department");
+  return;
+}
+
+if (!formData.designationId) {
+  toast.warning("Please select designation");
+  return;
+}
+
     try {
       const payload = {
         fullName: formData.fullName,
@@ -135,10 +147,30 @@ const loadData = async () => {
       };
 
       await createStaff(payload);
-
       setIsModalOpen(false);
-      loadData(); // refresh
+ toast.success("Staff created successfully");
+
+
+setFormData({
+  fullName: "",
+  email: "",
+  phone: "",
+  departmentId: "",
+  designationId: "",
+  joiningDate: new Date().toISOString().split("T")[0],
+  gender: "Male",
+  dob: "1994-01-01",
+  address: "",
+  salary: "8000",
+});
+
+
+      loadData(); 
     } catch (err) {
+        toast.error(
+      err?.response?.data?.message ||
+      "Failed to create staff"
+    );
   console.log("STATUS:", err.response?.status);
   console.log("DATA:", err.response?.data);
   console.log("FULL ERROR:", err.response);
@@ -174,11 +206,7 @@ const loadData = async () => {
 
 
   const deleteEmployee = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this employee?"
-  );
 
-  if (!confirmDelete) return;
 
   try {
     await deleteStaff(id);
@@ -188,12 +216,16 @@ const loadData = async () => {
       prev.filter((emp) => emp.id !== id)
     );
 
-    alert("Employee deleted successfully");
+       toast.success("Employee deleted successfully");
   } catch (error) {
     console.error("Delete Error:", error);
-    alert("Failed to delete employee");
+    toast.error(
+      error?.response?.data?.message ||
+      "Failed to delete employee"
+    );
   }
 };
+
 
   // Table columns definition
   const columns = [
@@ -252,6 +284,7 @@ const loadData = async () => {
 
   return (
     <div>
+     
       <PageHeader
         title="Staff Management"
         subtitle="View and manage company staff directory"
@@ -374,6 +407,7 @@ const loadData = async () => {
                 type="tel"
                 name="phone"
                 required
+                maxLength="10"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="e.g. +91 9876543210"
