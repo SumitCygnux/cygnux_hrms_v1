@@ -1,5 +1,7 @@
 import { getTenantConnection } from "../connection/tenant.connection";
 import { Staff } from "../entity/tenant/staff.entity";
+import { Department } from "../entity/tenant/department.entity";
+import { Designation } from "../entity/tenant/designation.entity";
 
 export const createStaffService = async (dbName: string, data: any) => {
   const dataSource = await getTenantConnection(dbName);
@@ -12,6 +14,7 @@ export const createStaffService = async (dbName: string, data: any) => {
   const staff = staffRepo.create({
     fullName: data.fullName,
     email: data.email,
+    role: data.role,
     phone: data.phone,
     gender: data.gender,
     departmentId: data.departmentId,
@@ -76,4 +79,46 @@ export const deleteStaffService = async (
   await staffRepo.remove(staff);
 
   return true;
+};
+
+
+export const getStaffByIdService = async (
+  dbName: string,
+  id: number
+) => {
+  const dataSource = await getTenantConnection(dbName);
+
+  const staffRepo = dataSource.getRepository(Staff);
+  const departmentRepo = dataSource.getRepository(Department);
+  const designationRepo = dataSource.getRepository(Designation);
+
+  const staff = await staffRepo.findOne({
+    where: { id: Number(id) },
+  });
+
+  if (!staff) {
+    return null;
+  }
+
+  const department = await departmentRepo.findOne({
+    where: {
+      id: staff.departmentId,
+    },
+  });
+
+  const designation = await designationRepo.findOne({
+    where: {
+      id: staff.designationId,
+    },
+  });
+
+  return {
+    ...staff,
+
+    departmentName: department?.name || "",
+
+    designationName: designation?.title || "",
+
+    baseSalary: designation?.baseSalary || 0,
+  };
 };

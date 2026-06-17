@@ -72,4 +72,7 @@ export const createStaff = (data) => {
 export const deleteStaff = (id) =>
   api.delete(`/staff/${id}`);
 
+export const getStaffById = (id) =>
+  api.get(`/staff/${id}`);
+
 export default api;
