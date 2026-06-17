@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import KPICard from "../../components/cards/KPICard";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import KPICard from "../../../components/cards/KPICard";
 import {
   AreaChartComponent,
   BarChartComponent,
   PieChartComponent
-} from "../../components/charts/ChartWrappers";
+} from "../../../components/charts/ChartWrappers";
 import {
   MdPeople,
   MdCheckCircle,
@@ -20,9 +20,9 @@ import {
   MdClose,
   MdSchedule
 } from "react-icons/md";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
-import { companyHolidays, companyEvents } from "../../data/mockData";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
+import { companyHolidays, companyEvents } from "../../../data/mockData";
 
 const Dashboard = () => {
   const {

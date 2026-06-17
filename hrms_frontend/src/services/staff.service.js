@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/v1";
-
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getAuthHeaders = () => ({
   headers: {
@@ -10,11 +9,18 @@ const getAuthHeaders = () => ({
 });
 
 export const getAllStaff = () => {
-  return axios.get(`${API_URL}/staff`, getAuthHeaders());
+  return axios.get(
+    `${API_URL}/staff`,
+    getAuthHeaders()
+  );
 };
 
 export const createStaff = (data) => {
-     console.log("SENDING DATA:", data);
-  return axios.post(`${API_URL}/staff`, data, getAuthHeaders());
-};
+  console.log("SENDING DATA:", data);
 
+  return axios.post(
+    `${API_URL}/staff`,
+    data,
+    getAuthHeaders()
+  );
+};

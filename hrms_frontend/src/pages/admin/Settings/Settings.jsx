@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import Tabs from "../../components/common/Tabs";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import Tabs from "../../../components/common/Tabs";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
 import { MdDone } from "react-icons/md";
-
 const Settings = () => {
   const {
     companySettings,

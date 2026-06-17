@@ -6,37 +6,72 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
 // Layout
-import DashboardLayout from "./components/layout/DashboardLayout";
+import DashboardLayout from "./components/layouts/DashboardLayout";
 
 // Pages
-import Dashboard from "./pages/Dashboard/Dashboard";
-import EmployeeList from "./pages/Employees/EmployeeList";
-import EmployeeProfile from "./pages/Employees/EmployeeProfile";
-import Attendance from "./pages/Attendance/Attendance";
-import Leave from "./pages/Leave/Leave";
-import Payroll from "./pages/Payroll/Payroll";
-import Performance from "./pages/Performance/Performance";
-import Recruitment from "./pages/Recruitment/Recruitment";
-import Departments from "./pages/Departments/Departments";
-import Designations from "./pages/Designations/Designations";
-import Reports from "./pages/Reports/Reports";
-import Calendar from "./pages/Calendar/Calendar";
-import Settings from "./pages/Settings/Settings";
-import 'react-toastify/dist/ReactToastify.css';
+// Pages
+import Dashboard from "./pages/admin/Dashboard/Dashboard";
+import EmployeeList from "./pages/admin/Employees/EmployeeList";
+import EmployeeProfile from "./pages/admin/Employees/EmployeeProfile";
+import Attendance from "./pages/admin/Attendance/Attendance";
+import Leave from "./pages/admin/Leave/Leave";
+import Payroll from "./pages/admin/Payroll/Payroll";
+import Performance from "./pages/admin/Performance/Performance";
+import Recruitment from "./pages/admin/Recruitment/Recruitment";
+import Departments from "./pages/admin/Departments/Departments";
+import Designations from "./pages/admin/Designations/Designations";
+import Reports from "./pages/admin/Reports/Reports";
+import Calendar from "./pages/admin/Calendar/Calendar";
+import Settings from "./pages/admin/Settings/Settings";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
+  const isAuthenticated = !!localStorage.getItem("token");
+
   return (
     <ThemeProvider>
       <HRMSDataProvider>
         <BrowserRouter>
           <Routes>
-            {/* Standalone Auth Routes */}
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
 
-            {/* Authenticated Dashboard Routes */}
-            <Route element={<DashboardLayout />}>
-              <Route path="/" element={<Navigate to="/register" replace />} />
+            {/* Public Routes */}
+            <Route
+              path="/login"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Login />
+                )
+              }
+            />
+
+            <Route
+              path="/register"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Register />
+                )
+              }
+            />
+
+            {/* Protected Routes */}
+            <Route
+              element={
+                isAuthenticated ? (
+                  <DashboardLayout />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            >
+              <Route
+                path="/"
+                element={<Navigate to="/dashboard" replace />}
+              />
+
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeList />} />
               <Route path="/employees/:id" element={<EmployeeProfile />} />
@@ -52,8 +87,16 @@ function App() {
               <Route path="/settings" element={<Settings />} />
             </Route>
 
-            {/* Fallback Catch-All */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Fallback */}
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={isAuthenticated ? "/dashboard" : "/login"}
+                  replace
+                />
+              }
+            />
           </Routes>
         </BrowserRouter>
       </HRMSDataProvider>
