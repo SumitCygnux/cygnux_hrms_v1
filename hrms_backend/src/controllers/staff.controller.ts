@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import {
   createStaffService,
   getAllStaffService,
+  updateStaffStatusService,
+  deleteStaffService,
 } from "../services/staff.service";
 
 export const createStaff = async (
@@ -44,6 +46,61 @@ export const getAllStaff = async (
     return res.status(200).json({
       success: true,
       data: staff,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateStaffStatus = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const staff = await updateStaffStatusService(
+      dbName,
+      Number(id),
+      status
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Status updated successfully",
+      data: staff,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteStaff = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const { id } = req.params;
+
+    await deleteStaffService(
+      dbName,
+      Number(id)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Staff deleted successfully",
     });
   } catch (error: any) {
     return res.status(500).json({
