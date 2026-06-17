@@ -14,12 +14,14 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
+
 import {
+  getDepartments,
+  getDesignations,
   getAllStaff,
   createStaff,
-  getDepartments,
-  getDesignations
-} from "../../../services/api";
+  deleteStaff,
+} from "../../services/api";
 
 
 const EmployeeList = () => {
