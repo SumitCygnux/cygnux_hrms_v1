@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHRMSData } from "../../context/HRMSDataContext";
 import PageHeader from "../../components/layout/PageHeader";
 import Button from "../../components/common/Button";
 import Avatar from "../../components/common/Avatar";
 import Badge from "../../components/common/Badge";
 import DetailModal from "../../components/modals/DetailModal";
-import { MdAdd, MdBusiness } from "react-icons/md";
-import { useEffect } from "react";
-import { getDepartments, createDepartment } from "../../services/department.service";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdAdd, MdBusiness, MdEdit, MdDelete } from "react-icons/md";
+import { toast } from "react-toastify";
+import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from "../../services/api";
 
 const Departments = () => {
   const [departments, setDepartments] = useState([]);
@@ -20,6 +19,31 @@ const Departments = () => {
     budget: 500000,
     openPositions: 1
   });
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const handleEdit = (dept) => {
+    setIsEdit(true);
+    setSelectedId(dept.id);
+    setFormData({
+      name: dept.name,
+      manager: dept.manager,
+      budget: dept.budget,
+      openPositions: dept.openPositions
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteDepartment(id);
+      fetchDepartments();
+    } catch (error) {
+      toast.error("Department contains designations. Delete designations first")
+      console.log(error);
+    }
+  };
 
   const fetchDepartments = async () => {
     try {
@@ -37,14 +61,33 @@ const Departments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createDepartment({
-        name: formData.name,
-        manager: formData.manager,
-        budget: Number(formData.budget),
-        openPositions: Number(formData.openPositions)
-      });
+      if (isEdit) {
+
+        await updateDepartment(
+          selectedId,
+          {
+            name: formData.name,
+            manager: formData.manager,
+            budget: Number(formData.budget),
+            openPositions: Number(formData.openPositions)
+          }
+        );
+
+      } else {
+
+        await createDepartment({
+          name: formData.name,
+          manager: formData.manager,
+          budget: Number(formData.budget),
+          openPositions: Number(formData.openPositions)
+        });
+
+      }
       await fetchDepartments();
       setIsModalOpen(false);
+
+      setIsEdit(false);
+      setSelectedId(null);
       setFormData({
         name: "",
         manager: "",
@@ -87,16 +130,14 @@ const Departments = () => {
                 <span className="text-[10px] text-text-secondary uppercase font-semibold">Department Head</span>
                 <span className="text-xs font-semibold text-text-primary">{dept.manager}</span>
               </div>
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <div className="flex text-primary gap-2">
-                  <button onClick={() => handleEdit(desg)}>
-                    <MdEdit />
-                  </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleEdit(dept)}>
+                  <MdEdit className="text-primary text-lg" />
+                </button>
 
-                  <button onClick={() => handleDelete(desg.id)}>
-                    <MdDelete />
-                  </button>
-                </div>
+                <button onClick={() => handleDelete(dept.id)}>
+                  <MdDelete className="text-primary text-lg" />
+                </button>
               </div>
             </div>
 
@@ -122,8 +163,7 @@ const Departments = () => {
       <DetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add Department"
-        maxWidth="450px"
+        title="Add Department" title={isEdit ? "Edit Department" : "Add Department"} xWidth="450px"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
@@ -176,7 +216,11 @@ const Departments = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Create Department
+              {
+                isEdit
+                  ? "Update Department"
+                  : "Create Department"
+              }
             </Button>
           </div>
         </form>

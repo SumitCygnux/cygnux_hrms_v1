@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { useHRMSData } from "../../context/HRMSDataContext";
+import { useNavigate } from "react-router-dom";
 import {
   MdSearch,
   MdNotifications,
@@ -30,7 +31,12 @@ const Navbar = ({ onMobileToggle }) => {
 
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
-
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -117,9 +123,8 @@ const Navbar = ({ onMobileToggle }) => {
                   notifications.map((notif) => (
                     <div
                       key={notif.id}
-                      className={`px-4 py-3 border-b border-border-color flex flex-col gap-1 transition-all hover:bg-bg-primary ${
-                        !notif.read ? "bg-primary-light" : ""
-                      }`}
+                      className={`px-4 py-3 border-b border-border-color flex flex-col gap-1 transition-all hover:bg-bg-primary ${!notif.read ? "bg-primary-light" : ""
+                        }`}
                     >
                       <span className="text-[13px] text-text-primary">{notif.text}</span>
                       <span className="text-[11px] text-text-muted">{notif.time}</span>
@@ -134,11 +139,10 @@ const Navbar = ({ onMobileToggle }) => {
         {/* Clock In / Out Quick Action */}
         <button
           onClick={handleClockAction}
-          className={`px-4 py-2 rounded-md font-semibold text-sm flex items-center gap-2 shadow-md hover:-translate-y-[0.5px] transition-all cursor-pointer ${
-            isClockedIn 
-              ? "bg-danger text-white hover:bg-danger-hover shadow-danger/20" 
+          className={`px-4 py-2 rounded-md font-semibold text-sm flex items-center gap-2 shadow-md hover:-translate-y-[0.5px] transition-all cursor-pointer ${isClockedIn
+              ? "bg-danger text-white hover:bg-danger-hover shadow-danger/20"
               : "bg-primary text-white hover:bg-primary-hover shadow-primary/20"
-          }`}
+            }`}
         >
           <MdFingerprint className="text-lg" />
           <span>{isClockedIn ? "Clock Out" : "Clock In"}</span>
@@ -171,9 +175,14 @@ const Navbar = ({ onMobileToggle }) => {
                 <MdLockOpen />
                 <span>Reset Password</span>
               </div>
-              <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary border-t border-border-color">
+              <div
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary border-t border-border-color"
+              >
                 <MdLogout className="text-danger" />
-                <span className="text-danger">Sign Out</span>
+                <span className="text-danger">
+                  Sign Out
+                </span>
               </div>
             </div>
           )}

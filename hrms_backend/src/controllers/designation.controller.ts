@@ -1,5 +1,5 @@
 import {Request,Response}from "express";
-import {createDesignationService,getDesignationsService}from "../services/designation.service";
+import {createDesignationService,getDesignationsService,updateDesignationService,deleteDesignationService}from "../services/designation.service";
 
 export const createDesignation =async (req:Request,res:Response) => {
 
@@ -21,5 +21,31 @@ export const getDesignations =async (req:Request,res:Response) => {
   return res.status(200).json({
     success:true,
     data:result
+  });
+};
+
+export const updateDesignation =async (req:any,res:any) => {
+
+  const result = await updateDesignationService(
+    req.user.dbName,
+    req.params.id,
+    req.body
+  );
+  res.json({
+    success:true,
+    data:result
+  });
+};
+
+export const deleteDesignation =async (req:any,res:any) => {
+
+  await deleteDesignationService(
+    req.user.dbName,
+    req.params.id
+  );
+
+  res.json({
+    success:true,
+    message: "Designation deleted successfully"
   });
 };

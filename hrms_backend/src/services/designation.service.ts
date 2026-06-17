@@ -21,3 +21,40 @@ export const getDesignationsService =async (dbName:string) => {
     }
   });
 };
+
+export const updateDesignationService = async (dbName:string,id:string,payload:any) => {
+  const dataSource =await getTenantConnection(dbName);
+  const designationRepo = dataSource.getRepository(Designation);
+  const designation = await designationRepo.findOne({
+    where:{
+      id,
+      is_deleted:false
+    }
+  });
+
+  if(!designation){
+    throw new Error("Designation not found");
+  }
+  designation.title = payload.title;
+  designation.department_id = payload.department_id;
+  designation.baseSalary = payload.baseSalary;
+  return await designationRepo.save(designation);
+};
+
+export const deleteDesignationService =async (dbName:string,id:string) => {
+  const dataSource = await getTenantConnection(dbName);
+  const designationRepo = dataSource.getRepository(Designation);
+
+  const designation = await designationRepo.findOne({
+    where:{
+      id,
+      is_deleted:false
+    }
+  });
+  if(!designation){
+    throw new Error("Designation not found");
+  }
+  designation.is_deleted = true;
+  await designationRepo.save(designation);
+  return true;
+};
