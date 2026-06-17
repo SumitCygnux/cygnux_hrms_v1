@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
-import Avatar from "../../components/common/Avatar";
-import DetailModal from "../../components/modals/DetailModal";
-import { PieChartComponent, AreaChartComponent } from "../../components/charts/ChartWrappers";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import DataTable from "../../../components/tables/DataTable";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
+import Avatar from "../../../components/common/Avatar";
+import DetailModal from "../../../components/modals/DetailModal";
+import { PieChartComponent, AreaChartComponent } from "../../../components/charts/ChartWrappers";
 import {
   MdPayments,
   MdCheckCircle,

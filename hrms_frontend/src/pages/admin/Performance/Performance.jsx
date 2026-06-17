@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import Badge from "../../components/common/Badge";
-import Avatar from "../../components/common/Avatar";
-import { BarChartComponent } from "../../components/charts/ChartWrappers";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import DataTable from "../../../components/tables/DataTable";
+import Badge from "../../../components/common/Badge";
+import Avatar from "../../../components/common/Avatar";
+import { BarChartComponent } from "../../../components/charts/ChartWrappers";
 import { MdStar, MdTimeline, MdAssignmentTurnedIn, MdWorkspacePremium, MdHelpOutline } from "react-icons/md";
 
 const Performance = () => {

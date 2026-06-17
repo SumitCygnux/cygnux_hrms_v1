@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
-import Tabs from "../../components/common/Tabs";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import DataTable from "../../../components/tables/DataTable";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
+import Tabs from "../../../components/common/Tabs";
 import { MdFileDownload } from "react-icons/md";
 
 

@@ -1,5 +1,5 @@
-import PageHeader from "../../components/layout/PageHeader";
-import Badge from "../../components/common/Badge";
+import PageHeader from "../../../components/layouts/PageHeader";
+import Badge from "../../../components/common/Badge";
 
 const Calendar = () => {
   // We represent the month of June 2026

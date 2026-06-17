@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import Button from "../../components/common/Button";
-import DetailModal from "../../components/modals/DetailModal";
+import { useHRMSData } from "../../../context/HRMSDataContext";
+import PageHeader from "../../../components/layouts/PageHeader";
+import Button from "../../../components/common/Button";
+import DetailModal from "../../../components/modals/DetailModal";
 import {
   MdAdd,
   MdArrowBack,

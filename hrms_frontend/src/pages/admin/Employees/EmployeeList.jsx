@@ -1,13 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useHRMSData } from "../../context/HRMSDataContext";
-import PageHeader from "../../components/layout/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import Button from "../../components/common/Button";
-import Badge from "../../components/common/Badge";
-import Avatar from "../../components/common/Avatar";
-import DetailModal from "../../components/modals/DetailModal";
-import { toast } from "react-toastify";
+
+import PageHeader from "../../../components/layouts/PageHeader";
+import DataTable from "../../../components/tables/DataTable";
+import Button from "../../../components/common/Button";
+import Badge from "../../../components/common/Badge";
+import Avatar from "../../../components/common/Avatar";
+import DetailModal from "../../../components/modals/DetailModal";
 import {
   MdSearch,
   MdPersonAdd,
@@ -15,13 +14,8 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
-import {
-  getDepartments,
-  getDesignations,
-  getAllStaff,
-  createStaff,
-  deleteStaff,
-} from "../../services/api";
+import { getAllStaff, createStaff } from "../../../services/staff.service";
+
 
 const EmployeeList = () => {
   // const { employees, addEmployee, deleteEmployee, departments, designations } = useHRMSData();
@@ -48,7 +42,6 @@ const EmployeeList = () => {
     gender: "Male",
     dob: "1994-01-01",
     address: "",
-    role: "",
     salary: "8000",
   });
 
@@ -83,11 +76,33 @@ const loadData = async () => {
     console.log("Employees", formattedEmployees);
   } catch (err) {
     console.log(err);
-
-    toast.error("Failed to load data");
   }
 };
 
+
+  // Filter logic
+  // const filteredEmployees = useMemo(() => {
+  //   return employees.filter((emp) => {
+  //     const name = emp?.name ?? "";
+  //     const id = emp?.id ?? "";
+  //     const email = emp?.email ?? "";
+
+  //     const search = searchQuery.toLowerCase();
+
+  //     const matchesSearch =
+  //       name.toLowerCase().includes(search) ||
+  //       id.toLowerCase().includes(search) ||
+  //       email.toLowerCase().includes(search);
+
+  //     const matchesDept =
+  //       selectedDept === "All" || emp?.department === selectedDept;
+
+  //     const matchesStatus =
+  //       selectedStatus === "All" || emp?.status === selectedStatus;
+
+  //     return matchesSearch && matchesDept && matchesStatus;
+  //   });
+  // }, [employees, searchQuery, selectedDept, selectedStatus]);
 
   const filteredEmployees = useMemo(() => {
   return employees.filter((emp) => {
@@ -119,16 +134,6 @@ const loadData = async () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.departmentId) {
-  toast.warning("Please select department");
-  return;
-}
-
-if (!formData.designationId) {
-  toast.warning("Please select designation");
-  return;
-}
-
     try {
       const payload = {
         fullName: formData.fullName,
@@ -142,35 +147,14 @@ if (!formData.designationId) {
         dob: formData.dob,
         joiningDate: formData.joiningDate,
         salary: Number(formData.salary),
-        role: formData.role,
         address: formData.address,
       };
 
       await createStaff(payload);
+
       setIsModalOpen(false);
- toast.success("Staff created successfully");
-
-
-setFormData({
-  fullName: "",
-  email: "",
-  phone: "",
-  departmentId: "",
-  designationId: "",
-  joiningDate: new Date().toISOString().split("T")[0],
-  gender: "Male",
-  dob: "1994-01-01",
-  address: "",
-  salary: "8000",
-});
-
-
-      loadData(); 
+      loadData(); // refresh
     } catch (err) {
-        toast.error(
-      err?.response?.data?.message ||
-      "Failed to create staff"
-    );
   console.log("STATUS:", err.response?.status);
   console.log("DATA:", err.response?.data);
   console.log("FULL ERROR:", err.response);
@@ -204,29 +188,6 @@ setFormData({
     a.click();
   };
 
-
-  const deleteEmployee = async (id) => {
-
-
-  try {
-    await deleteStaff(id);
-
-   
-    setEmployees((prev) =>
-      prev.filter((emp) => emp.id !== id)
-    );
-
-       toast.success("Employee deleted successfully");
-  } catch (error) {
-    console.error("Delete Error:", error);
-    toast.error(
-      error?.response?.data?.message ||
-      "Failed to delete employee"
-    );
-  }
-};
-
-
   // Table columns definition
   const columns = [
     {
@@ -248,7 +209,6 @@ setFormData({
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
     { header: "Joining Date", accessor: "joiningDate", sortable: true },
-    { header: "Role", accessor: "role", sortable: true},
     {
       header: "Status",
       accessor: "status",
@@ -284,7 +244,6 @@ setFormData({
 
   return (
     <div>
-     
       <PageHeader
         title="Staff Management"
         subtitle="View and manage company staff directory"
@@ -407,7 +366,6 @@ setFormData({
                 type="tel"
                 name="phone"
                 required
-                maxLength="10"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="e.g. +91 9876543210"
@@ -532,22 +490,6 @@ setFormData({
                 name="salary"
                 value={formData.salary}
                 onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-             {/*Role*/ }
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Role
-              </label>
-              <input
-                type="text"
-                required
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                placeholder="e.g. Jr.developer"
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               />
             </div>
