@@ -6,7 +6,7 @@ import Badge from "../../components/common/Badge";
 import DetailModal from "../../components/modals/DetailModal";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import {getDesignations,createDesignation,updateDesignation,deleteDesignation} from "../../services/api";
+import {getDesignations,createDesignation,updateDesignation,deleteDesignation,getDepartments} from "../../services/api";
 import { MdEdit, MdDelete, MdAdd } from "react-icons/md";
 
 const Designations = () => {
@@ -30,6 +30,7 @@ const Designations = () => {
   const loadDepartments = async () => {
     try {
       const res = await getDepartments();
+      console.log("Departments =>", res.data.data);
       setDepartments(res.data.data);
     } catch (err) {
       console.log(err);
