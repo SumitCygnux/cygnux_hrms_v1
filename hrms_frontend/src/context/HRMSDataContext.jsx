@@ -31,16 +31,21 @@ export const HRMSDataProvider = ({ children }) => {
   const [rolesAndPermissions] = useState(initialRolesAndPermissions);
   const [notifications, setNotifications] = useState(mockNotifications);
 
-  
-  // Simulated logged-in user: Admin (Alex Johnson)
-  const [currentUser, setCurrentUser] = useState({
-    id: "EMP-2024-001",
-    name: "Alex Johnson",
-    email: "alex.j@enterprise-hrms.com",
-    role: "Admin",
-    department: "Engineering",
-    avatarColor: "#2563EB"
-  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+  const user = localStorage.getItem("user");
+
+  return user
+    ? JSON.parse(user)
+    : {
+        id: "",
+        name: "",
+        email: "",
+        role: "",
+        companyName: "",
+        avatarColor: "#2563EB",
+      };
+});
 
   // Notifications helper
   const addNotification = (text, type = "info") => {
@@ -98,6 +103,7 @@ export const HRMSDataProvider = ({ children }) => {
     addNotification(`New employee ${newEmp.name} added to ${newEmp.department}`, "staff");
   };
 
+  
   const updateEmployee = (id, updatedData) => {
     setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, ...updatedData } : emp)));
     addNotification(`Profile updated for ${updatedData.name || id}`, "staff");

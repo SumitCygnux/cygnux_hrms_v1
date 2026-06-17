@@ -9,127 +9,147 @@ import { Roles } from "../entity/master/roles.entity";
 import { generateToken } from "../utils/jwt";
 
 export const registerCompanyService = async (payload: any) => {
-    const {
-        companyName,
-        companyEmail,
-        phone,
-        industry,
-        companySize,
-        country,
-        state,
-        city,
-        address,
+  const {
+    companyName,
+    companyEmail,
+    phone,
+    industry,
+    companySize,
+    country,
+    state,
+    city,
+    address,
 
-        adminName,
-        adminEmail,
-        password,
-    } = payload;
+    adminName,
+    adminEmail,
+    password,
+  } = payload;
 
-    const userRepo = DatabaseConnection.getRepository(Users);
+  const userRepo = DatabaseConnection.getRepository(Users);
 
-    const existingUser = await userRepo.findOne({
-        where: {
-            email: adminEmail,
-        },
-    });
-
-    if (existingUser) {
-        throw new Error("Admin email already exists");
+  const existingUser = await userRepo.findOne({
+    where: {
+      email: adminEmail,
     }
+   
+  });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+  if (existingUser) {
+    throw new Error("Admin email already exists");
+  }
 
-    const subdomain = companyName.toLowerCase().replace(/\s+/g, "_");
-    const dbName = `hrms_${subdomain}`;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
+  const subdomain = companyName.toLowerCase().replace(/\s+/g, "_");
+  const dbName = `hrms_${subdomain}`;
 
-    const tenant = await tenantRepo.save({
-        name: companyName,
-        company_email: companyEmail,
-        phone,
-        industry,
-        company_size: companySize,
-        country,
-        state,
-        city,
-        address,
-        subdomain,
-        db_name: dbName,
-    });
+  const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
 
-    const queryRunner = DatabaseConnection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.query(
-        `CREATE DATABASE "${dbName}"`
-    );
+  const tenant = await tenantRepo.save({
+    name: companyName,
+    company_email: companyEmail,
+    phone,
+    industry,
+    company_size: companySize,
+    country,
+    state,
+    city,
+    address,
+    subdomain,
+    db_name: dbName,
+  });
 
-    await queryRunner.release();
+  const queryRunner = DatabaseConnection.createQueryRunner();
+  await queryRunner.connect();
+  await queryRunner.query(`CREATE DATABASE "${dbName}"`);
 
-    const roleRepo = DatabaseConnection.getRepository(Roles);
+  await queryRunner.release();
 
-    const tenantAdminRole = await roleRepo.findOne({
-        where: {
-            name: "TENANT_ADMIN",
-        },
-    });
+  const roleRepo = DatabaseConnection.getRepository(Roles);
 
-    if (!tenantAdminRole) {
-        throw new Error("TENANT_ADMIN role not found");
-    }
+  const tenantAdminRole = await roleRepo.findOne({
+    where: {
+      name: "TENANT_ADMIN",
+    },
+  });
 
-    const user =
-        await userRepo.save({
-            email: adminEmail,
-            password: hashedPassword,
-            role_id: tenantAdminRole.id,
-            tenant_id: tenant.id,
-            db_name: tenant.db_name,
-        });
+  if (!tenantAdminRole) {
+    throw new Error("TENANT_ADMIN role not found");
+  }
 
-    return {
-        tenantId: tenant.id,
-        companyName,
-        companyEmail,
-        adminName,
-        adminEmail,
-        subdomain,
-        dbName,
-        userId: user.id,
-    };
+  const user = await userRepo.save({
+    email: adminEmail,
+    name: adminName,
+    
+    password: hashedPassword,
+    role_id: tenantAdminRole.id,
+    tenant_id: tenant.id,
+    db_name: tenant.db_name,
+  });
+
+  return {
+    tenantId: tenant.id,
+    companyName,
+    companyEmail,
+    adminName,
+    adminEmail,
+    subdomain,
+    dbName,
+    userId: user.id,
+  };
 };
 
 export const loginService = async (payload: any) => {
-    const { email, password } = payload;
-    const userRepo = DatabaseConnection.getRepository(Users);
+  const { email, password } = payload;
+  const userRepo = DatabaseConnection.getRepository(Users);
+  const roleRepo = DatabaseConnection.getRepository(Roles);
+  const company_Repo = DatabaseConnection.getRepository(Tenant_dbs);
 
-    const user = await userRepo.findOne({
-        where: { email },
-    });
+  const user = await userRepo.findOne({
+    where: { email },
+    
+  });
 
-    if (!user) {
-        throw new Error("Invalid Email");
-    }
+  if (!user) {
+    throw new Error("Invalid Email");
+  }
 
-    const isMatch = await bcrypt.compare(
-        password,
-        user.password
-    );
+  const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-        throw new Error("Invalid Password");
-    }
+  if (!isMatch) {
+    throw new Error("Invalid Password");
+  }
 
-    const token =
-        generateToken({
-            userId: user.id,
-            tenantId: user.tenant_id,
-            roleId: user.role_id,
-            dbName: user.db_name,
-        });
 
-    return {
-        token,
-        user,
-    };
+   // Fetch Role
+  const role = await roleRepo.findOne({
+    where: { id: user.role_id },
+  });
+
+  // Fetch Company
+  const company = await company_Repo.findOne({
+    where: { id: user.tenant_id },
+  });
+
+
+  const token = generateToken({
+    userId: user.id,
+    tenantId: user.tenant_id,
+    roleId: user.role_id,
+    dbName: user.db_name,
+  });
+
+  return {
+    token,
+    user: {
+    id: user.id,
+     name:user.name,
+    email: user.email,
+    role_id: user.role_id,
+       role: role?.name,          
+      tenant_id: user.tenant_id,
+      companyName: company?.name, 
+    db_name: user.db_name,
+  },
+  };
 };

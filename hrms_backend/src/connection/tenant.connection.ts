@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation }from "../entity/tenant/designation.entity";
+import { Staff } from "../entity/tenant/staff.entity";
 const tenantConnections = new Map<string, DataSource>();
 
 export const getTenantConnection = async (dbName: string) => {
@@ -20,15 +21,17 @@ export const getTenantConnection = async (dbName: string) => {
     logging: false,
     entities: [
       Department,
-      Designation
+      Designation,
+      Staff
     ],
   });
 
-  await dataSource.initialize();
+ await dataSource.initialize();
 
-  tenantConnections.set(
-    dbName,
-    dataSource
-  );
+  console.log(`${dbName} Connected`);
+  console.log("Staff Entity Loaded");
+
+  tenantConnections.set(dbName, dataSource);
+
   return dataSource;
 };
