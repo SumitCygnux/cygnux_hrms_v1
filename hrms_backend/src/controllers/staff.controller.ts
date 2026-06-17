@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import {
   createStaffService,
   getAllStaffService,
+  updateStaffStatusService,
+  deleteStaffService,
+  getStaffByIdService
 } from "../services/staff.service";
+import { number } from "zod";
 
 export const createStaff = async (
   req: Request,
@@ -40,6 +44,92 @@ export const getAllStaff = async (
     const staff = await getAllStaffService(
       dbName
     );
+
+    return res.status(200).json({
+      success: true,
+      data: staff,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateStaffStatus = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const staff = await updateStaffStatusService(
+      dbName,
+      Number(id),
+      status
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Status updated successfully",
+      data: staff,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteStaff = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const { id } = req.params;
+
+    await deleteStaffService(
+      dbName,
+      Number(id)
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Staff deleted successfully",
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getStaffById = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const staff = await getStaffByIdService(
+      dbName,
+      Number(req.params.id)
+    );
+
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        message: "Staff not found",
+      });
+    }
 
     return res.status(200).json({
       success: true,
