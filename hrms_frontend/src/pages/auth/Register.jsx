@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerCompany } from "../../services/auth.service";
+import { registerCompany } from "../../services/api";
 import logo from '../../assets/hrms_logo.png';
 
 import { Country, State, City } from "country-state-city";

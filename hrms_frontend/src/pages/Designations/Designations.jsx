@@ -6,13 +6,14 @@ import Badge from "../../components/common/Badge";
 import DetailModal from "../../components/modals/DetailModal";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { getDesignations, createDesignation } from "../../services/designation.service";
-import { getDepartments } from "../../services/department.service";
+import {getDesignations,createDesignation,updateDesignation,deleteDesignation,getDepartments} from "../../services/api";
 import { MdEdit, MdDelete, MdAdd } from "react-icons/md";
 
 const Designations = () => {
   const [designations, setDesignations] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ const Designations = () => {
   const loadDepartments = async () => {
     try {
       const res = await getDepartments();
+      console.log("Departments =>", res.data.data);
       setDepartments(res.data.data);
     } catch (err) {
       console.log(err);
@@ -47,19 +49,67 @@ const Designations = () => {
     }
   };
 
+  const handleEdit = (desg) => {
+    setIsEdit(true);
+    setSelectedId(desg.id);
+    setFormData({
+      title: desg.title,
+      department_id: desg.department_id,
+      baseSalary: desg.baseSalary
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete =
+      window.confirm("Delete Designation?");
+    if (!confirmDelete) return;
+    try {
+      await deleteDesignation(id);
+      toast.success("Designation Deleted");
+      loadDesignations();
+    } catch (error) {
+      toast.error("Delete Failed");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createDesignation(formData);
-      toast.success("Designation Created");
+      if (isEdit) {
+
+        await updateDesignation(
+          selectedId,
+          {
+            title:formData.title,
+            department_id: formData.department_id,
+            baseSalary:
+              Number(formData.baseSalary)
+          }
+        );
+        toast.success("Designation Updated");
+
+      } else {
+        await createDesignation(formData);
+        toast.success(
+          "Designation Created"
+        );
+      }
+
+
       loadDesignations();
       setFormData({
         title: "",
         department_id: "",
         baseSalary: "",
       });
+      setSelectedId(null);
+      setIsEdit(false);
       setIsModalOpen(false);
     } catch (error) {
+      console.log(error);
+console.log(error?.response);
+console.log(error?.response?.data);
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
@@ -110,7 +160,11 @@ const Designations = () => {
       <DetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add Designation"
+        title={
+          isEdit
+            ? "Edit Designation"
+            : "Add Designation"
+        }
         maxWidth="450px"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -168,7 +222,11 @@ const Designations = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Create Designation
+              {
+                isEdit
+                  ? "Update Designation"
+                  : "Create Designation"
+              }
             </Button>
           </div>
         </form>
