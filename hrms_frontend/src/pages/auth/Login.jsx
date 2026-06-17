@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../services/api";
 import logo from '../../assets/hrms_logo.png';
 import { toast } from 'react-toastify';
+import { useHRMSData } from "../../context/HRMSDataContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setCurrentUser } = useHRMSData();
 
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +36,10 @@ console.log(response.data);
       localStorage.setItem("token",  response.data.data.token);
 
       localStorage.setItem("user", JSON.stringify(response.data.data.user));
+      setCurrentUser({
+  ...response.data.data.user,
+  avatarColor: "#2563EB",
+});
   toast.success('Login Successfully!');
       navigate("/dashboard");
     } catch (error) {

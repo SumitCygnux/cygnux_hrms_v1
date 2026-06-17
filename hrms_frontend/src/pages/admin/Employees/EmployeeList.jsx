@@ -14,7 +14,12 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
-import { getAllStaff, createStaff } from "../../../services/staff.service";
+import {
+  getAllStaff,
+  createStaff,
+  getDepartments,
+  getDesignations
+} from "../../../services/api";
 
 
 const EmployeeList = () => {

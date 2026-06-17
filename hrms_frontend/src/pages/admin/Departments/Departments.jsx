@@ -126,11 +126,13 @@ const Departments = () => {
               <Badge status="Active">Active</Badge>
             </div>
 
-            <div className="flex items-center gap-3.5 border-b border-border-color pb-3">
+            <div className="flex justify-between items-center border-b border-border-color pb-3">
+              <div className="flex items-center gap-3.5">
               <Avatar name={dept.manager} color="#475569" size={32} />
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] text-text-secondary uppercase font-semibold">Department Head</span>
                 <span className="text-xs font-semibold text-text-primary">{dept.manager}</span>
+              </div>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => handleEdit(dept)}>
