@@ -1,4 +1,10 @@
+# Dependencies
+node_modules/
+hrms_backend/node_modules/
+hrms_frontend/node_modules/
+
+# Environment files
 hrms_backend/.env
-/hrms_backend
-hrms_backend/src/server.ts
-hrms_backend/src/server.ts
+hrms_frontend/.env.local
+.env
+.env.*
