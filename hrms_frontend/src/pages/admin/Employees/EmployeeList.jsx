@@ -21,6 +21,7 @@ import {
   getAllStaff,
   createStaff,
   deleteStaff,
+  getDesignationByDepartment,
 } from "../../../services/api";
 import { toast } from "react-toastify";
 
@@ -31,6 +32,7 @@ const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
+
 
   // Search and Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,93 +52,82 @@ const EmployeeList = () => {
     gender: "Male",
     dob: "1994-01-01",
     address: "",
+    role: "",
     salary: "8000",
   });
 
   useEffect(() => {
     loadData();
-  
+
   }, []);
 
-const loadData = async () => {
-  try {
-    const emp = await getAllStaff();
-    const dept = await getDepartments();
-    const desig = await getDesignations();
+  const loadData = async () => {
+    try {
+      const emp = await getAllStaff();
+      const dept = await getDepartments();
+      const desig = await getDesignations();
 
-    const formattedEmployees = emp.data.data.map((e) => ({
-      ...e,
+      const formattedEmployees = emp.data.data.map((e) => ({
+        ...e,
 
-      name: e.fullName,
+        name: e.fullName,
 
-      department:
-        dept.data.data.find((d) => d.id === e.departmentId)?.name || "-",
+        department:
+          dept.data.data.find(
+            (d) => d.id === e.departmentId
+          )?.name || "-",
 
-     
-      designation:
-        desig.data.data.find((d) => d.id === e.designationId)?.title || "-",
-    }));
+        designation:
+          desig.data.data.find(
+            (d) => d.id === e.designationId
+          )?.title || "-",
+      }));
 
-    setEmployees(formattedEmployees);
-    setDepartments(dept.data.data);
-    setDesignations(desig.data.data);
+      setEmployees(formattedEmployees);
+      setDepartments(dept.data.data);
 
-    console.log("Employees", formattedEmployees);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-
-  // Filter logic
-  // const filteredEmployees = useMemo(() => {
-  //   return employees.filter((emp) => {
-  //     const name = emp?.name ?? "";
-  //     const id = emp?.id ?? "";
-  //     const email = emp?.email ?? "";
-
-  //     const search = searchQuery.toLowerCase();
-
-  //     const matchesSearch =
-  //       name.toLowerCase().includes(search) ||
-  //       id.toLowerCase().includes(search) ||
-  //       email.toLowerCase().includes(search);
-
-  //     const matchesDept =
-  //       selectedDept === "All" || emp?.department === selectedDept;
-
-  //     const matchesStatus =
-  //       selectedStatus === "All" || emp?.status === selectedStatus;
-
-  //     return matchesSearch && matchesDept && matchesStatus;
-  //   });
-  // }, [employees, searchQuery, selectedDept, selectedStatus]);
+      console.log("Employees =>", formattedEmployees);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const filteredEmployees = useMemo(() => {
-  return employees.filter((emp) => {
-    const name = String(emp?.name ?? "");
-    const id = String(emp?.id ?? "");
-    const email = String(emp?.email ?? "");
+    return employees.filter((emp) => {
+      const name = String(emp?.name ?? "");
+      const id = String(emp?.id ?? "");
+      const email = String(emp?.email ?? "");
 
-    const search = searchQuery.toLowerCase();
+      const search = searchQuery.toLowerCase();
 
-    const matchesSearch =
-      name.toLowerCase().includes(search) ||
-      id.toLowerCase().includes(search) ||
-      email.toLowerCase().includes(search);
+      const matchesSearch =
+        name.toLowerCase().includes(search) ||
+        id.toLowerCase().includes(search) ||
+        email.toLowerCase().includes(search);
 
-    const matchesDept =
-      selectedDept === "All" || emp?.department === selectedDept;
+      const matchesDept =
+        selectedDept === "All" || emp?.department === selectedDept;
 
-    const matchesStatus =
-      selectedStatus === "All" || emp?.status === selectedStatus;
+      const matchesStatus =
+        selectedStatus === "All" || emp?.status === selectedStatus;
 
-    return matchesSearch && matchesDept && matchesStatus;
-  });
-}, [employees, searchQuery, selectedDept, selectedStatus]);
+      return matchesSearch && matchesDept && matchesStatus;
+    });
+  }, [employees, searchQuery, selectedDept, selectedStatus]);
 
- console.log("filteredEmployees =>", filteredEmployees);
+  console.log("filteredEmployees =>", filteredEmployees);
 
+  const deleteEmployee = async (id) => {
+    try {
+      await deleteStaff(id);
+
+      toast.success("Employee deleted successfully");
+
+      loadData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // CREATE STAFF
   const handleSubmit = async (e) => {
@@ -155,21 +146,45 @@ const loadData = async () => {
         dob: formData.dob,
         joiningDate: formData.joiningDate,
         salary: Number(formData.salary),
+        role: formData.role,
         address: formData.address,
+
       };
 
       await createStaff(payload);
 
       setIsModalOpen(false);
-      loadData(); 
+      loadData();
       toast.success("added staff successfully")
     } catch (err) {
-  console.log("STATUS:", err.response?.status);
-  console.log("DATA:", err.response?.data);
-  console.log("FULL ERROR:", err.response);
-}
+      console.log("STATUS:", err.response?.status);
+      console.log("DATA:", err.response?.data);
+      console.log("FULL ERROR:", err.response);
+    }
   };
 
+  const handleDepartmentChange = async (e) => {
+    const departmentId = e.target.value;
+
+    setFormData((prev) => ({
+      ...prev,
+      departmentId,
+      designationId: "",
+    }));
+
+    if (!departmentId) {
+      setDesignations([]);
+      return;
+    }
+
+    try {
+      const response =
+        await getDesignationByDepartment(departmentId);
+      setDesignations(response.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -218,6 +233,7 @@ const loadData = async () => {
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
     { header: "Joining Date", accessor: "joiningDate", sortable: true },
+    { header: "Role", accessor: "role", sortable: true },
     {
       header: "Status",
       accessor: "status",
@@ -302,7 +318,7 @@ const loadData = async () => {
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
             <option value="InActive">InActive</option>
-         
+
           </select>
         </div>
 
@@ -395,7 +411,6 @@ const loadData = async () => {
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Other">Other</option>
               </select>
             </div>
 
@@ -407,7 +422,8 @@ const loadData = async () => {
               <select
                 name="departmentId"
                 value={formData.departmentId}
-                onChange={handleChange}
+                onChange={handleDepartmentChange}
+
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               >
                 <option value="">Select Department</option>
@@ -499,6 +515,21 @@ const loadData = async () => {
                 name="salary"
                 value={formData.salary}
                 onChange={handleChange}
+                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                Role
+              </label>
+              <input
+                type="text"
+                required
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                placeholder="e.g. John Doe"
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               />
             </div>

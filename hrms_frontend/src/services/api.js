@@ -70,4 +70,7 @@ export const deleteStaff = (id) =>
 export const getStaffById = (id) =>
   api.get(`/staff/${id}`);
 
+export const getDesignationByDepartment = (departmentId) =>
+  api.get(`/designations/department/${departmentId}`);
+
 export default api;
