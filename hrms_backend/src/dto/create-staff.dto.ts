@@ -5,7 +5,7 @@ export const createStaffSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(10),
   gender: z.enum(["Male", "Female", "Other"]),
- 
+ password: z.string().min(1),
   departmentId: z.string(),
   designationId: z.string(),  
   salary: z.coerce.number(),

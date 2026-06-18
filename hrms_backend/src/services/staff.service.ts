@@ -16,6 +16,7 @@ export const createStaffService = async (dbName: string, data: any) => {
     email: data.email,
     role: data.role,
     phone: data.phone,
+      password: data.password,
     gender: data.gender,
     departmentId: data.departmentId,
     designationId: data.designationId,
@@ -24,7 +25,7 @@ export const createStaffService = async (dbName: string, data: any) => {
     joiningDate: data.joiningDate,
     address: data.address,
 
-    status: data.status || "Active",
+
   });
 
   return await staffRepo.save(staff);

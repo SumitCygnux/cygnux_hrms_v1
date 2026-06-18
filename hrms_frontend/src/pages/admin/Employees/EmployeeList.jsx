@@ -11,7 +11,7 @@ import {
   MdSearch,
   MdPersonAdd,
   MdFileDownload,
-  MdDelete,
+  MdUpdate,
   MdVisibility,
 } from "react-icons/md";
 
@@ -25,14 +25,11 @@ import {
 } from "../../../services/api";
 import { toast } from "react-toastify";
 
-
 const EmployeeList = () => {
-  // const { employees, addEmployee, deleteEmployee, departments, designations } = useHRMSData();
   // STATE
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-
 
   // Search and Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,10 +39,15 @@ const EmployeeList = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // const [showForm, setShowForm] = useState(false);
+  const [activeView, setActiveView] = useState("list");
+  const [editId, setEditId] = useState(null);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
+      password: "",
     departmentId: "",
     designationId: "",
     joiningDate: new Date().toISOString().split("T")[0],
@@ -58,7 +60,6 @@ const EmployeeList = () => {
 
   useEffect(() => {
     loadData();
-
   }, []);
 
   const loadData = async () => {
@@ -73,14 +74,10 @@ const EmployeeList = () => {
         name: e.fullName,
 
         department:
-          dept.data.data.find(
-            (d) => d.id === e.departmentId
-          )?.name || "-",
+          dept.data.data.find((d) => d.id === e.departmentId)?.name || "-",
 
         designation:
-          desig.data.data.find(
-            (d) => d.id === e.designationId
-          )?.title || "-",
+          desig.data.data.find((d) => d.id === e.designationId)?.title || "-",
       }));
 
       setEmployees(formattedEmployees);
@@ -117,49 +114,85 @@ const EmployeeList = () => {
 
   console.log("filteredEmployees =>", filteredEmployees);
 
-  const deleteEmployee = async (id) => {
-    try {
-      await deleteStaff(id);
+  const handleAdd = () => {
+    setEditId(null);
 
-      toast.success("Employee deleted successfully");
+    setFormData({
+      fullName: "",
+      email: "",
+      phone: "",
+        password: "",
+      departmentId: "",
+      designationId: "",
+      joiningDate: new Date().toISOString().split("T")[0],
+      gender: "Male",
+      dob: "1994-01-01",
+      address: "",
+      role: "",
+      salary: "8000",
+    });
 
-      loadData();
-    } catch (error) {
-      console.log(error);
-    }
+    setActiveView("form");
+  };
+
+  const handleEdit = (employee) => {
+    setEditId(employee.id);
+
+    setFormData({
+      fullName: employee.fullName,
+      email: employee.email,
+      phone: employee.phone,
+      password:employee.password,
+      departmentId: employee.departmentId,
+      designationId: employee.designationId,
+      joiningDate: employee.joiningDate,
+      gender: employee.gender,
+      dob: employee.dob,
+      address: employee.address,
+      role: employee.role,
+      salary: employee.salary,
+    });
+
+    setActiveView("form");
   };
 
   // CREATE STAFF
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const payload = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      password:formData.password,
+      gender: formData.gender,
+
+      departmentId: formData.departmentId,
+      designationId: formData.designationId,
+
+      dob: formData.dob,
+      joiningDate: formData.joiningDate,
+      salary: Number(formData.salary),
+      role: formData.role,
+      address: formData.address,
+    };
+
     try {
-      const payload = {
-        fullName: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        gender: formData.gender,
+      if (editId) {
+        await updateStaff(editId, payload);
 
-        departmentId: formData.departmentId,
-        designationId: formData.designationId,
+        toast.success("Employee Updated Successfully");
+      } else {
+        await createStaff(payload);
 
-        dob: formData.dob,
-        joiningDate: formData.joiningDate,
-        salary: Number(formData.salary),
-        role: formData.role,
-        address: formData.address,
+        toast.success("Employee Added Successfully");
+      }
 
-      };
-
-      await createStaff(payload);
-
-      setIsModalOpen(false);
       loadData();
-      toast.success("added staff successfully")
-    } catch (err) {
-      console.log("STATUS:", err.response?.status);
-      console.log("DATA:", err.response?.data);
-      console.log("FULL ERROR:", err.response);
+
+      setActiveView("list");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -178,8 +211,7 @@ const EmployeeList = () => {
     }
 
     try {
-      const response =
-        await getDesignationByDepartment(departmentId);
+      const response = await getDesignationByDepartment(departmentId);
       setDesignations(response.data.data);
     } catch (error) {
       console.log(error);
@@ -193,7 +225,7 @@ const EmployeeList = () => {
   // CSV Exporter
   const exportToCSV = () => {
     const headers = [
-      "Employee ID,Name,Department,Designation,Email,Phone,Joining Date,Status",
+      "Employee ID,Name,Department,Designation,Email,Phone,password,Joining Date,Status",
     ];
     const rows = filteredEmployees.map(
       (e) =>
@@ -232,6 +264,7 @@ const EmployeeList = () => {
     { header: "Designation", accessor: "designation", sortable: true },
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
+    {header:"password", accessor:"password",sortable:true},
     { header: "Joining Date", accessor: "joiningDate", sortable: true },
     { header: "Role", accessor: "role", sortable: true },
     {
@@ -258,8 +291,8 @@ const EmployeeList = () => {
             size="sm"
             variant="ghost"
             className="hover:text-red-500!"
-            iconBefore={<MdDelete className="text-lg text-red-500" />}
-            onClick={() => deleteEmployee(row.id)}
+            iconBefore={<MdUpdate className="text-lg text-green-500" />}
+            onClick={() => handleEdit(row)}
             aria-label="Delete Employee"
           />
         </div>
@@ -276,7 +309,7 @@ const EmployeeList = () => {
           <Button
             variant="primary"
             iconBefore={<MdPersonAdd />}
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleAdd}
           >
             Add Employee
           </Button>
@@ -318,7 +351,6 @@ const EmployeeList = () => {
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
             <option value="InActive">InActive</option>
-
           </select>
         </div>
 
@@ -333,22 +365,14 @@ const EmployeeList = () => {
         </div>
       </div>
 
-      {/* Employee Table */}
-      <DataTable
-        columns={columns}
-        data={filteredEmployees}
-        pageSize={8}
-        emptyMessage="No employees found matching the filters."
-      />
+      {/* 22222 */}
 
-      {/* Add Employee Modal */}
-      <DetailModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Register New Employee"
-        maxWidth="700px"
-      >
+      {activeView === "list" ? (
+        <DataTable columns={columns} data={filteredEmployees} />
+      ) : (
         <form onSubmit={handleSubmit}>
+          <h2>{editId ? "Update Employee" : "Add Employee"}</h2>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
             {/* Name */}
             <div className="flex flex-col gap-1.5">
@@ -382,6 +406,21 @@ const EmployeeList = () => {
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter Password"
+                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
+              />
+            </div>
+
             {/* Phone */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-text-secondary">
@@ -391,6 +430,7 @@ const EmployeeList = () => {
                 type="tel"
                 name="phone"
                 required
+                maxLength="10"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="e.g. +91 9876543210"
@@ -423,7 +463,6 @@ const EmployeeList = () => {
                 name="departmentId"
                 value={formData.departmentId}
                 onChange={handleDepartmentChange}
-
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               >
                 <option value="">Select Department</option>
@@ -434,26 +473,6 @@ const EmployeeList = () => {
                 ))}
               </select>
             </div>
-
-            {/* Designation (IMPORTANT FIX: ID store) */}
-            {/* <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Designation
-              </label>
-              <select
-                name="designationId"
-                value={formData.designationId}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              >
-                <option value="">Select Designation</option>
-                {designations.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.title}
-                  </option>
-                ))}
-              </select>
-            </div> */}
 
             {/* Designation */}
             <div className="flex flex-col gap-1.5">
@@ -555,17 +574,17 @@ const EmployeeList = () => {
             <Button
               variant="secondary"
               type="button"
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => setActiveView("list")}
             >
               Cancel
             </Button>
 
             <Button type="submit" variant="primary">
-              Register Employee
+              {editId ? "Update Employee" : "Register Employee"}
             </Button>
           </div>
         </form>
-      </DetailModal>
+      )}
     </div>
   );
 };
