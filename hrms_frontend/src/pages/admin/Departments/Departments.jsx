@@ -7,10 +7,11 @@ import Badge from "../../../components/common/Badge";
 import DetailModal from "../../../components/modals/DetailModal";
 import { MdAdd, MdBusiness, MdEdit, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
-import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from "../../../services/api";
+import { getDepartments, createDepartment, updateDepartment, deleteDepartment , getDepartmentHeadOptions,} from "../../../services/api";
 
 const Departments = () => {
   const [departments, setDepartments] = useState([]);
+  const [headOptions, setHeadOptions] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -55,9 +56,20 @@ const Departments = () => {
       console.log(error);
     }
   };
+const fetchDepartmentHeads = async () => {
+  try {
+    const response = await getDepartmentHeadOptions();
 
+    console.log("HEAD OPTIONS =>", response.data);
+
+    setHeadOptions(response.data.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
   useEffect(() => {
     fetchDepartments();
+    fetchDepartmentHeads();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -182,17 +194,30 @@ const Departments = () => {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-600">Department Head / Manager</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Harvey Specter"
-              value={formData.manager}
-              onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-              className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
-            />
-          </div>
+          <select
+  required
+  value={formData.manager}
+  onChange={(e) =>
+    setFormData({
+      ...formData,
+      manager: e.target.value,
+    })
+  }
+  className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
+>
+  <option value="">
+    Select Department Head
+  </option>
+
+  {headOptions.map((staff) => (
+    <option
+      key={staff.id}
+      value={staff.fullName}
+    >
+      {staff.fullName} {staff.role ? `(${staff.role})` : "(Admin)"}
+    </option>
+  ))}
+</select>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">

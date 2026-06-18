@@ -40,7 +40,8 @@ export const updateDepartment = (id, data) =>
 export const deleteDepartment = (id) =>
   api.delete(`/departments/${id}`);
 
-
+export const getDepartmentHeadOptions = () =>
+  api.get("/departments/head-options");
 
 
 export const getDesignations = () =>

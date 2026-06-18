@@ -41,7 +41,12 @@ console.log(response.data);
   avatarColor: "#2563EB",
 });
   toast.success('Login Successfully!');
-      navigate("/dashboard");
+  console.log("Before Save:", localStorage.getItem("token"));
+
+localStorage.setItem("token", response.data.data.token);
+
+console.log("After Save:", localStorage.getItem("token"));
+      window.location.href = "/dashboard";
     } catch (error) {
       // alert(error?.response?.data?.message || "Invalid Credentials");
      toast.error(error.response.data.message  || "Invalid Credentials");
