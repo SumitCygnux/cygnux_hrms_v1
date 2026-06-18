@@ -21,11 +21,11 @@ const Register = () => {
     phone: "",
     industry: "",
     companySize: "",
-    country: "",     
-    countryName: "",  
-    state: "",       
-    stateName: "",    
-    city: "",         
+    country: "",
+    countryName: "",
+    state: "",
+    stateName: "",
+    city: "",
     address: "",
     adminName: "",
     adminEmail: "",
@@ -42,7 +42,7 @@ const Register = () => {
     if (formData.country) {
       const states = State.getStatesOfCountry(formData.country);
       setStatesList(states);
-      setCitiesList([]); 
+      setCitiesList([]);
       setFormData((prev) => ({ ...prev, state: "", stateName: "", city: "" }));
     }
   }, [formData.country]);
@@ -51,7 +51,7 @@ const Register = () => {
     if (formData.country && formData.state) {
       const cities = City.getCitiesOfState(formData.country, formData.state);
       setCitiesList(cities);
-      setFormData((prev) => ({ ...prev, city: "" })); 
+      setFormData((prev) => ({ ...prev, city: "" }));
     }
   }, [formData.state, formData.country]);
 
@@ -81,7 +81,7 @@ const Register = () => {
   };
 
   const handleNextStep = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setStep(2);
   };
 
@@ -110,12 +110,12 @@ const Register = () => {
         password: formData.password,
       });
 
-       toast.success('regisetr Successfully!');
+      toast.success('regisetr Successfully!');
       navigate("/login");
     } catch (error) {
 
-        toast.error(error.response.data.message  || "Invalid Credentials");
-      
+      toast.error(error.response.data.message || "Invalid Credentials");
+
     } finally {
       setLoading(false);
     }
@@ -124,8 +124,8 @@ const Register = () => {
   return (
     <div className="h-screen w-screen bg-gray-50 flex items-center justify-center p-4 font-sans overflow-hidden">
       <div className="max-w-3xl w-full p-6 bg-white border border-gray-200 rounded-3xl shadow-lg flex flex-col max-h-[95vh] overflow-y-auto">
-        
-      
+
+
         <div className="flex flex-col items-center text-center w-full max-w-lg mx-auto mb-4 flex-shrink-0">
           <img src={logo} alt="HRMS Logo" className="h-14 w-auto object-contain mb-1" />
           <h2 className="text-2xl font-extrabold text-black">
@@ -136,13 +136,13 @@ const Register = () => {
           </p>
         </div>
 
-     
+
         <form className="w-full flex-1 flex flex-col justify-between" onSubmit={step === 1 ? handleNextStep : handleSubmit}>
           <div className="space-y-4">
             {step === 1 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 w-full">
-                  
+
                   {/* Company Name */}
                   <div className="flex flex-col">
                     <label className="block text-xs font-semibold text-gray-900 mb-1">Company Name</label>
@@ -158,7 +158,7 @@ const Register = () => {
                   {/* Phone Number */}
                   <div className="flex flex-col">
                     <label className="block text-xs font-semibold text-gray-900 mb-1">Phone Number</label>
-                    <input type="tel" name="phone"   maxLength={10} required value={formData.phone} onChange={handleChange} className="appearance-none block w-full px-3 py-2 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 text-xs text-gray-700" placeholder="+91 98765 43210" />
+                    <input type="tel" name="phone" maxLength={10} required value={formData.phone} onChange={handleChange} className="appearance-none block w-full px-3 py-2 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 text-xs text-gray-700" placeholder="+91 98765 43210" />
                   </div>
 
                   {/* Industry */}

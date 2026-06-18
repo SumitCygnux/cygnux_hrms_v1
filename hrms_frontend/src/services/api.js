@@ -73,4 +73,7 @@ export const getStaffById = (id) =>
 export const getDesignationByDepartment = (departmentId) =>
   api.get(`/designations/department/${departmentId}`);
 
+export const setupStaffPassword = (newPassword) =>
+  api.put("/staff/setup-password", { newPassword });
+
 export default api;

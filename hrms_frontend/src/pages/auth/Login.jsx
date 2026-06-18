@@ -4,12 +4,14 @@ import { login } from "../../services/api";
 import logo from '../../assets/hrms_logo.png';
 import { toast } from 'react-toastify';
 import { useHRMSData } from "../../context/HRMSDataContext";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
   const navigate = useNavigate();
   const { setCurrentUser } = useHRMSData();
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -33,20 +35,19 @@ const Login = () => {
       console.log(response);
 console.log(response.data);
 
-      localStorage.setItem("token",  response.data.data.token);
+      const { token, user, requiresPasswordSetup } = response.data.data;
 
-      localStorage.setItem("user", JSON.stringify(response.data.data.user));
-      setCurrentUser({
-  ...response.data.data.user,
-  avatarColor: "#2563EB",
-});
-  toast.success('Login Successfully!');
-  console.log("Before Save:", localStorage.getItem("token"));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-localStorage.setItem("token", response.data.data.token);
+      setCurrentUser({ ...user, avatarColor: "#2563EB" });
+      toast.success("Login Successfully!");
 
-console.log("After Save:", localStorage.getItem("token"));
-      window.location.href = "/dashboard";
+      if (requiresPasswordSetup) {
+        window.location.href = "/setup-password";
+      } else {
+        window.location.href = user.role === "EMPLOYEE" ? "/staff/dashboard" : "/dashboard";
+      }
     } catch (error) {
       // alert(error?.response?.data?.message || "Invalid Credentials");
      toast.error(error.response.data.message  || "Invalid Credentials");
@@ -126,15 +127,23 @@ console.log("After Save:", localStorage.getItem("token"));
               />
             </div>
 
-            <div>
+            <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
                 onChange={handleChange}
-                className="w-full h-12 px-4 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 text-slate-700 placeholder-slate-400 text-sm"
+                className="w-full h-12 px-4 pr-11 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 text-slate-700 placeholder-slate-400 text-sm"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
             </div>
 
             <div className="flex justify-end">

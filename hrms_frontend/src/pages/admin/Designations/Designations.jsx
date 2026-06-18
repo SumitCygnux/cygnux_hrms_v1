@@ -181,10 +181,12 @@ console.log(error?.response?.data);
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold text-gray-600">Department</label>
             <select
+              required
               value={formData.department_id}
               onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
               className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
             >
+              <option value="">Select Department</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}

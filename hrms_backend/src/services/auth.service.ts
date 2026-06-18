@@ -5,6 +5,8 @@ import DatabaseConnection from "../connection/postgresql.connection";
 import { Tenant_dbs } from "../entity/master/tenant_db.entity";
 import { Users } from "../entity/master/users.entity";
 import { Roles } from "../entity/master/roles.entity";
+import { Staff } from "../entity/tenant/staff.entity";
+import { getTenantConnection } from "../connection/tenant.connection";
 
 import { generateToken } from "../utils/jwt";
 
@@ -103,53 +105,74 @@ export const loginService = async (payload: any) => {
   const { email, password } = payload;
   const userRepo = DatabaseConnection.getRepository(Users);
   const roleRepo = DatabaseConnection.getRepository(Roles);
-  const company_Repo = DatabaseConnection.getRepository(Tenant_dbs);
+  const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
 
-  const user = await userRepo.findOne({
-    where: { email },
-    
-  });
+  // --- Admin login ---
+  const user = await userRepo.findOne({ where: { email } });
 
-  if (!user) {
-    throw new Error("Invalid Email");
+  if (user) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid Password");
+
+    const role = await roleRepo.findOne({ where: { id: user.role_id } });
+    const company = await tenantRepo.findOne({ where: { id: user.tenant_id } });
+
+    const token = generateToken({
+      userId: user.id,
+      tenantId: user.tenant_id,
+      roleId: user.role_id,
+      dbName: user.db_name,
+    });
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role_id: user.role_id,
+        role: role?.name,
+        tenant_id: user.tenant_id,
+        companyName: company?.name,
+        db_name: user.db_name,
+      },
+    };
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  // --- Staff login: search all tenant databases ---
+  const allTenants = await tenantRepo.find({ where: { is_active: true } });
 
-  if (!isMatch) {
-    throw new Error("Invalid Password");
+  for (const tenant of allTenants) {
+    const tenantConnection = await getTenantConnection(tenant.db_name);
+    const staffRepo = tenantConnection.getRepository(Staff);
+    const staff = await staffRepo.findOne({ where: { email } });
+
+    if (staff) {
+      if (staff.password !== password) throw new Error("Invalid Password");
+
+      const token = generateToken({
+        userId: staff.id,
+        tenantId: tenant.id,
+        roleId: "EMPLOYEE",
+        dbName: tenant.db_name,
+      });
+
+      return {
+        token,
+        requiresPasswordSetup: staff.status === "InActive",
+        user: {
+          id: staff.id,
+          name: staff.fullName,
+          email: staff.email,
+          role: "EMPLOYEE",
+          status: staff.status,
+          tenant_id: tenant.id,
+          companyName: tenant.name,
+          db_name: tenant.db_name,
+        },
+      };
+    }
   }
 
-
-   // Fetch Role
-  const role = await roleRepo.findOne({
-    where: { id: user.role_id },
-  });
-
-  // Fetch Company
-  const company = await company_Repo.findOne({
-    where: { id: user.tenant_id },
-  });
-
-
-  const token = generateToken({
-    userId: user.id,
-    tenantId: user.tenant_id,
-    roleId: user.role_id,
-    dbName: user.db_name,
-  });
-
-  return {
-    token,
-    user: {
-    id: user.id,
-     name:user.name,
-    email: user.email,
-    role_id: user.role_id,
-       role: role?.name,          
-      tenant_id: user.tenant_id,
-      companyName: company?.name, 
-    db_name: user.db_name,
-  },
-  };
+  throw new Error("Invalid Email");
 };

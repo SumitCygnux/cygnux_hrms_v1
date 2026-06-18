@@ -83,6 +83,22 @@ export const deleteStaffService = async (
 };
 
 
+export const setupPasswordService = async (
+  dbName: string,
+  staffId: number,
+  newPassword: string
+) => {
+  const dataSource = await getTenantConnection(dbName);
+  const staffRepo = dataSource.getRepository(Staff);
+
+  const staff = await staffRepo.findOne({ where: { id: staffId } });
+  if (!staff) throw new Error("Staff not found");
+
+  staff.password = newPassword;
+  staff.status = "Active";
+  return await staffRepo.save(staff);
+};
+
 export const getStaffByIdService = async (
   dbName: string,
   id: number
