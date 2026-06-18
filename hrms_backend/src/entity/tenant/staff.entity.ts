@@ -40,11 +40,15 @@ designationId!: string;
   @Column("text")
   address!: string;
 
+  @Column({ nullable: true })
+password!: string;
+ 
   @Column({
   type: "varchar",
-  default: "Active",
+  default: "InActive",
 })
 status!: string;
+
 
   @CreateDateColumn()
   createdAt!: Date;

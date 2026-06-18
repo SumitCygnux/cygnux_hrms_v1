@@ -9,10 +9,10 @@ import { MdFileDownload } from "react-icons/md";
 
 
 const Reports = () => {
-  const { employees, attendanceLogs, leaveRequests, departments } = useHRMSData();
 
+  const { employees, attendanceLogs, leaveRequests, departments } = useHRMSData();
   const [activeTab, setActiveTab] = useState("employees");
-  const [selectedDept, setSelectedDept] = useState("All");
+  const [selectedDept, setSelectedDept]= useState("All");
 
   const tabs = [
     { id: "employees", label: "Employee Reports" },
