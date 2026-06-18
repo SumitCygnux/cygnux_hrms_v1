@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
+import KPICard from "../../../components/cards/KPICard";
 import { AreaChartComponent, BarChartComponent } from "../../../components/charts/ChartWrappers";
+import { MdStarBorder, MdThumbUp, MdCheckCircle, MdEmojiEvents } from "react-icons/md";
 
 const performanceData = {
   kpiScore: 95,
@@ -91,46 +93,10 @@ const StaffPerformance = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        {[
-          {
-            label: "KPI Score",
-            value: `${performanceData.kpiScore}%`,
-            border: "border-l-primary",
-            sub: "Q2 2026",
-          },
-          {
-            label: "Overall Rating",
-            value: `${performanceData.rating} / 5`,
-            border: "border-l-warning",
-            sub: "Avg across all reviews",
-          },
-          {
-            label: "Reviews Done",
-            value: performanceData.completedReviews,
-            border: "border-l-success",
-            sub: "Completed this year",
-          },
-          {
-            label: "Dept. Rank",
-            value: performanceData.rank,
-            border: "border-l-info",
-            sub: "Product & Design",
-          },
-        ].map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.07 }}
-            className={`bg-white border border-slate-100 border-l-4 ${s.border} rounded-[24px] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-all duration-300`}
-          >
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">
-              {s.label}
-            </p>
-            <p className="text-2xl font-extrabold text-slate-800 leading-tight mb-1">{s.value}</p>
-            <p className="text-[10px] text-slate-400">{s.sub}</p>
-          </motion.div>
-        ))}
+        <KPICard title="KPI Score" value={`${performanceData.kpiScore}%`} icon={<MdStarBorder />} trend="Q2 2026" />
+        <KPICard title="Overall Rating" value={`${performanceData.rating} / 5`} icon={<MdThumbUp />} trend="Avg across all reviews" />
+        <KPICard title="Reviews Done" value={performanceData.completedReviews} icon={<MdCheckCircle />} trend="Completed this year" />
+        <KPICard title="Dept. Rank" value={performanceData.rank} icon={<MdEmojiEvents />} trend="Product & Design" />
       </div>
 
       {/* Charts */}

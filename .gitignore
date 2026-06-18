@@ -4,3 +4,5 @@ hrms_backend/src/server.ts
 hrms_backend/src/server.ts
 hrms_backend/.env
 hrms_backend/.env
+hrms_frontend/.env.local
+hrms_backend/.env

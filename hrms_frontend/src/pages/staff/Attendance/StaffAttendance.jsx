@@ -2,7 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
+import KPICard from "../../../components/cards/KPICard";
 import { BarChartComponent } from "../../../components/charts/ChartWrappers";
+import { MdCheckCircle, MdSchedule, MdHome, MdCancel } from "react-icons/md";
 
 const attendanceLogs = [
   { id: "LOG-001", date: "2026-06-18", checkIn: "08:45 AM", checkOut: "—", hours: "4h 12m", overtime: 0, status: "On-Time" },
@@ -54,54 +56,10 @@ const StaffAttendance = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        {[
-          {
-            label: "Present Days",
-            value: stats.present,
-            color: "text-success",
-            bg: "bg-success/5",
-            border: "border-l-success",
-            sub: "On-Time + WFH + Half-Day",
-          },
-          {
-            label: "Late Arrivals",
-            value: stats.late,
-            color: "text-warning",
-            bg: "bg-warning/5",
-            border: "border-l-warning",
-            sub: "Arrived after 09:00 AM",
-          },
-          {
-            label: "WFH Days",
-            value: stats.wfh,
-            color: "text-info",
-            bg: "bg-info/5",
-            border: "border-l-info",
-            sub: "Work from home",
-          },
-          {
-            label: "Absent Days",
-            value: stats.absent,
-            color: "text-danger",
-            bg: "bg-danger/5",
-            border: "border-l-danger",
-            sub: "No check-in recorded",
-          },
-        ].map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.06 }}
-            className={`bg-white border border-slate-100 border-l-4 ${s.border} rounded-[24px] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-all duration-300`}
-          >
-            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">
-              {s.label}
-            </p>
-            <p className="text-3xl font-extrabold text-slate-800 mb-1">{s.value}</p>
-            <p className="text-[10px] text-slate-400">{s.sub}</p>
-          </motion.div>
-        ))}
+        <KPICard title="Present Days" value={stats.present} icon={<MdCheckCircle />} trend="On-Time + WFH + Half-Day" />
+        <KPICard title="Late Arrivals" value={stats.late} icon={<MdSchedule />} trend="Arrived after 09:00 AM" trendType="down" />
+        <KPICard title="WFH Days" value={stats.wfh} icon={<MdHome />} trend="Work from home" />
+        <KPICard title="Absent Days" value={stats.absent} icon={<MdCancel />} trend="No check-in recorded" trendType="down" />
       </div>
 
       {/* Chart */}

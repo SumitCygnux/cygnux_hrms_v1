@@ -4,6 +4,7 @@ import { HRMSDataProvider } from "./context/HRMSDataContext";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import SetupPassword from "./pages/auth/SetupPassword";
 
 // Admin Layout
 import DashboardLayout from "./components/layouts/DashboardLayout";
@@ -68,6 +69,8 @@ function App() {
                 )
               }
             />
+
+            <Route path="/setup-password" element={<SetupPassword />} />
 
             {/* Admin Protected Routes */}
             <Route

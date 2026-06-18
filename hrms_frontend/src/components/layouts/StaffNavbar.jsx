@@ -10,26 +10,12 @@ import {
   MdMenu,
 } from "react-icons/md";
 import Avatar from "../common/Avatar";
-
-// Static staff data
-const staffUser = {
-  id: "EMP-2024-003",
-  name: "Bruce Wayne",
-  email: "bruce.w@enterprise-hrms.com",
-  role: "Employee",
-  avatarColor: "#0F172A",
-};
-
-const initialNotifications = [
-  { id: "SN-001", text: "Your leave request has been approved", time: "2 hours ago", read: false },
-  { id: "SN-002", text: "Payroll for May has been processed", time: "1 day ago", read: false },
-  { id: "SN-003", text: "Quarterly performance review started", time: "3 days ago", read: true },
-];
+import { useHRMSData } from "../../context/HRMSDataContext";
 
 const StaffNavbar = ({ onMobileToggle }) => {
+  const { currentUser, notifications, markAllNotificationsAsRead } = useHRMSData();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState(initialNotifications);
 
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -59,7 +45,7 @@ const StaffNavbar = ({ onMobileToggle }) => {
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      markAllNotificationsAsRead();
     }
   };
 
@@ -134,12 +120,12 @@ const StaffNavbar = ({ onMobileToggle }) => {
           onClick={() => setShowProfileMenu(!showProfileMenu)}
           ref={profileMenuRef}
         >
-          <Avatar name={staffUser.name} color={staffUser.avatarColor} size={38} />
+          <Avatar name={currentUser.name} color={currentUser.avatarColor} size={38} />
           <div className="flex-col hidden md:flex">
             <span className="text-sm font-semibold text-text-primary leading-[1.2]">
-              {staffUser.name}
+              {currentUser.name}
             </span>
-            <span className="text-xs text-text-muted">{staffUser.role}</span>
+            <span className="text-xs text-text-muted">{currentUser.role}</span>
           </div>
           <MdArrowDropDown className="text-xl text-gray-500" />
 
@@ -147,9 +133,9 @@ const StaffNavbar = ({ onMobileToggle }) => {
             <div className="absolute top-[55px] right-0 bg-bg-secondary border border-border-color rounded-lg shadow-lg w-[220px] overflow-hidden z-[100]">
               <div className="p-4 border-b border-border-color">
                 <span className="font-semibold block text-sm text-text-primary">
-                  {staffUser.name}
+                  {currentUser.name}
                 </span>
-                <span className="text-xs text-text-muted">{staffUser.email}</span>
+                <span className="text-xs text-text-muted">{currentUser.email}</span>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdPerson />
