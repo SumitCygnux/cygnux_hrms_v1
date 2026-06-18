@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createDepartmentService, getDepartmentsService, updateDepartmentService, deleteDepartmentService } from "../services/department.service";
+import { createDepartmentService, getDepartmentsService, updateDepartmentService, deleteDepartmentService,getDepartmentHeadOptionsService } from "../services/department.service";
 
 export const createDepartment = async (req: Request, res: Response) => {
     const dbName = (req as any).user.dbName;
@@ -48,4 +48,32 @@ export const deleteDepartment = async (req: any, res: any) => {
         success: true,
         message: "Department deleted successfully"
     });
+};
+
+export const getDepartmentHeadOptions = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+    const userId = (req as any).user.userId;
+
+    console.log("DB NAME =>", dbName);
+    console.log("USER ID =>", userId);
+
+    const result = await getDepartmentHeadOptionsService(
+      dbName,
+      userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

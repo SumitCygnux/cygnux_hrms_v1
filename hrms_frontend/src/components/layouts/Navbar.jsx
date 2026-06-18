@@ -35,7 +35,7 @@ const Navbar = ({ onMobileToggle }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+   window.location.href = "/login";
   };
   // Close menus when clicking outside
   useEffect(() => {

@@ -14,7 +14,15 @@ import {
   MdDelete,
   MdVisibility,
 } from "react-icons/md";
-import { getAllStaff, createStaff } from "../../../services/staff.service";
+
+import {
+  getDepartments,
+  getDesignations,
+  getAllStaff,
+  createStaff,
+  deleteStaff,
+} from "../../../services/api";
+import { toast } from "react-toastify";
 
 
 const EmployeeList = () => {
@@ -153,7 +161,8 @@ const loadData = async () => {
       await createStaff(payload);
 
       setIsModalOpen(false);
-      loadData(); // refresh
+      loadData(); 
+      toast.success("added staff successfully")
     } catch (err) {
   console.log("STATUS:", err.response?.status);
   console.log("DATA:", err.response?.data);
