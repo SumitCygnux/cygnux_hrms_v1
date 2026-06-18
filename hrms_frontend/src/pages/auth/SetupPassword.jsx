@@ -4,6 +4,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { MdLock, MdCheckCircle } from "react-icons/md";
 import logo from "../../assets/hrms_logo.png";
 import { toast } from "react-toastify";
+import { setupStaffPassword } from "../../services/api";
 
 const PasswordInput = ({ name, placeholder, value, onChange, required }) => {
   const [show, setShow] = useState(false);
@@ -56,7 +57,11 @@ const SetupPassword = () => {
 
     try {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 900));
+      await setupStaffPassword(form.newPassword);
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      localStorage.setItem("user", JSON.stringify({ ...user, status: "Active" }));
+
       toast.success("Password updated successfully! Welcome aboard.");
       navigate("/staff/dashboard");
     } catch {

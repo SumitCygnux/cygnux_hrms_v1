@@ -196,6 +196,7 @@ const EmployeeList = () => {
     }
   };
 
+  
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
 
@@ -264,7 +265,12 @@ const EmployeeList = () => {
     { header: "Designation", accessor: "designation", sortable: true },
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
-    {header:"password", accessor:"password",sortable:true},
+    {
+      header: "Password",
+      accessor: "password",
+      sortable: false,
+      render: (row) => row.status === "Active" ? "-" : row.password,
+    },
     { header: "Joining Date", accessor: "joiningDate", sortable: true },
     { header: "Role", accessor: "role", sortable: true },
     {

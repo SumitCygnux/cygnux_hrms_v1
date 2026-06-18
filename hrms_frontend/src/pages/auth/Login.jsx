@@ -35,20 +35,19 @@ const Login = () => {
       console.log(response);
 console.log(response.data);
 
-      localStorage.setItem("token",  response.data.data.token);
+      const { token, user, requiresPasswordSetup } = response.data.data;
 
-      localStorage.setItem("user", JSON.stringify(response.data.data.user));
-      setCurrentUser({
-  ...response.data.data.user,
-  avatarColor: "#2563EB",
-});
-  toast.success('Login Successfully!');
-  console.log("Before Save:", localStorage.getItem("token"));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-localStorage.setItem("token", response.data.data.token);
+      setCurrentUser({ ...user, avatarColor: "#2563EB" });
+      toast.success("Login Successfully!");
 
-console.log("After Save:", localStorage.getItem("token"));
-      window.location.href = "/dashboard";
+      if (requiresPasswordSetup) {
+        window.location.href = "/setup-password";
+      } else {
+        window.location.href = user.role === "EMPLOYEE" ? "/staff/dashboard" : "/dashboard";
+      }
     } catch (error) {
       // alert(error?.response?.data?.message || "Invalid Credentials");
      toast.error(error.response.data.message  || "Invalid Credentials");

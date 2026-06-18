@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   MdSearch,
   MdNotifications,
@@ -19,12 +18,10 @@ const StaffNavbar = ({ onMobileToggle }) => {
 
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
-  const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    window.location.href = "/login";
   };
 
   useEffect(() => {

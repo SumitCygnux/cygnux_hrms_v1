@@ -38,8 +38,30 @@ import StaffCalendar from "./pages/staff/Calendar/StaffCalendar";
 
 import "react-toastify/dist/ReactToastify.css";
 
+function AdminRoute() {
+  const isAuthenticated = !!localStorage.getItem("token");
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isStaff = storedUser?.role === "EMPLOYEE";
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (isStaff) return <Navigate to="/staff/dashboard" replace />;
+  return <DashboardLayout />;
+}
+
+function StaffRoute() {
+  const isAuthenticated = !!localStorage.getItem("token");
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isStaff = storedUser?.role === "EMPLOYEE";
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isStaff) return <Navigate to="/dashboard" replace />;
+  return <StaffDashboardLayout />;
+}
+
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isStaff = storedUser?.role === "EMPLOYEE";
 
   return (
     <ThemeProvider>
@@ -52,7 +74,7 @@ function App() {
               path="/login"
               element={
                 isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to={isStaff ? "/staff/dashboard" : "/dashboard"} replace />
                 ) : (
                   <Login />
                 )
@@ -63,7 +85,7 @@ function App() {
               path="/register"
               element={
                 isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to={isStaff ? "/staff/dashboard" : "/dashboard"} replace />
                 ) : (
                   <Register />
                 )
@@ -72,21 +94,9 @@ function App() {
 
             <Route path="/setup-password" element={<SetupPassword />} />
 
-            {/* Admin Protected Routes */}
-            <Route
-              element={
-                isAuthenticated ? (
-                  <DashboardLayout />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            >
-              <Route
-                path="/"
-                element={<Navigate to="/dashboard" replace />}
-              />
-
+            {/* Admin Protected Routes — admin only, staff gets redirected to /staff/dashboard */}
+            <Route element={<AdminRoute />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeList />} />
               <Route path="/employees/:id" element={<EmployeeProfile />} />
@@ -102,8 +112,8 @@ function App() {
               <Route path="/settings" element={<Settings />} />
             </Route>
 
-            {/* Staff Portal Routes */}
-            <Route element={<StaffDashboardLayout />}>
+            {/* Staff Portal Routes — staff only, admin gets redirected to /dashboard */}
+            <Route element={<StaffRoute />}>
               <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
               <Route path="/staff/dashboard" element={<StaffDashboard />} />
               <Route path="/staff/attendance" element={<StaffAttendance />} />
@@ -119,7 +129,7 @@ function App() {
               path="*"
               element={
                 <Navigate
-                  to={isAuthenticated ? "/dashboard" : "/login"}
+                  to={isAuthenticated ? (isStaff ? "/staff/dashboard" : "/dashboard") : "/login"}
                   replace
                 />
               }
