@@ -3,9 +3,7 @@ import {
   createStaffService,
   getAllStaffService,
   updateStaffStatusService,
-  deleteStaffService,
-  getStaffByIdService,
-  setupPasswordService,
+  getStaffByIdService
 } from "../services/staff.service";
 import { number } from "zod";
 
@@ -87,31 +85,6 @@ export const updateStaffStatus = async (
   }
 };
 
-export const deleteStaff = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const dbName = (req as any).user.dbName;
-
-    const { id } = req.params;
-
-    await deleteStaffService(
-      dbName,
-      Number(id)
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Staff deleted successfully",
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
 
 export const getStaffById = async (
   req: Request,
@@ -135,32 +108,6 @@ export const getStaffById = async (
     return res.status(200).json({
       success: true,
       data: staff,
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-export const setupPassword = async (req: Request, res: Response) => {
-  try {
-    const user = (req as any).user;
-    const { newPassword } = req.body;
-
-    if (!newPassword || newPassword.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 8 characters",
-      });
-    }
-
-    await setupPasswordService(user.dbName, Number(user.userId), newPassword);
-
-    return res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
     });
   } catch (error: any) {
     return res.status(500).json({
