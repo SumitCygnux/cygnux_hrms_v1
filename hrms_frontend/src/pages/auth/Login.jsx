@@ -28,17 +28,14 @@ const Login = () => {
       setLoading(true);
 
       const response = await login(formData);
-      console.log(response);
-console.log(response.data);
 
-      localStorage.setItem("token",  response.data.data.token);
-
+      localStorage.setItem("token", response.data.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.data.user));
-  toast.success('Login Successfully!');
+
+      toast.success('Login Successfully!');
       navigate("/dashboard");
     } catch (error) {
-      // alert(error?.response?.data?.message || "Invalid Credentials");
-     toast.error(error.response.data.message  || "Invalid Credentials");
+      toast.error(error?.response?.data?.message || "Invalid Credentials");
     } finally {
       setLoading(false);
     }
@@ -46,7 +43,7 @@ console.log(response.data);
 
 
   return (
-   
+
   <div className="min-h-screen md:h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 flex items-center justify-center p-4 sm:p-6 font-sans md:overflow-hidden">
   
   <div className="relative w-full max-w-5xl h-auto md:h-[520px] bg-white rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden">

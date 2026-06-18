@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useHRMSData } from "../../context/HRMSDataContext";
 import { useNavigate } from "react-router-dom";
 import {
   MdSearch,
@@ -8,19 +7,29 @@ import {
   MdLogout,
   MdPerson,
   MdLockOpen,
-  MdMenu
+  MdMenu,
 } from "react-icons/md";
 import Avatar from "../common/Avatar";
 
-const Navbar = ({ onMobileToggle }) => {
-  const {
-    currentUser,
-    notifications,
-    markAllNotificationsAsRead,
-  } = useHRMSData();
+// Static staff data
+const staffUser = {
+  id: "EMP-2024-003",
+  name: "Bruce Wayne",
+  email: "bruce.w@enterprise-hrms.com",
+  role: "Employee",
+  avatarColor: "#0F172A",
+};
 
+const initialNotifications = [
+  { id: "SN-001", text: "Your leave request has been approved", time: "2 hours ago", read: false },
+  { id: "SN-002", text: "Payroll for May has been processed", time: "1 day ago", read: false },
+  { id: "SN-003", text: "Quarterly performance review started", time: "3 days ago", read: true },
+];
+
+const StaffNavbar = ({ onMobileToggle }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState(initialNotifications);
 
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -32,7 +41,6 @@ const Navbar = ({ onMobileToggle }) => {
     navigate("/login");
   };
 
-  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -46,26 +54,30 @@ const Navbar = ({ onMobileToggle }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) {
-      markAllNotificationsAsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     }
   };
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <header className="h-[70px] sticky top-0 right-0 flex items-center justify-between px-6 bg-bg-secondary/80 backdrop-blur-md border-b border-border-color z-[90] transition-all">
       <div className="flex items-center gap-4">
-        <button className="text-2xl text-text-primary block md:hidden cursor-pointer" onClick={onMobileToggle} aria-label="Toggle Menu">
+        <button
+          className="text-2xl text-text-primary block md:hidden cursor-pointer"
+          onClick={onMobileToggle}
+          aria-label="Toggle Menu"
+        >
           <MdMenu />
         </button>
         <div className="hidden md:flex items-center bg-bg-primary border border-border-color focus-within:border-primary px-4 py-2 rounded-xl w-[280px] gap-2.5 transition-all">
           <MdSearch className="text-text-muted text-lg" />
           <input
             type="text"
-            placeholder="Search employees, policies..."
+            placeholder="Search leaves, payslips..."
             className="border-none bg-transparent outline-none w-full text-text-primary text-sm"
           />
         </div>
@@ -77,7 +89,7 @@ const Navbar = ({ onMobileToggle }) => {
             weekday: "short",
             month: "short",
             day: "numeric",
-            year: "numeric"
+            year: "numeric",
           })}
         </div>
 
@@ -89,7 +101,9 @@ const Navbar = ({ onMobileToggle }) => {
             aria-label="Notifications"
           >
             <MdNotifications />
-            {unreadCount > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-bg-secondary" />}
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-bg-secondary" />
+            )}
           </button>
 
           {showNotifications && (
@@ -98,20 +112,17 @@ const Navbar = ({ onMobileToggle }) => {
                 <h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
               </div>
               <div>
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-text-muted">No notifications</div>
-                ) : (
-                  notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`px-4 py-3 border-b border-border-color flex flex-col gap-1 transition-all hover:bg-bg-primary ${!notif.read ? "bg-primary-light" : ""
-                        }`}
-                    >
-                      <span className="text-[13px] text-text-primary">{notif.text}</span>
-                      <span className="text-[11px] text-text-muted">{notif.time}</span>
-                    </div>
-                  ))
-                )}
+                {notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className={`px-4 py-3 border-b border-border-color flex flex-col gap-1 transition-all hover:bg-bg-primary ${
+                      !notif.read ? "bg-primary-light" : ""
+                    }`}
+                  >
+                    <span className="text-[13px] text-text-primary">{notif.text}</span>
+                    <span className="text-[11px] text-text-muted">{notif.time}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -123,18 +134,22 @@ const Navbar = ({ onMobileToggle }) => {
           onClick={() => setShowProfileMenu(!showProfileMenu)}
           ref={profileMenuRef}
         >
-          <Avatar name={currentUser.name} color={currentUser.avatarColor} size={38} />
+          <Avatar name={staffUser.name} color={staffUser.avatarColor} size={38} />
           <div className="flex-col hidden md:flex">
-            <span className="text-sm font-semibold text-text-primary leading-[1.2]">{currentUser.name}</span>
-            <span className="text-xs text-text-muted">{currentUser.role}</span>
+            <span className="text-sm font-semibold text-text-primary leading-[1.2]">
+              {staffUser.name}
+            </span>
+            <span className="text-xs text-text-muted">{staffUser.role}</span>
           </div>
           <MdArrowDropDown className="text-xl text-gray-500" />
 
           {showProfileMenu && (
             <div className="absolute top-[55px] right-0 bg-bg-secondary border border-border-color rounded-lg shadow-lg w-[220px] overflow-hidden z-[100]">
               <div className="p-4 border-b border-border-color">
-                <span className="font-semibold block text-sm text-text-primary">{currentUser.name}</span>
-                <span className="text-xs text-text-muted">{currentUser.email}</span>
+                <span className="font-semibold block text-sm text-text-primary">
+                  {staffUser.name}
+                </span>
+                <span className="text-xs text-text-muted">{staffUser.email}</span>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdPerson />
@@ -149,9 +164,7 @@ const Navbar = ({ onMobileToggle }) => {
                 className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary border-t border-border-color"
               >
                 <MdLogout className="text-danger" />
-                <span className="text-danger">
-                  Sign Out
-                </span>
+                <span className="text-danger">Sign Out</span>
               </div>
             </div>
           )}
@@ -161,4 +174,4 @@ const Navbar = ({ onMobileToggle }) => {
   );
 };
 
-export default Navbar;
+export default StaffNavbar;

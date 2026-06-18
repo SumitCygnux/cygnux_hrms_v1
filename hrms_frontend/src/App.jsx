@@ -5,11 +5,13 @@ import { HRMSDataProvider } from "./context/HRMSDataContext";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
-// Layout
+// Admin Layout
 import DashboardLayout from "./components/layouts/DashboardLayout";
 
-// Pages
-// Pages
+// Staff Layout
+import StaffDashboardLayout from "./components/layouts/StaffDashboardLayout";
+
+// Admin Pages
 import Dashboard from "./pages/admin/Dashboard/Dashboard";
 import EmployeeList from "./pages/admin/Employees/EmployeeList";
 import EmployeeProfile from "./pages/admin/Employees/EmployeeProfile";
@@ -23,6 +25,16 @@ import Designations from "./pages/admin/Designations/Designations";
 import Reports from "./pages/admin/Reports/Reports";
 import Calendar from "./pages/admin/Calendar/Calendar";
 import Settings from "./pages/admin/Settings/Settings";
+
+// Staff Pages
+import StaffDashboard from "./pages/staff/Dashboard/StaffDashboard";
+import StaffAttendance from "./pages/staff/Attendance/StaffAttendance";
+import StaffLeave from "./pages/staff/Leave/StaffLeave";
+import StaffPayroll from "./pages/staff/Payroll/StaffPayroll";
+import StaffPerformance from "./pages/staff/Performance/StaffPerformance";
+import StaffProfile from "./pages/staff/Profile/StaffProfile";
+import StaffCalendar from "./pages/staff/Calendar/StaffCalendar";
+
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -57,7 +69,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes */}
+            {/* Admin Protected Routes */}
             <Route
               element={
                 isAuthenticated ? (
@@ -85,6 +97,18 @@ function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/settings" element={<Settings />} />
+            </Route>
+
+            {/* Staff Portal Routes */}
+            <Route element={<StaffDashboardLayout />}>
+              <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+              <Route path="/staff/attendance" element={<StaffAttendance />} />
+              <Route path="/staff/leave" element={<StaffLeave />} />
+              <Route path="/staff/payroll" element={<StaffPayroll />} />
+              <Route path="/staff/performance" element={<StaffPerformance />} />
+              <Route path="/staff/profile" element={<StaffProfile />} />
+              <Route path="/staff/calendar" element={<StaffCalendar />} />
             </Route>
 
             {/* Fallback */}
