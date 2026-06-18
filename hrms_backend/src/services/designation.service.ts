@@ -58,3 +58,15 @@ export const deleteDesignationService =async (dbName:string,id:string) => {
   await designationRepo.save(designation);
   return true;
 };
+
+export const getDesignationByDepartmentService = async (dbName: string,departmentId: string) => {
+  const dataSource = await getTenantConnection(dbName);
+  const designationRepo = dataSource.getRepository(Designation);
+
+  return await designationRepo.find({
+    where: {
+      department_id: departmentId,
+      is_deleted: false,
+    },
+  });
+};

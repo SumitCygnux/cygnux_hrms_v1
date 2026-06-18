@@ -1,5 +1,5 @@
 import {Request,Response}from "express";
-import {createDesignationService,getDesignationsService,updateDesignationService,deleteDesignationService}from "../services/designation.service";
+import {createDesignationService,getDesignationsService,updateDesignationService,deleteDesignationService, getDesignationByDepartmentService}from "../services/designation.service";
 
 export const createDesignation =async (req:Request,res:Response) => {
 
@@ -48,4 +48,25 @@ export const deleteDesignation =async (req:any,res:any) => {
     success:true,
     message: "Designation deleted successfully"
   });
+};
+
+export const getDesignationByDepartment = async (req: Request,res: Response) => {
+  try {
+    const dbName = (req as any).user.dbName;
+   const departmentId = req.params.departmentId as string;
+    const result = await getDesignationByDepartmentService(
+        dbName,
+        departmentId
+      );
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
