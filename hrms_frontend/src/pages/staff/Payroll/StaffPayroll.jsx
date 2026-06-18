@@ -3,13 +3,6 @@ import { motion } from "framer-motion";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
 import { AreaChartComponent } from "../../../components/charts/ChartWrappers";
-import {
-  MdPayments,
-  MdDownload,
-  MdReceiptLong,
-  MdTrendingUp,
-  MdAccountBalance,
-} from "react-icons/md";
 
 const currentPayroll = {
   month: "May 2026",
@@ -40,14 +33,16 @@ const netSalaryTrend = [
   { name: "May", value: 10500 },
 ];
 
+const inr = (n) => `₹${Math.abs(n).toLocaleString("en-IN")}`;
+
 const StaffPayroll = () => {
-  const [selectedSlip, setSelectedSlip] = useState(null);
+  const [, setSelectedSlip] = useState(null);
 
   const breakdown = [
     { label: "Basic Salary", amount: currentPayroll.basic, type: "credit" },
     { label: "Allowances", amount: currentPayroll.allowances, type: "credit" },
     { label: "Gross Salary", amount: currentPayroll.basic + currentPayroll.allowances, type: "total" },
-    { label: "Deductions (PF/Other)", amount: -currentPayroll.deductions, type: "debit" },
+    { label: "Deductions (PF / Other)", amount: -currentPayroll.deductions, type: "debit" },
     { label: "Tax (TDS)", amount: -currentPayroll.tax, type: "debit" },
     { label: "Net Pay", amount: currentPayroll.net, type: "net" },
   ];
@@ -59,7 +54,7 @@ const StaffPayroll = () => {
         subtitle="View your salary breakdowns and download pay slips"
       />
 
-      {/* Current Month Payslip Card */}
+      {/* Current Month Payslip Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,7 +68,7 @@ const StaffPayroll = () => {
               <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">
                 Current Payslip
               </p>
-              <h2 className="text-3xl font-extrabold mb-1">${currentPayroll.net.toLocaleString()}</h2>
+              <h2 className="text-3xl font-extrabold mb-1">{inr(currentPayroll.net)}</h2>
               <p className="text-white/70 text-sm">Net Pay · {currentPayroll.month}</p>
               <div className="mt-3 flex items-center gap-2">
                 <span className="px-2.5 py-1 bg-white/15 rounded-full text-xs font-semibold">
@@ -84,11 +79,17 @@ const StaffPayroll = () => {
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: "Basic", value: `$${currentPayroll.basic.toLocaleString()}` },
-                { label: "Allowances", value: `$${currentPayroll.allowances.toLocaleString()}` },
-                { label: "Deductions", value: `-$${(currentPayroll.deductions + currentPayroll.tax).toLocaleString()}` },
+                { label: "Basic", value: inr(currentPayroll.basic) },
+                { label: "Allowances", value: inr(currentPayroll.allowances) },
+                {
+                  label: "Deductions",
+                  value: `-${inr(currentPayroll.deductions + currentPayroll.tax)}`,
+                },
               ].map((item) => (
-                <div key={item.label} className="bg-white/10 rounded-xl px-4 py-3 text-center border border-white/10">
+                <div
+                  key={item.label}
+                  className="bg-white/10 rounded-xl px-4 py-3 text-center border border-white/10"
+                >
                   <p className="text-white/60 text-xs mb-1">{item.label}</p>
                   <p className="text-white font-bold">{item.value}</p>
                 </div>
@@ -101,10 +102,10 @@ const StaffPayroll = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-7">
         {/* Salary Breakdown */}
         <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <MdReceiptLong className="text-primary text-lg" />
-            <span className="text-base font-bold text-slate-800">Salary Breakdown — {currentPayroll.month}</span>
-          </div>
+          <p className="text-base font-bold text-slate-800 mb-1">
+            Salary Breakdown — {currentPayroll.month}
+          </p>
+          <p className="text-xs text-slate-400 mb-5">Gross to net computation</p>
           <div className="flex flex-col gap-3">
             {breakdown.map((item) => (
               <div
@@ -117,15 +118,25 @@ const StaffPayroll = () => {
                     : "bg-slate-50/60 border border-slate-100"
                 }`}
               >
-                <span className={`text-sm font-semibold ${item.type === "net" ? "text-white" : "text-slate-700"}`}>
+                <span
+                  className={`text-sm font-semibold ${
+                    item.type === "net" ? "text-white" : "text-slate-700"
+                  }`}
+                >
                   {item.label}
                 </span>
-                <span className={`text-sm font-bold ${
-                  item.type === "net" ? "text-white" :
-                  item.type === "debit" ? "text-danger" :
-                  item.type === "total" ? "text-slate-800" : "text-success"
-                }`}>
-                  {item.amount < 0 ? `-$${Math.abs(item.amount).toLocaleString()}` : `$${item.amount.toLocaleString()}`}
+                <span
+                  className={`text-sm font-bold ${
+                    item.type === "net"
+                      ? "text-white"
+                      : item.type === "debit"
+                      ? "text-danger"
+                      : item.type === "total"
+                      ? "text-slate-800"
+                      : "text-success"
+                  }`}
+                >
+                  {item.amount < 0 ? `-${inr(item.amount)}` : inr(item.amount)}
                 </span>
               </div>
             ))}
@@ -134,30 +145,32 @@ const StaffPayroll = () => {
 
         {/* Net Salary Trend */}
         <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
-          <div className="flex items-center gap-2 mb-1">
-            <MdTrendingUp className="text-success text-lg" />
-            <span className="text-base font-bold text-slate-800">Net Salary Trend</span>
-          </div>
-          <p className="text-xs text-slate-400 mb-4">Last 6 months net take-home pay</p>
+          <p className="text-base font-bold text-slate-800 mb-1">Net Salary Trend</p>
+          <p className="text-xs text-slate-400 mb-4">Last 6 months net take-home pay (₹)</p>
           <AreaChartComponent data={netSalaryTrend} xKey="name" yKey="value" color="#22C55E" />
         </div>
       </div>
 
       {/* Payroll History */}
       <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex items-center gap-2">
-          <MdAccountBalance className="text-primary text-lg" />
-          <span className="text-base font-bold text-slate-800">Payroll History</span>
+        <div className="p-6 border-b border-slate-100">
+          <p className="text-base font-bold text-slate-800">Payroll History</p>
+          <p className="text-xs text-slate-400 mt-0.5">{payrollHistory.length} processed payslips</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
-                {["Month", "Gross Salary", "Total Deductions", "Net Pay", "Status", "Actions"].map((h) => (
-                  <th key={h} className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    {h}
-                  </th>
-                ))}
+                {["Month", "Gross Salary", "Total Deductions", "Net Pay", "Status", "Actions"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
@@ -170,18 +183,17 @@ const StaffPayroll = () => {
                   className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
                 >
                   <td className="px-5 py-3.5 font-semibold text-slate-700">{pay.month}</td>
-                  <td className="px-5 py-3.5 text-slate-600">${pay.gross.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 text-danger font-medium">-${pay.deductions.toLocaleString()}</td>
-                  <td className="px-5 py-3.5 font-bold text-slate-800">${pay.net.toLocaleString()}</td>
+                  <td className="px-5 py-3.5 text-slate-600">{inr(pay.gross)}</td>
+                  <td className="px-5 py-3.5 text-danger font-medium">-{inr(pay.deductions)}</td>
+                  <td className="px-5 py-3.5 font-bold text-slate-800">{inr(pay.net)}</td>
                   <td className="px-5 py-3.5">
                     <Badge status={pay.status}>{pay.status}</Badge>
                   </td>
                   <td className="px-5 py-3.5">
                     <button
-                      id={`download-payslip-${pay.id}`}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-hover transition-all"
+                      onClick={() => setSelectedSlip(pay.id)}
+                      className="text-xs font-bold text-primary hover:text-primary-hover uppercase tracking-wide transition-all"
                     >
-                      <MdDownload className="text-base" />
                       Download
                     </button>
                   </td>

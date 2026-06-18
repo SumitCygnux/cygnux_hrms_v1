@@ -3,14 +3,6 @@ import { motion } from "framer-motion";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
 import { BarChartComponent } from "../../../components/charts/ChartWrappers";
-import {
-  MdAccessTime,
-  MdCheckCircle,
-  MdWbSunny,
-  MdNightsStay,
-  MdTimelapse,
-  MdFilterList,
-} from "react-icons/md";
 
 const attendanceLogs = [
   { id: "LOG-001", date: "2026-06-18", checkIn: "08:45 AM", checkOut: "—", hours: "4h 12m", overtime: 0, status: "On-Time" },
@@ -39,12 +31,15 @@ const StaffAttendance = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const filters = ["All", "On-Time", "Late", "WFH", "Half-Day", "Absent"];
 
-  const filtered = activeFilter === "All"
-    ? attendanceLogs
-    : attendanceLogs.filter((l) => l.status === activeFilter);
+  const filtered =
+    activeFilter === "All"
+      ? attendanceLogs
+      : attendanceLogs.filter((l) => l.status === activeFilter);
 
   const stats = {
-    present: attendanceLogs.filter((l) => ["On-Time", "WFH", "Half-Day"].includes(l.status)).length,
+    present: attendanceLogs.filter((l) =>
+      ["On-Time", "WFH", "Half-Day"].includes(l.status)
+    ).length,
     late: attendanceLogs.filter((l) => l.status === "Late").length,
     wfh: attendanceLogs.filter((l) => l.status === "WFH").length,
     absent: attendanceLogs.filter((l) => l.status === "Absent").length,
@@ -54,32 +49,57 @@ const StaffAttendance = () => {
     <div>
       <PageHeader
         title="My Attendance"
-        subtitle="Track your daily check-in/out records and hours"
+        subtitle="Track your daily check-in / check-out records and hours"
       />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
         {[
-          { label: "Present Days", value: stats.present, icon: <MdCheckCircle />, color: "text-success", bg: "bg-success/10" },
-          { label: "Late Arrivals", value: stats.late, icon: <MdAccessTime />, color: "text-warning", bg: "bg-warning/10" },
-          { label: "WFH Days", value: stats.wfh, icon: <MdWbSunny />, color: "text-info", bg: "bg-info/10" },
-          { label: "Absent Days", value: stats.absent, icon: <MdNightsStay />, color: "text-danger", bg: "bg-danger/10" },
+          {
+            label: "Present Days",
+            value: stats.present,
+            color: "text-success",
+            bg: "bg-success/5",
+            border: "border-l-success",
+            sub: "On-Time + WFH + Half-Day",
+          },
+          {
+            label: "Late Arrivals",
+            value: stats.late,
+            color: "text-warning",
+            bg: "bg-warning/5",
+            border: "border-l-warning",
+            sub: "Arrived after 09:00 AM",
+          },
+          {
+            label: "WFH Days",
+            value: stats.wfh,
+            color: "text-info",
+            bg: "bg-info/5",
+            border: "border-l-info",
+            sub: "Work from home",
+          },
+          {
+            label: "Absent Days",
+            value: stats.absent,
+            color: "text-danger",
+            bg: "bg-danger/5",
+            border: "border-l-danger",
+            sub: "No check-in recorded",
+          },
         ].map((s, i) => (
           <motion.div
             key={s.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: i * 0.06 }}
-            className="bg-white border border-slate-100 rounded-[24px] p-6 flex justify-between items-start shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-all duration-300"
+            className={`bg-white border border-slate-100 border-l-4 ${s.border} rounded-[24px] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-all duration-300`}
           >
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">{s.label}</span>
-              <span className="text-3xl font-extrabold text-slate-800">{s.value}</span>
-              <span className="text-xs text-slate-400">This month</span>
-            </div>
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl ${s.bg} ${s.color}`}>
-              {s.icon}
-            </div>
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">
+              {s.label}
+            </p>
+            <p className="text-3xl font-extrabold text-slate-800 mb-1">{s.value}</p>
+            <p className="text-[10px] text-slate-400">{s.sub}</p>
           </motion.div>
         ))}
       </div>
@@ -91,18 +111,26 @@ const StaffAttendance = () => {
           <span className="text-xs text-slate-400">Jun 12–18, 2026</span>
         </div>
         <p className="text-xs text-slate-400 mb-4">Your daily working hours including overtime</p>
-        <BarChartComponent data={weeklyHours} xKey="name" yKey="value" color="#2563EB" label="Hours" />
+        <BarChartComponent
+          data={weeklyHours}
+          xKey="name"
+          yKey="value"
+          color="#2563EB"
+          label="Hours"
+        />
       </div>
 
       {/* Attendance Table */}
       <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <MdTimelapse className="text-primary text-lg" />
-            <span className="text-base font-bold text-slate-800">Attendance Log</span>
+          <div>
+            <p className="text-base font-bold text-slate-800">Attendance Log</p>
+            <p className="text-xs text-slate-400 mt-0.5">{attendanceLogs.length} records found</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <MdFilterList className="text-slate-400" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">
+              Filter
+            </span>
             {filters.map((f) => (
               <button
                 key={f}
@@ -124,7 +152,10 @@ const StaffAttendance = () => {
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
                 {["Date", "Check In", "Check Out", "Hours", "Overtime", "Status"].map((h) => (
-                  <th key={h} className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <th
+                    key={h}
+                    className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
+                  >
                     {h}
                   </th>
                 ))}
@@ -146,7 +177,9 @@ const StaffAttendance = () => {
                   <td className="px-5 py-3.5 text-slate-600">
                     {log.overtime > 0 ? (
                       <span className="text-success font-semibold">+{log.overtime}h</span>
-                    ) : "—"}
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     <Badge status={log.status}>{log.status}</Badge>
