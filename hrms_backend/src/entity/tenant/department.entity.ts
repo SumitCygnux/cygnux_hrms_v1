@@ -9,8 +9,8 @@ export class Department {
   @Column()
   name!: string;
 
-  @Column()
-  manager!: string;
+  @Column({ nullable: true })
+managerId!: string;
 
   @Column({
     default: 0
