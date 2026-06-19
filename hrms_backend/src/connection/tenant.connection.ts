@@ -3,6 +3,7 @@ import { Department } from "../entity/tenant/department.entity";
 import { Designation }from "../entity/tenant/designation.entity";
 import { Staff } from "../entity/tenant/staff.entity";
 import { StaffAttendance } from "../entity/tenant/staff/staff.attandance.entity";
+import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 const tenantConnections = new Map<string, DataSource>();
 
 export const getTenantConnection = async (dbName: string) => {
@@ -23,8 +24,7 @@ export const getTenantConnection = async (dbName: string) => {
     entities: [
       Department,
       Designation,
-      Staff,
-      StaffAttendance
+      Staff
     ],
   });
 

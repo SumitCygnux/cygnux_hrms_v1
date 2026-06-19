@@ -3,9 +3,9 @@ import {
   createStaffService,
   getAllStaffService,
   updateStaffStatusService,
-  deleteStaffService,
   getStaffByIdService,
-  setupPasswordService,
+  updateStaffService,
+  setupPasswordService
 } from "../services/staff.service";
 import { number } from "zod";
 
@@ -87,31 +87,6 @@ export const updateStaffStatus = async (
   }
 };
 
-export const deleteStaff = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const dbName = (req as any).user.dbName;
-
-    const { id } = req.params;
-
-    await deleteStaffService(
-      dbName,
-      Number(id)
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Staff deleted successfully",
-    });
-  } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
 
 export const getStaffById = async (
   req: Request,
@@ -144,10 +119,32 @@ export const getStaffById = async (
   }
 };
 
+export const updateStaff = async (req: Request, res: Response) => {
+  try {
+ const dbName = (req as any).user.dbName;
+    const id = req.params.id;
+    const data = req.body;
+
+    const updatedStaff = await updateStaffService(dbName, Number(id), data);
+
+    return res.status(200).json({
+      success: true,
+      message: "Staff updated successfully",
+      data: updatedStaff,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
+};
+
 export const setupPassword = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const { newPassword } = req.body;
+
 
     if (!newPassword || newPassword.length < 8) {
       return res.status(400).json({
@@ -156,7 +153,9 @@ export const setupPassword = async (req: Request, res: Response) => {
       });
     }
 
+
     await setupPasswordService(user.dbName, Number(user.userId), newPassword);
+
 
     return res.status(200).json({
       success: true,

@@ -5,9 +5,9 @@ import {
   createStaff,
   getAllStaff,
   updateStaffStatus,
-  deleteStaff,
   getStaffById,
-  setupPassword,
+    updateStaff,
+     setupPassword,
 } from "../controllers/staff.controller";
 
 import { validate } from "../middleware/validate";
@@ -20,7 +20,7 @@ router.post("/", authMiddleware, validate(createStaffSchema), createStaff);
 router.get("/", authMiddleware, getAllStaff);
 router.put("/setup-password", authMiddleware, setupPassword);
 router.put("/:id/status", authMiddleware, updateStaffStatus);
-router.delete("/:id", authMiddleware, deleteStaff);
 router.get("/:id", authMiddleware, getStaffById);
+router.put("/:id",authMiddleware, updateStaff);
 
 export default router;

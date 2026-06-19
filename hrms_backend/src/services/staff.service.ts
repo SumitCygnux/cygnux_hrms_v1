@@ -61,26 +61,6 @@ export const updateStaffStatusService = async (
   return await staffRepo.save(staff);
 };
 
-export const deleteStaffService = async (
-  dbName: string,
-  id: number
-) => {
-  const dataSource = await getTenantConnection(dbName);
-
-  const staffRepo = dataSource.getRepository(Staff);
-
-  const staff = await staffRepo.findOne({
-    where: { id },
-  });
-
-  if (!staff) {
-    throw new Error("Staff not found");
-  }
-
-  await staffRepo.remove(staff);
-
-  return true;
-};
 
 
 export const setupPasswordService = async (
@@ -138,4 +118,29 @@ export const getStaffByIdService = async (
 
     baseSalary: designation?.baseSalary || 0,
   };
+};
+
+export const updateStaffService = async (
+   dbName: string,
+  id: Number,
+  data: any
+) => {
+ const dataSource = await getTenantConnection(dbName);
+
+  const staffRepo = dataSource.getRepository(Staff);
+  const staff = await staffRepo.findOne({
+    where: { id: Number(id)}
+  });
+
+  if (!staff) {
+    throw new Error("Staff not found");
+  }
+
+   Object.assign(staff, {
+    ...data
+  });
+
+  const updatedStaff = await staffRepo.save(staff);
+
+  return updatedStaff;
 };
