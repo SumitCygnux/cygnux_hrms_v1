@@ -27,7 +27,16 @@ const Leave = () => {
 
   // Modal State
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+const [statusFilter, setStatusFilter] = useState("All"); 
+const filteredLeaveRequests = useMemo(() => {
+  if (statusFilter === "All") {
+    return leaveRequests;
+  }
 
+  return leaveRequests.filter(
+    (leave) => leave.status === statusFilter
+  );
+}, [leaveRequests, statusFilter]);
   // Form State
   const [formData, setFormData] = useState({
     leaveType: "Sick Leave",
@@ -139,11 +148,7 @@ const Leave = () => {
       <PageHeader
         title="Leave Management"
         subtitle="Manage and apply for employee leaves"
-        actions={
-          <Button variant="primary" iconBefore={<MdAdd />} onClick={() => setIsApplyModalOpen(true)}>
-            Apply for Leave
-          </Button>
-        }
+      
       />
 
       {/* KPI Cards Grid */}
@@ -189,144 +194,47 @@ const Leave = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-7 items-start">
+      <div className="grid grid-cols-1 gap-6 mb-7 items-start">
         {/* Left Sidebar widgets */}
-        <div className="flex flex-col gap-6 lg:col-span-1">
-          {/* Balance Widget */}
-          <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-text-primary mb-4 pb-2 border-b border-border-color">My Leave Balances</h3>
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span className="font-semibold text-sm">Sick Leave</span>
-                <Badge status="Active">
-                  {userBalance.sick - userBalance.sickUsed} / {userBalance.sick} Remaining
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span className="font-semibold text-sm">Casual Leave</span>
-                <Badge status="Late">
-                  {userBalance.casual - userBalance.casualUsed} / {userBalance.casual} Remaining
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-sm">Paid Leave</span>
-                <Badge status="WFH">
-                  {userBalance.paid - userBalance.paidUsed} / {userBalance.paid} Remaining
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          {/* Workflow Timeline */}
-          <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm">
-            <h3 className="text-base font-bold text-text-primary mb-4 pb-2 border-b border-border-color">Leave Approval Path</h3>
-            <div className="flex flex-col gap-5">
-              <div className="flex gap-4 relative">
-                <div className="absolute left-[11px] top-6 bottom-[-20px] w-[2px] bg-border-color z-0" />
-                <div className="w-6 h-6 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold z-10 flex-shrink-0">1</div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold text-text-primary">Submission</span>
-                  <span className="text-[10px] text-text-secondary">Employee files request</span>
-                </div>
-              </div>
-              <div className="flex gap-4 relative">
-                <div className="absolute left-[11px] top-6 bottom-[-20px] w-[2px] bg-border-color z-0" />
-                <div className="w-6 h-6 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold z-10 flex-shrink-0">2</div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold text-text-primary">Line Manager Review</span>
-                  <span className="text-[10px] text-text-secondary">Approves/Rejects request</span>
-                </div>
-              </div>
-              <div className="flex gap-4 relative">
-                <div className="w-6 h-6 rounded-full bg-primary-light text-primary flex items-center justify-center text-xs font-bold z-10 flex-shrink-0">3</div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-bold text-text-primary">HR Administration</span>
-                  <span className="text-[10px] text-text-secondary">Updates calendars & payroll</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      
+          
 
         {/* Leave Requests Table */}
-        <div className="bg-bg-secondary border border-border-color rounded-2xl shadow-sm overflow-hidden lg:col-span-2">
+        {/* <div className="bg-bg-secondary border border-border-color rounded-2xl shadow-sm overflow-hidden lg:col-span-2">
           <div className="p-6 border-b border-gray-200">
             <h3 className="font-bold text-lg text-gray-800">Leave Requests Pipeline</h3>
           </div>
           <DataTable columns={columns} data={leaveRequests} pageSize={5} emptyMessage="No leave requests filed." />
-        </div>
+        </div> */}
+
+        <div className="p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <h3 className="font-bold text-lg text-gray-800">
+    Leave Requests Pipeline
+  </h3>
+
+  <div className="flex items-center gap-3">
+    <label className="text-sm font-medium text-gray-600">
+      Filter By Status
+    </label>
+
+    <select
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value)}
+      className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="All">All</option>
+      <option value="Pending">Pending</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+  
+  </div>
+    
+</div>
+   <DataTable columns={columns}  data={filteredLeaveRequests} pageSize={5} emptyMessage="No leave requests filed." />
       </div>
 
-      {/* Apply Leave Modal */}
-      <DetailModal
-        isOpen={isApplyModalOpen}
-        onClose={() => setIsApplyModalOpen(false)}
-        title="File Leave Request"
-        maxWidth="500px"
-      >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-600">Leave Type</label>
-            <select
-              name="leaveType"
-              value={formData.leaveType}
-              onChange={handleChange}
-              className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
-            >
-              <option value="Sick Leave">Sick Leave</option>
-              <option value="Casual Leave">Casual Leave</option>
-              <option value="Paid Leave">Paid Leave</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-600">Start Date</label>
-              <input
-                type="date"
-                name="startDate"
-                required
-                value={formData.startDate}
-                onChange={handleChange}
-                className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-600">End Date</label>
-              <input
-                type="date"
-                name="endDate"
-                required
-                value={formData.endDate}
-                onChange={handleChange}
-                className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-600">Reason / Description</label>
-            <textarea
-              name="reason"
-              rows="3"
-              required
-              placeholder="Provide a brief explanation for leave..."
-              value={formData.reason}
-              onChange={handleChange}
-              className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-4">
-            <Button variant="secondary" onClick={() => setIsApplyModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary">
-              Submit Request
-            </Button>
-          </div>
-        </form>
-      </DetailModal>
+    
     </div>
   );
 };

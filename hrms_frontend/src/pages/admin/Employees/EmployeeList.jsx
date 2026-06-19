@@ -21,7 +21,7 @@ import {
   getAllStaff,
   createStaff,
   getDesignationByDepartment,
-  updateStaff
+  updateStaff,
 } from "../../../services/api";
 import { toast } from "react-toastify";
 
@@ -47,7 +47,7 @@ const EmployeeList = () => {
     fullName: "",
     email: "",
     phone: "",
-      password: "",
+    password: "",
     departmentId: "",
     designationId: "",
     joiningDate: new Date().toISOString().split("T")[0],
@@ -121,7 +121,7 @@ const EmployeeList = () => {
       fullName: "",
       email: "",
       phone: "",
-        password: "",
+      password: "",
       departmentId: "",
       designationId: "",
       joiningDate: new Date().toISOString().split("T")[0],
@@ -144,10 +144,9 @@ const EmployeeList = () => {
       phone: employee.phone,
       departmentId: employee.departmentId,
       designationId: employee.designationId,
-     joiningDate:
-      employee.joiningDate?.split("T")[0],
+      joiningDate: employee.joiningDate?.split("T")[0],
       gender: employee.gender,
-        dob: employee.dob?.split("T")[0],
+      dob: employee.dob?.split("T")[0],
       address: employee.address,
       role: employee.role,
       salary: employee.salary,
@@ -164,7 +163,7 @@ const EmployeeList = () => {
       fullName: formData.fullName,
       email: formData.email,
       phone: formData.phone,
-      password:formData.password,
+      password: formData.password,
       gender: formData.gender,
 
       departmentId: formData.departmentId,
@@ -190,15 +189,14 @@ const EmployeeList = () => {
 
       loadData();
 
-    setEditId(null);
+      setEditId(null);
 
-    setActiveView("list");
+      setActiveView("list");
     } catch (error) {
       console.log(error);
     }
   };
 
-  
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
 
@@ -268,23 +266,11 @@ const EmployeeList = () => {
     { header: "Email", accessor: "email", sortable: true },
     { header: "Phone", accessor: "phone", sortable: false },
     {
-      header: "Password",
-      accessor: "password",
-      sortable: false,
-      render: (row) => row.status === "Active" ? "-" : row.password,
+      header: "Joining Date",
+      accessor: "joiningDate",
+      sortable: true,
+      render: (row) => <span>{row.joiningDate?.split("T")[0]}</span>,
     },
-    { header: "Joining Date", accessor: "joiningDate", sortable: true },
-
-   {
-  header: "Joining Date",
-  accessor: "joiningDate",
-  sortable: true,
-  render: (row) => (
-    <span>
-      {row.joiningDate?.split("T")[0]}
-    </span>
-  ),
-},
 
     { header: "Role", accessor: "role", sortable: true },
     {
@@ -435,7 +421,7 @@ const EmployeeList = () => {
                 name="password"
                 required
                 value={formData.password}
-                 disabled={!!editId} 
+                disabled={!!editId}
                 onChange={handleChange}
                 placeholder="Enter Password"
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"

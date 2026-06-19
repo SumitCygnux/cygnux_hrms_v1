@@ -80,4 +80,14 @@ export const updateStaff = (id, data) => {
 };
 
 
+// leave api
+export const applyLeave = (data) => {
+  return api.post("/leave/apply", data);
+};
+
+export const getLeave = (data) => {
+  return api.get("/leave/", data);
+};
+
+
 export default api;
