@@ -7,6 +7,10 @@ import { Users } from "../entity/master/users.entity";
 import { Roles } from "../entity/master/roles.entity";
 import { Staff } from "../entity/tenant/staff.entity";
 import { getTenantConnection } from "../connection/tenant.connection";
+import { seedPermissions } from "../seeders/permission.seed";
+import { Role } from "../entity/tenant/roles.entity";
+import { Permission } from "../entity/tenant/permissions.entity";
+import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 import { generateToken } from "../utils/jwt";
 
@@ -46,6 +50,7 @@ export const registerCompanyService = async (payload: any) => {
   const dbName = `hrms_${subdomain}`;
 
   const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
+  
 
   const tenant = await tenantRepo.save({
     name: companyName,
@@ -66,6 +71,9 @@ export const registerCompanyService = async (payload: any) => {
   await queryRunner.query(`CREATE DATABASE "${dbName}"`);
 
   await queryRunner.release();
+  const tenantDataSource = await getTenantConnection(dbName);
+
+await seedPermissions(tenantDataSource);
 
   const roleRepo = DatabaseConnection.getRepository(Roles);
 
@@ -146,32 +154,78 @@ export const loginService = async (payload: any) => {
     const tenantConnection = await getTenantConnection(tenant.db_name);
     const staffRepo = tenantConnection.getRepository(Staff);
     const staff = await staffRepo.findOne({ where: { email } });
+    
 
     if (staff) {
-      if (staff.password !== password) throw new Error("Invalid Password");
+  if (staff.password !== password)
+    throw new Error("Invalid Password");
 
-      const token = generateToken({
-        userId: staff.id,
-        tenantId: tenant.id,
-        roleId: "EMPLOYEE",
-        dbName: tenant.db_name,
-      });
+  const roleRepo =
+    tenantConnection.getRepository(Role);
 
-      return {
-        token,
-        requiresPasswordSetup: staff.status === "InActive",
-        user: {
-          id: staff.id,
-          name: staff.fullName,
-          email: staff.email,
-          role: "EMPLOYEE",
-          status: staff.status,
-          tenant_id: tenant.id,
-          companyName: tenant.name,
-          db_name: tenant.db_name,
-        },
-      };
-    }
+  const permissionRepo =
+    tenantConnection.getRepository(Permission);
+
+  const rolePermissionRepo =
+    tenantConnection.getRepository(RolePermission);
+
+  const role = await roleRepo.findOne({
+    where: {
+      id: staff.accessRoleId,
+    },
+  });
+
+  const rolePermissions =
+    await rolePermissionRepo.find({
+      where: {
+        roleId: staff.accessRoleId,
+      },
+    });
+
+  const permissionIds =
+    rolePermissions.map(
+      (rp) => rp.permissionId
+    );
+
+  const permissions =
+    await permissionRepo.find();
+
+  const permissionNames =
+    permissions
+      .filter((p) =>
+        permissionIds.includes(p.id)
+      )
+      .map((p) => p.name);
+
+  const token = generateToken({
+    userId: staff.id,
+    tenantId: tenant.id,
+    roleId: staff.accessRoleId,
+    dbName: tenant.db_name,
+  });
+
+  return {
+    token,
+
+    permissions: permissionNames,
+
+    requiresPasswordSetup:
+      staff.status === "InActive",
+
+    user: {
+      id: staff.id,
+      name: staff.fullName,
+      email: staff.email,
+
+      role: role?.name,
+
+      status: staff.status,
+      tenant_id: tenant.id,
+      companyName: tenant.name,
+      db_name: tenant.db_name,
+    },
+  };
+}
   }
 
   throw new Error("Invalid Email");

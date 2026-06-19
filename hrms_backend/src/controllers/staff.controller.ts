@@ -26,12 +26,12 @@ export const createStaff = async (
       message: "Staff created successfully",
       data: staff,
     });
-  }catch (error: any) {
-  console.error("Create Staff Error:", error);
-  return res.status(500).json({
-    success: false,
-    message: error.message,
-  });
+  } catch (error: any) {
+    console.log("ERROR =>", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
