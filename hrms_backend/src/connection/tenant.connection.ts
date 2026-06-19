@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation }from "../entity/tenant/designation.entity";
 import { Staff } from "../entity/tenant/staff.entity";
+import { StaffAttendance } from "../entity/tenant/staff/staff.attandance.entity";
 import { Role } from "../entity/tenant/roles.entity";
 import { Permission } from "../entity/tenant/permissions.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
@@ -26,6 +27,7 @@ export const getTenantConnection = async (dbName: string) => {
     entities: [
       Department,
       Designation,
+      Staff
       Staff,
       Role,
       Permission,
