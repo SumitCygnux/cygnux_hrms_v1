@@ -8,6 +8,7 @@ export const createStaffService = async (dbName: string, data: any) => {
 
   const staffRepo = dataSource.getRepository(Staff);
   console.log("FINAL DATA:", data);
+  console.log("ACCESS ROLE ID =>", data.accessRoleId);
   console.log("departmentId:", data.departmentId);
   console.log("designationId:", data.designationId);
 
@@ -25,7 +26,7 @@ export const createStaffService = async (dbName: string, data: any) => {
     joiningDate: data.joiningDate,
     address: data.address,
 
-
+    accessRoleId: data.accessRoleId,
   });
 
   return await staffRepo.save(staff);

@@ -57,4 +57,10 @@ status!: string;
   nullable: true,
 })
 role!: string;
+
+@Column({
+  nullable: true,
+})
+accessRoleId!: string;
+
 }

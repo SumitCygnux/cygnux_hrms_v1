@@ -2,6 +2,9 @@ import { DataSource } from "typeorm";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation }from "../entity/tenant/designation.entity";
 import { Staff } from "../entity/tenant/staff.entity";
+import { Role } from "../entity/tenant/roles.entity";
+import { Permission } from "../entity/tenant/permissions.entity";
+import { RolePermission } from "../entity/tenant/rolePermission.entity";
 import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 const tenantConnections = new Map<string, DataSource>();
 
@@ -24,6 +27,9 @@ export const getTenantConnection = async (dbName: string) => {
       Department,
       Designation,
       Staff,
+      Role,
+      Permission,
+      RolePermission,
       Leave
     ],
   });

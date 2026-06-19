@@ -1,12 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHRMSData } from "../../../context/HRMSDataContext";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Tabs from "../../../components/common/Tabs";
 import Button from "../../../components/common/Button";
 import Badge from "../../../components/common/Badge";
-import { MdDone } from "react-icons/md";
+import { getRoles, createRole, updateRole, getPermissions,getRolePermissions,saveRolePermissions } from "../../../services/api";
+import { toast } from "react-toastify";
 
 const Settings = () => {
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [editingRoleId, setEditingRoleId] = useState(null);
+  const [permissions, setPermissions] = useState([]);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+
+  const [roleForm, setRoleForm] = useState({
+    name: "",
+    description: "",
+  });
+
+  const handleEditRole = (role) => {
+    setRoleForm({
+      name: role.name,
+      description: role.description,
+    });
+
+    setEditingRoleId(role.id);
+    setShowRoleModal(true);
+  };
+
+  const handleSaveRole = async () => {
+    try {
+      if (editingRoleId) {
+        await updateRole(editingRoleId, roleForm);
+        toast.success("Role Updated Successfully");
+      } else {
+        await createRole(roleForm);
+        toast.success("Role Created Successfully");
+      }
+
+      loadRoles();
+      setShowRoleModal(false);
+      setRoleForm({
+        name: "",
+        description: "",
+      });
+      setEditingRoleId(null);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  };
+
+  const fetchPermissions = async () => {
+  const res = await getPermissions();
+  console.log("Permissions =>", res.data.data);
+  setPermissions(res.data.data);
+};
   const {
     companySettings,
     updateSettings,
@@ -27,6 +79,63 @@ const Settings = () => {
     { id: "payroll", label: "Payroll Rules" },
     { id: "notifications", label: "Notification Settings" }
   ];
+
+  useEffect(() => {
+    loadRoles();
+    fetchPermissions();
+  }, []);
+
+  const loadRoles = async () => {
+  try {
+    const res = await getRoles();
+
+    setRoles(res.data.data);
+
+    if (res.data.data.length > 0) {
+      await handleRoleSelect(
+        res.data.data[0]
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  const handlePermissionToggle = (permissionId) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(permissionId)
+        ? prev.filter((id) => id !== permissionId)
+        : [...prev, permissionId]
+    );
+  };
+
+  const handleRoleSelect = async (role) => {
+    setSelectedRole(role);
+
+    const res = await getRolePermissions(role.id);
+
+    setSelectedPermissions(
+      res.data.data.map(
+        (item) => item.permissionId
+      )
+    );
+  };
+const handleSavePermissions = async () => {
+  if (!selectedRole) {
+    toast.error("Select Role First");
+    return;
+  }
+
+  await saveRolePermissions({
+    roleId: selectedRole.id,
+    permissionIds: selectedPermissions,
+  });
+
+  toast.success(
+    "Permissions Saved Successfully"
+  );
+};
+
 
   const handleCompanySubmit = (e) => {
     e.preventDefault();
@@ -123,47 +232,160 @@ const Settings = () => {
         {/* Roles & Permissions */}
         {activeTab === "roles" && (
           <div>
-            <h3 className="text-base font-bold text-text-primary mb-5 pb-2 border-b border-border-color">Access Control Levels</h3>
-            <table className="w-full border-collapse mt-3 text-sm">
-              <thead>
-                <tr>
-                  <th className="py-3 px-4 font-bold text-text-secondary border-b-2 border-border-color text-left">Module Profile</th>
-                  <th className="py-3 px-4 font-bold text-text-secondary border-b-2 border-border-color text-left">Admin Access</th>
-                  <th className="py-3 px-4 font-bold text-text-secondary border-b-2 border-border-color text-left">HR Access</th>
-                  <th className="py-3 px-4 font-bold text-text-secondary border-b-2 border-border-color text-left">Employee Access</th>
-                </tr>
-              </thead>
-              <tbody>
-                {["Staff Management", "Attendance", "Leave", "Payroll", "Recruitment", "Settings"].map((mod) => (
-                  <tr key={mod}>
-                    <td className="py-3 px-4 border-b border-border-color text-text-primary" style={{ fontWeight: "700" }}>{mod}</td>
-                    <td className="py-3 px-4 border-b border-border-color text-text-primary">
-                      <span className="flex items-center text-emerald-500 font-bold gap-1">
-                        <MdDone /> Full Access
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 border-b border-border-color text-text-primary">
-                      {mod === "Settings" || mod === "Payroll" ? (
-                        <span className="text-gray-400 font-semibold">View Only</span>
-                      ) : (
-                        <span className="flex items-center text-emerald-500 font-bold gap-1">
-                          <MdDone /> Write Access
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 border-b border-border-color text-text-primary">
-                      {mod === "Staff Management" || mod === "Attendance" || mod === "Leave" ? (
-                        <span className="text-gray-400 font-semibold">Self Only</span>
-                      ) : (
-                        <span className="text-red-500 font-bold">No Access</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="flex items-center justify-between mb-5 pb-2 border-b border-border-color">
+              <h3 className="text-base font-bold text-text-primary">Roles & Permissions</h3>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setEditingRoleId(null);
+
+                  setRoleForm({
+                    name: "",
+                    description: "",
+                  });
+
+                  setShowRoleModal(true);
+                }}
+              >
+                + Add Role
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Roles List */}
+
+              <div className="bg-bg-primary border border-border-color rounded-xl p-4 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-text-primary text-sm">Roles</h4>
+                </div>
+
+                <div className="space-y-2">
+                  {roles.map((role) => (
+                    <div
+                      key={role.id}
+                      onClick={() => handleRoleSelect(role)}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedRole?.id === role.id
+                        ? "bg-blue-50 border-blue-500"
+                        : "border-border-color hover:bg-gray-50"
+                        }`}
+                    >
+                      <span className="text-sm font-medium">{role.name}</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditRole(role);
+                          }}
+                        >✏️</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+              {/* Permissions */}
+<div className="lg:col-span-2 bg-bg-primary border border-border-color rounded-xl p-4">
+
+  <h4 className="font-semibold text-text-primary mb-4">
+    Assigned Permissions
+  </h4>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    {permissions.map((permission) => (
+      <label
+        key={permission.id}
+        className="flex items-center gap-3"
+      >
+        <input
+          type="checkbox"
+          checked={selectedPermissions.includes(
+            permission.id
+          )}
+          onChange={() =>
+            handlePermissionToggle(
+              permission.id
+            )
+          }
+        />
+
+        <span>{permission.name}</span>
+      </label>
+    ))}
+
+  </div>
+
+  <div className="flex justify-end mt-6">
+    <Button
+      variant="primary"
+      onClick={handleSavePermissions}
+    >
+      Save Permissions
+    </Button>
+  </div>
+
+</div>
+            </div>
           </div>
         )}
+
+
+        {showRoleModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white w-full max-w-md rounded-xl p-6 shadow-xl">
+              <h3 className="text-lg font-semibold mb-5">Add New Role</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Role Name </label>
+
+                  <input
+                    type="text"
+                    value={roleForm.name}
+                    onChange={(e) =>
+                      setRoleForm({
+                        ...roleForm,
+                        name: e.target.value,
+                      })
+                    }
+                    className="w-full border border-border-color rounded-lg px-3 py-2 text-sm"
+                    placeholder="TEAM_LEAD"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1"> Description</label>
+                  <textarea
+                    rows={3}
+                    value={roleForm.description}
+                    onChange={(e) =>
+                      setRoleForm({
+                        ...roleForm,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full border border-border-color rounded-lg px-3 py-2 text-sm"
+                    placeholder="Role Description"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowRoleModal(false)}
+                >Cancel </Button>
+
+                <Button
+                  variant="primary"
+                  onClick={handleSaveRole}
+                >
+                  {editingRoleId ? "Update" : "Save"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Leave Policies */}
         {activeTab === "leave" && (

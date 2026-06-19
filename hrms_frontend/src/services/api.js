@@ -74,6 +74,24 @@ export const getDesignationByDepartment = (departmentId) =>
 export const setupStaffPassword = (newPassword) =>
   api.put("/staff/setup-password", { newPassword });
 
+export const getRoles = () =>
+  api.get("/roles");
+
+export const createRole = (data) =>
+  api.post("/roles", data);
+
+export const updateRole = (id, data) =>
+  api.put(`/roles/${id}`, data);
+
+
+export const getPermissions = () =>
+  api.get("/permissions");
+
+export const getRolePermissions = (roleId) =>
+  api.get(`/role-permissions/${roleId}`);
+
+export const saveRolePermissions = (data) =>
+  api.post("/role-permissions", data);
 
 export const updateStaff = (id, data) => {
   return api.put(`/staff/${id}`, data);
