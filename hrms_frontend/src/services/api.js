@@ -64,16 +64,30 @@ export const createStaff = (data) => {
   return api.post("/staff", data);
 };
 
-export const deleteStaff = (id) =>
-  api.delete(`/staff/${id}`);
-
 export const getStaffById = (id) =>
   api.get(`/staff/${id}`);
 
 export const getDesignationByDepartment = (departmentId) =>
   api.get(`/designations/department/${departmentId}`);
 
+
 export const setupStaffPassword = (newPassword) =>
   api.put("/staff/setup-password", { newPassword });
+
+
+export const updateStaff = (id, data) => {
+  return api.put(`/staff/${id}`, data);
+};
+
+
+// leave api
+export const applyLeave = (data) => {
+  return api.post("/leave/apply", data);
+};
+
+export const getLeave = (data) => {
+  return api.get("/leave/", data);
+};
+
 
 export default api;
