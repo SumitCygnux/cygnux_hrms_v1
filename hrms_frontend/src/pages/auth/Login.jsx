@@ -35,10 +35,14 @@ const Login = () => {
       console.log(response);
       console.log(response.data);
 
-      const { token, user, requiresPasswordSetup } = response.data.data;
+      const { token, user,permissions, requiresPasswordSetup } = response.data.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("permissions",JSON.stringify(permissions || []));
+
+      console.log("USER =>", user);
+console.log("PERMISSIONS =>", permissions);
 
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");

@@ -21,7 +21,8 @@ import {
   getAllStaff,
   createStaff,
   getDesignationByDepartment,
-  updateStaff,
+  getRoles,
+    updateStaff,
 } from "../../../services/api";
 import { toast } from "react-toastify";
 
@@ -30,6 +31,7 @@ const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
+  const [roles, setRoles] = useState([]);
 
   // Search and Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,6 +57,7 @@ const EmployeeList = () => {
     dob: "1994-01-01",
     address: "",
     role: "",
+    accessRoleId: "",
     salary: "8000",
   });
 
@@ -67,6 +70,9 @@ const EmployeeList = () => {
       const emp = await getAllStaff();
       const dept = await getDepartments();
       const desig = await getDesignations();
+      const roleRes = await getRoles();
+
+
 
       const formattedEmployees = emp.data.data.map((e) => ({
         ...e,
@@ -78,10 +84,14 @@ const EmployeeList = () => {
 
         designation:
           desig.data.data.find((d) => d.id === e.designationId)?.title || "-",
+
+          accessRole:
+    roleRes.data.data.find((r) => r.id === e.accessRoleId)?.name || "-",
       }));
 
       setEmployees(formattedEmployees);
       setDepartments(dept.data.data);
+      setRoles(roleRes.data.data);
 
       console.log("Employees =>", formattedEmployees);
     } catch (err) {
@@ -129,6 +139,7 @@ const EmployeeList = () => {
       dob: "1994-01-01",
       address: "",
       role: "",
+      accessRoleId: "",
       salary: "8000",
     });
 
@@ -149,6 +160,7 @@ const EmployeeList = () => {
       dob: employee.dob?.split("T")[0],
       address: employee.address,
       role: employee.role,
+      accessRoleId: employee.accessRoleId,
       salary: employee.salary,
     });
 
@@ -173,6 +185,7 @@ const EmployeeList = () => {
       joiningDate: formData.joiningDate,
       salary: Number(formData.salary),
       role: formData.role,
+      accessRoleId: formData.accessRoleId,
       address: formData.address,
     };
 
@@ -273,6 +286,7 @@ const EmployeeList = () => {
     },
 
     { header: "Role", accessor: "role", sortable: true },
+    {header: "Access Role",accessor: "accessRole",sortable: true},
     {
       header: "Status",
       accessor: "status",
@@ -559,6 +573,27 @@ const EmployeeList = () => {
                 className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
               />
             </div>
+
+            <div className="flex flex-col gap-1.5">
+  <label className="text-xs font-semibold text-text-secondary">
+    Access Role
+  </label>
+
+  <select
+    name="accessRoleId"
+    value={formData.accessRoleId}
+    onChange={handleChange}
+    className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
+  >
+    <option value="">Select Role</option>
+
+    {roles.map((role) => (
+      <option key={role.id} value={role.id}>
+        {role.name}
+      </option>
+    ))}
+  </select>
+</div>
 
             {/* Address */}
             <div className="col-span-1 sm:col-span-2 flex flex-col gap-1.5">
