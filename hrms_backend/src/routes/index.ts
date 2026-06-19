@@ -3,7 +3,7 @@ import authRoutes from "./auth.routes";
 import departmentRoutes from "./department.routes";
 import designationRoutes from "./designation.routes";
 import staffRoutes from "./staff.routes";
-import leaveRoutes from "./staff/staff.leave.route";
+
 import attendanceRoutes from "./attendance.routes";
 import roleRoutes from "./role.routes";
 import permissionRoutes from "./permission.routes";

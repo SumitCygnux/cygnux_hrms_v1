@@ -27,7 +27,6 @@ export const getTenantConnection = async (dbName: string) => {
     entities: [
       Department,
       Designation,
-      Staff
       Staff,
       Role,
       Permission,
