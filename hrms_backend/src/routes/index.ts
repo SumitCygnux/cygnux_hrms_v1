@@ -3,13 +3,13 @@ import authRoutes from "./auth.routes";
 import departmentRoutes from "./department.routes";
 import designationRoutes from "./designation.routes";
 import staffRoutes from "./staff.routes";
-
-import attendanceRoutes from "./attendance.routes";
+import leaveRoutes from "./staff/staff.leave.route";
+import attendanceRoutes from "./staff/attendance.routes";
 import roleRoutes from "./role.routes";
 import permissionRoutes from "./permission.routes";
 import rolePermissionRoutes from "./rolePermission.routes";
 
-import leaveRoutes from "./staff/staff.leave.route";
+
 
 const router = Router();
 

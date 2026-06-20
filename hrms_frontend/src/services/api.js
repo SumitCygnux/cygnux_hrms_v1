@@ -107,8 +107,13 @@ export const getLeave = (data) => {
   return api.get("/leave/", data);
 };
 
-export const getAllLeave =(data)=>{
-  return api.get("/staff/leave",(data));
-}
+// attendance api
+export const clockIn = () => api.post("/attendance/clock-in");
+export const clockOut = () => api.post("/attendance/clock-out");
+export const breakIn = () => api.post("/attendance/break-in");
+export const breakOut = () => api.post("/attendance/break-out");
+export const getTodayAttendance = () => api.get("/attendance/today");
+export const getAttendanceHistory = (params) => api.get("/attendance/history", { params });
+export const resetTodayAttendance = () => api.delete("/attendance/reset");
 
 export default api;

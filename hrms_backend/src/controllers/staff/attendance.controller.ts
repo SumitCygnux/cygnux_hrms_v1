@@ -6,6 +6,7 @@ import {
   endBreakService,
   getTodayAttendanceService,
   getAttendanceHistoryService,
+  resetAttendanceService,
 } from "../../services/staff/attendance.service";
 
 export const clockIn = async (req: Request, res: Response) => {
@@ -90,6 +91,19 @@ export const getAttendanceHistory = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       data: history,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const resetAttendance = async (req: Request, res: Response) => {
+  try {
+    const { userId: staffId, dbName } = (req as any).user;
+    await resetAttendanceService(dbName, Number(staffId));
+    return res.status(200).json({
+      success: true,
+      message: "Today's attendance reset successfully",
     });
   } catch (error: any) {
     return res.status(400).json({ success: false, message: error.message });

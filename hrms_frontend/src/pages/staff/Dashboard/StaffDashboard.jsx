@@ -206,7 +206,7 @@ const StaffDashboard = () => {
 
       {/* ── KPI CARDS ───────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        <KPICard title="Days Present (Jun)" value="12" icon={<MdCalendarToday />} trend="On-Time streak: 5 days" />
+        <KPICard title="Days Present (Jun)" value="12" icon={<MdCalendarToday />} trend="On-Time streak: 5 days"  />
         <KPICard title="Leave Balance" value="26" icon={<MdEventBusy />} trend="Sick · Casual · Paid combined" />
         <KPICard title="KPI Score" value="95%" icon={<MdStarBorder />} trend="+3% from last quarter" />
         <KPICard title="Net Salary (May)" value="₹10,500" icon={<MdAttachMoney />} trend="Payroll processed" />
@@ -281,8 +281,7 @@ const StaffDashboard = () => {
                 <div className="flex items-center gap-3">
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${act.type === "success" ? "bg-success" : act.type === "info" ? "bg-info" : "bg-warning"}`} />
                   <div>
-                    <p className="text-xs font-semibold text-slate-700">{act.title}</p>
-                    <p className="text-[10px] text-slate-400">{act.subtitle}</p>
+                    active titel
                   </div>
                 </div>
                 <span className="text-xs text-slate-400 font-semibold whitespace-nowrap ml-2">{act.time}</span>
@@ -304,7 +303,7 @@ const StaffDashboard = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0">
                     <span className="text-[9px] font-bold text-primary uppercase leading-none">{ev.date.split(" ")[0]}</span>
-                    <span className="text-sm font-extrabold text-primary leading-none">{ev.date.split(" ")[1]}</span>
+                    <span className="text-sm font-extrabold text-primary leading-none">{ev.date.split[1]}</span>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-700">{ev.title}</p>
