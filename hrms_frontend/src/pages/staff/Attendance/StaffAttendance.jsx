@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
 import KPICard from "../../../components/cards/KPICard";
 import { BarChartComponent } from "../../../components/charts/ChartWrappers";
 import { MdCheckCircle, MdSchedule, MdHome, MdCancel } from "react-icons/md";
+import { getAttendanceHistory } from "../../../services/api";
 
 const attendanceLogs = [
   { id: "LOG-001", date: "2026-06-18", checkIn: "08:45 AM", checkOut: "—", hours: "4h 12m", overtime: 0, status: "On-Time" },
@@ -30,21 +31,47 @@ const weeklyHours = [
 ];
 
 const StaffAttendance = () => {
+  const [logs, setLogs] = useState([]);
   const [activeFilter, setActiveFilter] = useState("All");
-  const filters = ["All", "On-Time", "Late", "WFH", "Half-Day", "Absent"];
+  const filters = ["All", "Present", "Late", "Absent", "Half Day", "On Leave", "WFH", "Half-Day"];
+
+  const fetchHistory = async () => {
+    try {
+      const res = await getAttendanceHistory();
+      if (res.data && res.data.success && res.data.data) {
+        setLogs(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch attendance history:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const displayLogs = logs.length > 0 ? logs.map(l => ({
+    id: l.id,
+    date: l.date,
+    checkIn: l.clockIn ? new Date(l.clockIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "—",
+    checkOut: l.clockOut ? new Date(l.clockOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "—",
+    hours: l.workingHours ? `${l.workingHours}h` : "—",
+    overtime: l.workingHours > 8 ? Number((l.workingHours - 8).toFixed(2)) : 0,
+    status: l.status
+  })) : attendanceLogs;
 
   const filtered =
     activeFilter === "All"
-      ? attendanceLogs
-      : attendanceLogs.filter((l) => l.status === activeFilter);
+      ? displayLogs
+      : displayLogs.filter((l) => l.status === activeFilter);
 
   const stats = {
-    present: attendanceLogs.filter((l) =>
-      ["On-Time", "WFH", "Half-Day"].includes(l.status)
+    present: displayLogs.filter((l) =>
+      ["Present", "On-Time", "WFH", "Half-Day", "Half Day"].includes(l.status)
     ).length,
-    late: attendanceLogs.filter((l) => l.status === "Late").length,
-    wfh: attendanceLogs.filter((l) => l.status === "WFH").length,
-    absent: attendanceLogs.filter((l) => l.status === "Absent").length,
+    late: displayLogs.filter((l) => l.status === "Late").length,
+    wfh: displayLogs.filter((l) => l.status === "WFH").length,
+    absent: displayLogs.filter((l) => l.status === "Absent").length,
   };
 
   return (
@@ -83,7 +110,7 @@ const StaffAttendance = () => {
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-base font-bold text-slate-800">Attendance Log</p>
-            <p className="text-xs text-slate-400 mt-0.5">{attendanceLogs.length} records found</p>
+            <p className="text-xs text-slate-400 mt-0.5">{displayLogs.length} records found</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">

@@ -33,6 +33,12 @@ export class StaffAttendance {
   @Column({ type: "timestamp", nullable: true })
   clockOut!: Date | null;
 
+  @Column({ type: "timestamp", nullable: true })
+  breakIn!: Date | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  breakOut!: Date | null;
+
   
   @Column({ type: "jsonb", default: [] })
   breaks!: Array<{
