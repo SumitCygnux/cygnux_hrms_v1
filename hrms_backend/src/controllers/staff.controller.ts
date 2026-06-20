@@ -5,7 +5,8 @@ import {
   updateStaffStatusService,
   getStaffByIdService,
   updateStaffService,
-  setupPasswordService
+  setupPasswordService,
+  getAllLeaveService
 } from "../services/staff.service";
 import { number } from "zod";
 
@@ -161,6 +162,31 @@ export const setupPassword = async (req: Request, res: Response) => {
       success: true,
       message: "Password updated successfully",
     });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
+export const getAllLeave = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+
+    const leaves = await getAllLeaveService(dbName);
+
+    return res.status(200).json({
+      success: true,
+      message: "All leaves fetched successfully",
+      data: leaves,
+    });
+
   } catch (error: any) {
     return res.status(500).json({
       success: false,

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useHRMSData } from "../../../context/HRMSDataContext";
 import PageHeader from "../../../components/layouts/PageHeader";
 import DataTable from "../../../components/tables/DataTable";
@@ -13,75 +13,76 @@ import {
   MdHourglassEmpty,
   MdCheck,
   MdClose,
-  MdAdd
+  MdAdd,
 } from "react-icons/md";
+
+import { getAllLeave ,getAllStaff} from "../../../services/api";
 
 const Leave = () => {
   const {
     leaveRequests,
-    employees,
-    currentUser,
-    addLeaveRequest,
-    updateLeaveRequestStatus
+    updateLeaveRequestStatus,
   } = useHRMSData();
 
-  // Modal State
-  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-const [statusFilter, setStatusFilter] = useState("All"); 
-const filteredLeaveRequests = useMemo(() => {
-  if (statusFilter === "All") {
-    return leaveRequests;
-  }
+  const [leaves, setLeaves] = useState([]);
+    const [employees, setEmployees] = useState([]);
+ 
+  useEffect(() => {
+     fetchLeaves(),
+     fetchStaff()
+   }, []);
 
-  return leaveRequests.filter(
-    (leave) => leave.status === statusFilter
-  );
-}, [leaveRequests, statusFilter]);
-  // Form State
-  const [formData, setFormData] = useState({
-    leaveType: "Sick Leave",
-    startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0],
-    reason: ""
-  });
-
-  // Calculations
-  const stats = useMemo(() => {
-    const total = leaveRequests.length;
-    const approved = leaveRequests.filter((r) => r.status === "Approved").length;
-    const rejected = leaveRequests.filter((r) => r.status === "Rejected").length;
-    const pending = leaveRequests.filter((r) => r.status === "Pending").length;
-    return { total, approved, rejected, pending };
-  }, [leaveRequests]);
-
-  // Current logged in user's balances
-  const userBalance = useMemo(() => {
-    const emp = employees.find((e) => e.id === currentUser.id);
-    return emp ? emp.leaveBalance : { sick: 10, casual: 12, paid: 20, sickUsed: 0, casualUsed: 0, paidUsed: 0 };
-  }, [employees, currentUser.id]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addLeaveRequest({
-      employeeId: currentUser.id,
-      employeeName: currentUser.name,
-      ...formData
-    });
-    setIsApplyModalOpen(false);
-    setFormData({
-      leaveType: "Sick Leave",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date().toISOString().split("T")[0],
-      reason: ""
-    });
+ const fetchStaff = async () => {
+    try {
+      const res = await getAllStaff();
+      console.log("fetchStaff", res.data.data);
+      setEmployees(res.data.data); 
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const fetchLeaves = async () => {
+    try {
+      const res = await getAllLeave();
+      console.log("Leaves", res.data.data);
+      setLeaves(res.data.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
-  // Table Columns
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const filteredLeaveRequests = useMemo(() => {
+  return leaves
+    .map((leave) => {
+      const emp = employees.find((e) => e.id === leave.staffId);
+
+      return {
+        ...leave,
+        employeeName: emp?.fullName || "-",
+      };
+    })
+    .filter(
+      (leave) =>
+        statusFilter === "All" || leave.status === statusFilter
+    );
+}, [leaves, employees, statusFilter]);
+
+  
+const stats = useMemo(() => {
+  return {
+    total: leaves.length,
+    approved: leaves.filter(l => l.status === "APPROVED").length,
+    rejected: leaves.filter(l => l.status === "REJECTED").length,
+    pending: leaves.filter(l => l.status === "PENDING").length,
+  };
+}, [leaves]);
+
+  
+
+ 
   const columns = [
     {
       header: "Employee",
@@ -91,32 +92,62 @@ const filteredLeaveRequests = useMemo(() => {
         const emp = employees.find((e) => e.id === row.employeeId);
         return (
           <div className="flex items-center gap-3">
-            <Avatar name={row.employeeName} color={emp?.avatarColor || "#2563EB"} size={36} />
+            <Avatar
+              name={row.employeeName}
+              color={emp?.avatarColor || "#2563EB"}
+              size={36}
+            />
             <div className="flex flex-col">
-              <span className="font-semibold text-text-primary">{row.employeeName}</span>
-              <span className="text-xs text-text-secondary">{row.employeeId}</span>
+              <span className="font-semibold text-text-primary">
+                {row.employeeName}
+              </span>
+              <span className="text-xs text-text-secondary">
+                {row.employeeId}
+              </span>
             </div>
           </div>
         );
-      }
+      },
     },
     { header: "Leave Type", accessor: "leaveType", sortable: true },
-    { header: "Start Date", accessor: "startDate", sortable: true },
-    { header: "End Date", accessor: "endDate", sortable: true },
-    { header: "Total Days", accessor: "totalDays", sortable: true, render: (row) => `${row.totalDays} Days` },
-    { header: "Reason", accessor: "reason", sortable: false, render: (row) => row.reason || "No reason provided." },
+    { header: "Start Date", accessor: "fromDate", sortable: true },
+    { header: "End Date", accessor: "toDate", sortable: true },
+    {
+      header: "Total Days",
+      accessor: "totalDays",
+      sortable: true,
+      render: (row) =>
+        `${
+          Math.ceil(
+            (new Date(row.toDate) - new Date(row.fromDate)) /
+              (1000 * 60 * 60 * 24),
+          ) + 1
+        } Days`,
+
+    },
+    {
+      header: "Reason",
+      accessor: "reason",
+      sortable: false,
+      render: (row) => row.reason || "No reason provided.",
+    },
     {
       header: "Status",
       accessor: "status",
       sortable: true,
-      render: (row) => <Badge status={row.status}>{row.status}</Badge>
+      render: (row) => <Badge status={row.status}>{row.status}</Badge>,
     },
     {
       header: "Actions",
       accessor: "actions",
       sortable: false,
       render: (row) => {
-        if (row.status !== "Pending") return <span className="text-gray-400 text-xs font-semibold">Processed</span>;
+        if (row.status !== "PENDING")
+          return (
+            <span className="text-gray-400 text-xs font-semibold">
+              Processed
+            </span>
+          );
         return (
           <div className="flex gap-2">
             <Button
@@ -138,25 +169,30 @@ const filteredLeaveRequests = useMemo(() => {
               <MdClose />
             </Button>
           </div>
+
         );
-      }
-    }
+      },
+    },
   ];
 
   return (
+
     <div>
       <PageHeader
         title="Leave Management"
         subtitle="Manage and apply for employee leaves"
-      
       />
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
         <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold text-text-secondary uppercase">Total Requests</span>
-            <span className="text-3xl font-extrabold text-text-primary">{stats.total}</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">
+              Total Requests
+            </span>
+            <span className="text-3xl font-extrabold text-text-primary">
+              {stats.total}
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-primary-light text-primary">
             <MdEventNote />
@@ -165,8 +201,12 @@ const filteredLeaveRequests = useMemo(() => {
 
         <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold text-text-secondary uppercase">Approved</span>
-            <span className="text-3xl font-extrabold text-text-primary">{stats.approved}</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">
+              Approved
+            </span>
+            <span className="text-3xl font-extrabold text-text-primary">
+              {stats.approved}
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-success-light text-success">
             <MdCheckCircle />
@@ -175,8 +215,12 @@ const filteredLeaveRequests = useMemo(() => {
 
         <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold text-text-secondary uppercase">Rejected</span>
-            <span className="text-3xl font-extrabold text-text-primary">{stats.rejected}</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">
+              Rejected
+            </span>
+            <span className="text-3xl font-extrabold text-text-primary">
+              {stats.rejected}
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-danger-light text-danger">
             <MdCancel />
@@ -185,8 +229,12 @@ const filteredLeaveRequests = useMemo(() => {
 
         <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold text-text-secondary uppercase">Pending</span>
-            <span className="text-3xl font-extrabold text-text-primary">{stats.pending}</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase">
+              Pending
+            </span>
+            <span className="text-3xl font-extrabold text-text-primary">
+              {stats.pending}
+            </span>
           </div>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-warning-light text-warning">
             <MdHourglassEmpty />
@@ -195,46 +243,37 @@ const filteredLeaveRequests = useMemo(() => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-7 items-start">
-        {/* Left Sidebar widgets */}
-      
-          
-
-        {/* Leave Requests Table */}
-        {/* <div className="bg-bg-secondary border border-border-color rounded-2xl shadow-sm overflow-hidden lg:col-span-2">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="font-bold text-lg text-gray-800">Leave Requests Pipeline</h3>
-          </div>
-          <DataTable columns={columns} data={leaveRequests} pageSize={5} emptyMessage="No leave requests filed." />
-        </div> */}
+    
 
         <div className="p-6 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-  <h3 className="font-bold text-lg text-gray-800">
-    Leave Requests Pipeline
-  </h3>
+          <h3 className="font-bold text-lg text-gray-800">
+            Leave Requests Pipeline
+          </h3>
 
-  <div className="flex items-center gap-3">
-    <label className="text-sm font-medium text-gray-600">
-      Filter By Status
-    </label>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-600">
+              Filter By Status
+            </label>
 
-    <select
-      value={statusFilter}
-      onChange={(e) => setStatusFilter(e.target.value)}
-      className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      <option value="All">All</option>
-      <option value="Pending">Pending</option>
-      <option value="Approved">Approved</option>
-      <option value="Rejected">Rejected</option>
-    </select>
-  
-  </div>
-    
-</div>
-   <DataTable columns={columns}  data={filteredLeaveRequests} pageSize={5} emptyMessage="No leave requests filed." />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <DataTable
+          columns={columns}
+          data={filteredLeaveRequests}
+          pageSize={5}
+          emptyMessage="No leave requests filed."
+        />
       </div>
-
-    
     </div>
   );
 };

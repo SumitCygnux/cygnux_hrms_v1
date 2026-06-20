@@ -107,5 +107,8 @@ export const getLeave = (data) => {
   return api.get("/leave/", data);
 };
 
+export const getAllLeave =(data)=>{
+  return api.get("/staff/leave",(data));
+}
 
 export default api;

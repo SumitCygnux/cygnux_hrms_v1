@@ -34,7 +34,6 @@ export const getTenantConnection = async (dbName: string) => {
       Leave
     ],
   });
-
  await dataSource.initialize();
 
   console.log(`${dbName} Connected`);
