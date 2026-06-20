@@ -24,6 +24,7 @@ import {
   getRoles,
     updateStaff,
 } from "../../../services/api";
+
 import { toast } from "react-toastify";
 
 const EmployeeList = () => {
@@ -349,7 +350,7 @@ const EmployeeList = () => {
               className="border-none bg-transparent outline-none w-full text-xs text-text-primary"
             />
           </div>
-
+          
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}

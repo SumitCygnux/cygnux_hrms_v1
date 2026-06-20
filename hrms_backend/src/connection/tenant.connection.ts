@@ -27,7 +27,6 @@ export const getTenantConnection = async (dbName: string) => {
     entities: [
       Department,
       Designation,
-      Staff
       Staff,
       Role,
       Permission,
@@ -35,7 +34,6 @@ export const getTenantConnection = async (dbName: string) => {
       Leave
     ],
   });
-
  await dataSource.initialize();
 
   console.log(`${dbName} Connected`);
