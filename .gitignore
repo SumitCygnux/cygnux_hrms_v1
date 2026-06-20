@@ -1,8 +1,10 @@
 hrms_backend/.env
-hrms_frontend/.env.local
 
 # Environment files
 hrms_backend/.env
+hrms_backend/node_modules
+hrms_frontend/.env.
+hrms_frontend/.env.local
 
 
 hrms_backend/.env

@@ -1,5 +1,6 @@
 import { getTenantConnection } from "../connection/tenant.connection";
 import { Staff } from "../entity/tenant/staff.entity";
+import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation } from "../entity/tenant/designation.entity";
 
@@ -144,4 +145,18 @@ export const updateStaffService = async (
   const updatedStaff = await staffRepo.save(staff);
 
   return updatedStaff;
+};
+
+export const getAllLeaveService = async (dbName: string) => {
+  const dataSource = await getTenantConnection(dbName);
+
+  const leaveRepo = dataSource.getRepository(Leave);
+
+  const leaves = await leaveRepo.find({
+    order: {
+      createdAt: "DESC",
+    },
+  });
+
+  return leaves;
 };

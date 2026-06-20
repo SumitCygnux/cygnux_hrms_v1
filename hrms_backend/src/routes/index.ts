@@ -32,6 +32,6 @@ router.use(
   rolePermissionRoutes
 );
 
-router.use("/leave", leaveRoutes);
+
 
 export default router;

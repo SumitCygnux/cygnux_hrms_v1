@@ -8,9 +8,12 @@ const Tabs = ({ tabs = [], activeTab, setActiveTab, className = "" }) => {
           <button
             key={id}
             onClick={() => setActiveTab(id)}
-            className={`px-1 py-3 text-sm font-semibold text-text-secondary border-b-2 border-transparent transition-all cursor-pointer whitespace-nowrap hover:text-primary ${
-              isActive ? "text-primary border-primary" : ""
-            }`}
+           className={`relative px-1 py-3 text-sm font-semibold transition-all whitespace-nowrap
+              ${
+                isActive
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-text-secondary border-b-2 border-transparent hover:text-blue-600"
+              }`}
           >
             {tab.label || tab.name}
           </button>
