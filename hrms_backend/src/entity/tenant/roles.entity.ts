@@ -1,4 +1,5 @@
-import {Entity,PrimaryGeneratedColumn,Column} from "typeorm";
+import {Entity,PrimaryGeneratedColumn,Column, OneToMany} from "typeorm";
+import { Staff } from "./staff.entity";
 
 @Entity("roles")
 export class Role {
@@ -10,4 +11,8 @@ export class Role {
 
   @Column({ nullable: true })
   description!: string;
+
+  @OneToMany(() => Staff, (staff) => staff.accessRole)
+staffs!: Staff[];
+
 }
