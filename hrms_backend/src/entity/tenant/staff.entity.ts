@@ -3,7 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+
+import { Department } from "../tenant/department.entity";
+import { Designation } from "../tenant/designation.entity";
+import { Role } from "../tenant/roles.entity";
 
 @Entity("staff")
 export class Staff {
@@ -25,8 +31,17 @@ export class Staff {
 @Column({ type: "uuid", nullable: false })
 departmentId!: string;
 
+@ManyToOne(() => Department, (department) => department.staffs)
+@JoinColumn({ name: "departmentId" })
+department!: Department;
+
+
 @Column({ type: "uuid", nullable: false })
 designationId!: string;
+
+@ManyToOne(() => Designation, (designation) => designation.staffs)
+@JoinColumn({ name: "designationId" })
+designation!: Designation;
 
   @Column()
   dob!: Date;
@@ -62,5 +77,9 @@ role!: string;
   nullable: true,
 })
 accessRoleId!: string;
+
+@ManyToOne(() => Role, (role) => role.staffs)
+@JoinColumn({ name: "accessRoleId" })
+accessRole!: Role; 
 
 }

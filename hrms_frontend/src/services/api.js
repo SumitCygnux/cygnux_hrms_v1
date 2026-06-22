@@ -15,7 +15,6 @@ api.interceptors.request.use((config) => {
 });
 
 
-
 export const registerCompany = (data) =>
   api.post("/auth/register-company", data);
 
@@ -24,10 +23,7 @@ export const login = (data) =>
 
 export const getProfile = () =>
   api.get("/auth/profile");
-
-
-
-
+  
 export const getDepartments = () =>
   api.get("/departments");
 
@@ -97,7 +93,6 @@ export const updateStaff = (id, data) => {
   return api.put(`/staff/${id}`, data);
 };
 
-
 // leave api
 export const applyLeave = (data) => {
   return api.post("/leave/apply", data);
@@ -108,6 +103,10 @@ export const getLeave = (data) => {
 };
 
 export const getAllLeave = () => api.get("/staff/leave");
+export const getAllLeave = (data) => {
+  return api.get("/staff/leave", data);
+};
+
 
 // attendance api
 export const clockIn = () => api.post("/attendance/clock-in");
@@ -150,5 +149,18 @@ export const getAttendanceRequests = () => api.get("/attendance/requests");
 export const getAttendanceRequestById = (id) => api.get(`/attendance/requests/${id}`);
 export const approveAttendanceRequest = (id, data) => api.put(`/attendance/requests/${id}/approve`, data);
 export const rejectAttendanceRequest = (id, data) => api.put(`/attendance/requests/${id}/reject`, data);
+
+//get staff profile
+
+export const  getMyProfile = (data) => {
+  return api.get("/myprofile", data);
+};
+
+export const  updateMyProfile = (data) => {
+  return api.put("/myprofile", data);
+};
+
+
+
 
 export default api;
