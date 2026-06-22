@@ -50,7 +50,7 @@ console.log("PERMISSIONS =>", permissions);
       if (requiresPasswordSetup) {
         navigate("/setup-password");
       } else {
-        navigate(user.role === "EMPLOYEE" ? "/staff/dashboard" : "/dashboard");
+        navigate(user.role === "EMPLOYEE" || user.isStaff === true ? "/staff/dashboard" : "/dashboard");
       }
       
     } catch (error) {

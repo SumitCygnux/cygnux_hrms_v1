@@ -83,10 +83,10 @@ const StaffAttendance = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        <KPICard title="Present Days" value={stats.present} icon={<MdCheckCircle />} trend="On-Time + WFH + Half-Day" />
-        <KPICard title="Late Arrivals" value={stats.late} icon={<MdSchedule />} trend="Arrived after 09:00 AM" trendType="down" />
-        <KPICard title="WFH Days" value={stats.wfh} icon={<MdHome />} trend="Work from home" />
-        <KPICard title="Absent Days" value={stats.absent} icon={<MdCancel />} trend="No check-in recorded" trendType="down" />
+        <KPICard title="Present Days" value={stats.present} icon={<MdCheckCircle />} color="emerald" variant="clean" trend="On-Time + WFH + Half-Day" />
+        <KPICard title="Late Arrivals" value={stats.late} icon={<MdSchedule />} color="amber" variant="clean" trend="Arrived after 09:00 AM" trendType="down" />
+        <KPICard title="WFH Days" value={stats.wfh} icon={<MdHome />} color="blue" variant="clean" trend="Work from home" />
+        <KPICard title="Absent Days" value={stats.absent} icon={<MdCancel />} color="rose" variant="clean" trend="No check-in recorded" trendType="down" />
       </div>
 
       {/* Chart */}

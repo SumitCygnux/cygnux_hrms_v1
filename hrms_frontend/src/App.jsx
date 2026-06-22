@@ -41,7 +41,7 @@ import "react-toastify/dist/ReactToastify.css";
 function AdminRoute() {
   const isAuthenticated = !!localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const isStaff = storedUser?.role === "EMPLOYEE";
+  const isStaff = storedUser?.role === "EMPLOYEE" || storedUser?.isStaff === true;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (isStaff) return <Navigate to="/staff/dashboard" replace />;
@@ -51,7 +51,7 @@ function AdminRoute() {
 function StaffRoute() {
   const isAuthenticated = !!localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const isStaff = storedUser?.role === "EMPLOYEE";
+  const isStaff = storedUser?.role === "EMPLOYEE" || storedUser?.isStaff === true;
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!isStaff) return <Navigate to="/dashboard" replace />;
@@ -61,7 +61,7 @@ function StaffRoute() {
 function App() {
   const isAuthenticated = !!localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const isStaff = storedUser?.role === "EMPLOYEE";
+  const isStaff = storedUser?.role === "EMPLOYEE" || storedUser?.isStaff === true;
 
   return (
     <ThemeProvider>
