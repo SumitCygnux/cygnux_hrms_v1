@@ -67,19 +67,19 @@ const AttendanceDashboardTab = () => {
     <div className="flex flex-col gap-6">
       {/* Metrics Cards Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <KPICard title="Present Today" value={metrics.presentToday} icon={<MdCheckCircle />} color="emerald" variant="clean" trend="Active inside office" />
-        <KPICard title="Absent Today" value={metrics.absentToday} icon={<MdCancel />} color="rose" variant="clean" trend="No check-in record" trendType="down" />
-        <KPICard title="Late Arrival" value={metrics.lateEmployees} icon={<MdSchedule />} color="amber" variant="clean" trend="Arrived after grace time" trendType="down" />
-        <KPICard title="Work From Home" value={metrics.workFromHome} icon={<MdHome />} color="blue" variant="clean" trend="Remote logins today" />
-        <KPICard title="On Leave" value={metrics.onLeave} icon={<MdCancel />} color="violet" variant="clean" trend="Approved leave plans" />
+        <KPICard title="Present Today" value={metrics.presentToday} icon={<MdCheckCircle />} color="emerald" variant="clean"  />
+        <KPICard title="Absent Today" value={metrics.absentToday} icon={<MdCancel />} color="rose" variant="clean"  />
+        <KPICard title="Late Arrival" value={metrics.lateEmployees} icon={<MdSchedule />} color="amber" variant="clean"  />
+        <KPICard title="Work From Home" value={metrics.workFromHome} icon={<MdHome />} color="blue" variant="clean"  />
+        <KPICard title="On Leave" value={metrics.onLeave} icon={<MdCancel />} color="violet" variant="clean"  />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <KPICard title="Half Day" value={metrics.halfDay} icon={<MdSchedule />} color="orange" variant="clean" trend="Half day duration log" />
-        <KPICard title="Pending Request" value={metrics.pendingRequests} icon={<MdHourglassEmpty />} color="yellow" variant="clean" trend="Requires action" />
-        <KPICard title="Active Shift" value={metrics.activeShifts} icon={<MdOutlineAssignment />} color="teal" variant="clean" trend="Configured active schedules" />
-        <KPICard title="Total Employee" value={metrics.totalEmployees} icon={<MdPeople />} color="indigo" variant="clean" trend="Registered headcount" />
-        <KPICard title="Attendance Rate" value={`${metrics.attendancePercentage}%`} icon={<MdTrendingUp />} color="emerald" variant="clean" trend="Present & WFH rate today" />
+        <KPICard title="Half Day" value={metrics.halfDay} icon={<MdSchedule />} color="orange" variant="clean"  />
+        <KPICard title="Pending Request" value={metrics.pendingRequests} icon={<MdHourglassEmpty />} color="yellow" variant="clean"  />
+        <KPICard title="Active Shift" value={metrics.activeShifts} icon={<MdOutlineAssignment />} color="teal" variant="clean"  />
+        <KPICard title="Total Employee" value={metrics.totalEmployees} icon={<MdPeople />} color="indigo" variant="clean"  />
+        <KPICard title="Attendance Rate" value={`${metrics.attendancePercentage}%`} icon={<MdTrendingUp />} color="emerald" variant="clean"  />
       </div>
 
       {/* Analytics Charts */}
