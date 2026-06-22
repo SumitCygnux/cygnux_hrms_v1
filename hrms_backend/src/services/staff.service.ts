@@ -6,7 +6,6 @@ import { Designation } from "../entity/tenant/designation.entity";
 
 export const createStaffService = async (dbName: string, data: any) => {
   const dataSource = await getTenantConnection(dbName);
-
   const staffRepo = dataSource.getRepository(Staff);
   console.log("FINAL DATA:", data);
   console.log("ACCESS ROLE ID =>", data.accessRoleId);
@@ -18,7 +17,7 @@ export const createStaffService = async (dbName: string, data: any) => {
     email: data.email,
     role: data.role,
     phone: data.phone,
-      password: data.password,
+    password: data.password,
     gender: data.gender,
     departmentId: data.departmentId,
     designationId: data.designationId,
@@ -26,10 +25,8 @@ export const createStaffService = async (dbName: string, data: any) => {
     dob: data.dob,
     joiningDate: data.joiningDate,
     address: data.address,
-
     accessRoleId: data.accessRoleId,
   });
-
   return await staffRepo.save(staff);
 };
 
@@ -47,9 +44,7 @@ export const updateStaffStatusService = async (
   status: string,
 ) => {
   const dataSource = await getTenantConnection(dbName);
-
   const staffRepo = dataSource.getRepository(Staff);
-
   const staff = await staffRepo.findOne({
     where: { id },
   });
@@ -62,8 +57,6 @@ export const updateStaffStatusService = async (
 
   return await staffRepo.save(staff);
 };
-
-
 
 export const setupPasswordService = async (
   dbName: string,

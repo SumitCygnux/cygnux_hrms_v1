@@ -1,4 +1,5 @@
-import {Entity,PrimaryGeneratedColumn,Column} from "typeorm";
+import {Entity,PrimaryGeneratedColumn,Column, OneToMany} from "typeorm";
+import { Staff } from "./staff.entity";
 
 @Entity("designations")
 export class Designation {
@@ -18,4 +19,7 @@ export class Designation {
     default: false
   })
   is_deleted!: boolean;
+
+  @OneToMany(() => Staff, (staff) => staff.designation)
+staffs!: Staff[];
 }

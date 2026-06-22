@@ -15,7 +15,6 @@ api.interceptors.request.use((config) => {
 });
 
 
-
 export const registerCompany = (data) =>
   api.post("/auth/register-company", data);
 
@@ -24,10 +23,7 @@ export const login = (data) =>
 
 export const getProfile = () =>
   api.get("/auth/profile");
-
-
-
-
+  
 export const getDepartments = () =>
   api.get("/departments");
 
@@ -97,7 +93,6 @@ export const updateStaff = (id, data) => {
   return api.put(`/staff/${id}`, data);
 };
 
-
 // leave api
 export const applyLeave = (data) => {
   return api.post("/leave/apply", data);
@@ -107,6 +102,11 @@ export const getLeave = (data) => {
   return api.get("/leave/", data);
 };
 
+export const getAllLeave = (data) => {
+  return api.get("/staff/leave", data);
+};
+
+
 // attendance api
 export const clockIn = () => api.post("/attendance/clock-in");
 export const clockOut = () => api.post("/attendance/clock-out");
@@ -115,5 +115,18 @@ export const breakOut = () => api.post("/attendance/break-out");
 export const getTodayAttendance = () => api.get("/attendance/today");
 export const getAttendanceHistory = (params) => api.get("/attendance/history", { params });
 export const resetTodayAttendance = () => api.delete("/attendance/reset");
+
+//get staff profile
+
+export const  getMyProfile = (data) => {
+  return api.get("/myprofile", data);
+};
+
+export const  updateMyProfile = (data) => {
+  return api.put("/myprofile", data);
+};
+
+
+
 
 export default api;
