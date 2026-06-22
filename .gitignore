@@ -7,3 +7,4 @@ hrms_frontend/.env.
 hrms_frontend/.env.local
 
 
+hrms_backend/.env
