@@ -28,7 +28,10 @@ const StaffNavbar = ({ onMobileToggle }) => {
   };
 
   useEffect(()=>{
-    getProfile()
+    getProfile(
+
+
+    )
   })
   useEffect(() => {
     getProfile()
@@ -163,7 +166,8 @@ if (!currentUser) {
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdPerson />
-                <span>My Profile</span>
+                <span>My Profilesssss</span>
+                
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdLockOpen />
