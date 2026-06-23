@@ -17,8 +17,8 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Form Fields
-  const [assignmentType, setAssignmentType] = useState("Single"); // "Single", "Bulk", "Department"
+
+  const [assignmentType, setAssignmentType] = useState("Single"); 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [selectedDeptId, setSelectedDeptId] = useState("");
   const [bulkEmployeeIds, setBulkEmployeeIds] = useState([]);

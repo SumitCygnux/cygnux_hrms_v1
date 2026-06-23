@@ -41,6 +41,10 @@ export class Shift {
   @Column({ type: "varchar", default: "Sunday" })
   weeklyOff!: string;
 
+  // none | all | 1st | 2nd | 3rd | 4th | 1st_3rd | 2nd_4th | 1st_4th
+  @Column({ type: "varchar", default: "none" })
+  saturdayPolicy!: string;
+
   @Column({ type: "boolean", default: true })
   isActive!: boolean;
 
