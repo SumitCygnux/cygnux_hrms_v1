@@ -3,14 +3,9 @@ import { Staff } from "../entity/tenant/staff.entity";
 import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation } from "../entity/tenant/designation.entity";
-
 export const createStaffService = async (dbName: string, data: any) => {
   const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
-  console.log("FINAL DATA:", data);
-  console.log("ACCESS ROLE ID =>", data.accessRoleId);
-  console.log("departmentId:", data.departmentId);
-  console.log("designationId:", data.designationId);
 
   const staff = staffRepo.create({
     fullName: data.fullName,
@@ -27,7 +22,9 @@ export const createStaffService = async (dbName: string, data: any) => {
     address: data.address,
     accessRoleId: data.accessRoleId,
   });
-  return await staffRepo.save(staff);
+
+  const savedStaff = await staffRepo.save(staff);
+  return savedStaff;
 };
 
 export const getAllStaffService = async (dbName: string) => {
@@ -61,7 +58,7 @@ export const updateStaffStatusService = async (
 export const setupPasswordService = async (
   dbName: string,
   staffId: number,
-  newPassword: string
+  newPassword: string,
 ) => {
   const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
@@ -74,10 +71,7 @@ export const setupPasswordService = async (
   return await staffRepo.save(staff);
 };
 
-export const getStaffByIdService = async (
-  dbName: string,
-  id: number
-) => {
+export const getStaffByIdService = async (dbName: string, id: number) => {
   const dataSource = await getTenantConnection(dbName);
 
   const staffRepo = dataSource.getRepository(Staff);
@@ -116,23 +110,23 @@ export const getStaffByIdService = async (
 };
 
 export const updateStaffService = async (
-   dbName: string,
+  dbName: string,
   id: Number,
-  data: any
+  data: any,
 ) => {
- const dataSource = await getTenantConnection(dbName);
+  const dataSource = await getTenantConnection(dbName);
 
   const staffRepo = dataSource.getRepository(Staff);
   const staff = await staffRepo.findOne({
-    where: { id: Number(id)}
+    where: { id: Number(id) },
   });
 
   if (!staff) {
     throw new Error("Staff not found");
   }
 
-   Object.assign(staff, {
-    ...data
+  Object.assign(staff, {
+    ...data,
   });
 
   const updatedStaff = await staffRepo.save(staff);

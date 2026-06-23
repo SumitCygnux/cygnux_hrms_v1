@@ -6,7 +6,6 @@ export const getMyProfile = async (
   res: Response
 ) => {
   try {
-
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
 console.log((req as any).user ,"myprofile");

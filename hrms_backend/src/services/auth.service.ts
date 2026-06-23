@@ -212,8 +212,10 @@ export const loginService = async (payload: any) => {
       name: staff.fullName,
       email: staff.email,
 
-      role: role?.name,
+      role: "EMPLOYEE",
+      accessRole: role?.name,
 
+      isStaff: true,
       status: staff.status,
       tenant_id: tenant.id,
       companyName: tenant.name,
