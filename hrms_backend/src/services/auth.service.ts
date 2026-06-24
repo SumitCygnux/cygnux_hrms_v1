@@ -169,18 +169,13 @@ export const loginService = async (payload: any) => {
   const rolePermissionRepo =
     tenantConnection.getRepository(RolePermission);
 
-  const role = await roleRepo.findOne({
-    where: {
-      id: staff.accessRoleId,
-    },
-  });
+  const role = staff.accessRoleId
+    ? await roleRepo.findOne({ where: { id: staff.accessRoleId } })
+    : null;
 
-  const rolePermissions =
-    await rolePermissionRepo.find({
-      where: {
-        roleId: staff.accessRoleId,
-      },
-    });
+  const rolePermissions = staff.accessRoleId
+    ? await rolePermissionRepo.find({ where: { roleId: staff.accessRoleId } })
+    : [];
 
   const permissionIds =
     rolePermissions.map(
@@ -217,8 +212,10 @@ export const loginService = async (payload: any) => {
       name: staff.fullName,
       email: staff.email,
 
-      role: role?.name,
+      role: "EMPLOYEE",
+      accessRole: role?.name,
 
+      isStaff: true,
       status: staff.status,
       tenant_id: tenant.id,
       companyName: tenant.name,

@@ -35,7 +35,6 @@ export const getRoles = async (req: Request,res: Response) => {
     });
   }
 };
-
 export const updateRole = async (req: Request,res: Response) => {
   try {
     const dbName = (req as any).user.dbName;

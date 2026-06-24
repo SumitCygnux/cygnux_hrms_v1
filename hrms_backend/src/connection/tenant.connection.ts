@@ -12,6 +12,7 @@ import { ShiftAssignment } from "../entity/tenant/shiftAssignment.entity";
 import { AttendanceSettings } from "../entity/tenant/attendanceSettings.entity";
 import { Holiday } from "../entity/tenant/holiday.entity";
 import { AttendanceRequest } from "../entity/tenant/attendanceRequest.entity";
+import { Payroll } from "../entity/tenant/payroll.entity";
 
 const tenantConnections = new Map<string, DataSource>();
 
@@ -35,6 +36,7 @@ export const getTenantConnection = async (dbName: string) => {
       Designation,
       Staff,
       Role,
+       Payroll,
       Permission,
       RolePermission,
       Leave,
