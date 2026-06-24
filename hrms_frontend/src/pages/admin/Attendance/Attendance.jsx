@@ -3,6 +3,7 @@ import PageHeader from "../../../components/layouts/PageHeader";
 import Tabs from "../../../components/common/Tabs";
 import AttendanceDashboardTab from "./components/AttendanceDashboardTab";
 import AttendanceRecordsTab from "./components/AttendanceRecordsTab";
+import ShiftsTab from "./components/ShiftsTab";
 import ShiftAssignmentTab from "./components/ShiftAssignmentTab";
 import HolidayManagementTab from "./components/HolidayManagementTab";
 import AttendanceRequestsTab from "./components/AttendanceRequestsTab";
@@ -10,15 +11,15 @@ import AttendanceSettingsTab from "./components/AttendanceSettingsTab";
 
 const Attendance = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [selectedShiftId, setSelectedShiftId] = useState("");
 
   const tabs = [
     { id: "dashboard", label: "Dashboard" },
-    { id: "records", label: "Attendance Records" },
+    { id: "records", label: "Records" },
+    { id: "shifts", label: "Shifts" },
     { id: "assignments", label: "Shift Assignment" },
-    { id: "holidays", label: "Holiday Management" },
-    { id: "requests", label: "Attendance Requests" },
-    { id: "settings", label: "Attendance Settings" },
+    { id: "holidays", label: "Holidays" },
+    { id: "requests", label: "Requests" },
+    { id: "settings", label: "Settings" },
   ];
 
   return (
@@ -34,9 +35,8 @@ const Attendance = () => {
         <div className="mt-4">
           {activeTab === "dashboard" && <AttendanceDashboardTab />}
           {activeTab === "records" && <AttendanceRecordsTab />}
-          {activeTab === "assignments" && (
-            <ShiftAssignmentTab defaultShiftId={selectedShiftId} />
-          )}
+          {activeTab === "shifts" && <ShiftsTab />}
+          {activeTab === "assignments" && <ShiftAssignmentTab />}
           {activeTab === "holidays" && <HolidayManagementTab />}
           {activeTab === "requests" && <AttendanceRequestsTab />}
           {activeTab === "settings" && <AttendanceSettingsTab />}
