@@ -102,6 +102,7 @@ export const getLeave = (data) => {
   return api.get("/leave/", data);
 };
 
+
 export const getAllLeave = (data) => {
   return api.get("/staff/leave", data);
 };
@@ -158,8 +159,5 @@ export const  getMyProfile = (data) => {
 export const  updateMyProfile = (data) => {
   return api.put("/myprofile", data);
 };
-
-
-
 
 export default api;

@@ -6,7 +6,6 @@ export const getMyProfile = async (
   res: Response
 ) => {
   try {
-
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
 console.log((req as any).user ,"myprofile");
@@ -43,8 +42,8 @@ export const updateMyProfile = async (
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
 
-    console.log(dbName)
-    console.log(staffId)
+    
+    
     const profile = await updateMyProfileService(
       dbName,
       Number(staffId),
