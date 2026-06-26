@@ -141,12 +141,54 @@ function App() {
               to={isAuthenticated ? (isStaff ? "/staff/dashboard" : "/dashboard") : "/login"}
               replace
             />
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  </HRMSDataProvider>
-</ThemeProvider>
+
+            <Route path="/setup-password" element={<SetupPassword />} />
+
+            {/* Admin Protected Routes — admin only, staff gets redirected to /staff/dashboard */}
+            <Route element={<AdminRoute />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/employees" element={<EmployeeList />} />
+              <Route path="/employees/:id" element={<EmployeeProfile />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/leave" element={<Leave />} />
+              <Route path="/payroll" element={<Payroll />} />
+              <Route path="/performance" element={<Performance />} />
+              <Route path="/recruitment" element={<Recruitment />} />
+              <Route path="/departments" element={<Departments />} />
+              <Route path="/designations" element={<Designations />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+
+            {/* Staff Portal Routes — staff only, admin gets redirected to /dashboard */}
+            <Route element={<StaffRoute />}>
+              <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+              <Route path="/staff/dashboard" element={<StaffDashboard />} />
+              <Route path="/staff/attendance" element={<StaffAttendance />} />
+              <Route path="/staff/leave" element={<StaffLeave />} />
+              <Route path="/staff/payroll" element={<StaffPayroll />} />
+              <Route path="/staff/performance" element={<StaffPerformance />} />
+              <Route path="/staff/profile" element={<StaffProfile />} />
+              <Route path="/staff/calendar" element={<StaffCalendar />} />
+            </Route>
+           
+
+            {/* Fallback */}
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={isAuthenticated ? (isStaff ? "/staff/dashboard" : "/dashboard") : "/login"}
+                  replace
+                />
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </HRMSDataProvider>
+    </ThemeProvider>
   );
 }
 
