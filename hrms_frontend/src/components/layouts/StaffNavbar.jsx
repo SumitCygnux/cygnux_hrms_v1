@@ -10,11 +10,14 @@ import {
 } from "react-icons/md";
 import Avatar from "../common/Avatar";
 import { useHRMSData } from "../../context/HRMSDataContext";
+import { getMyProfile } from "../../services/api";
 
 const StaffNavbar = ({ onMobileToggle }) => {
-  const { currentUser, notifications, markAllNotificationsAsRead } = useHRMSData();
+  const { notifications, markAllNotificationsAsRead } = useHRMSData();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const [currentUser, setCurrentUser] = useState(null);
 
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -24,11 +27,19 @@ const StaffNavbar = ({ onMobileToggle }) => {
     window.location.href = "/login";
   };
 
+  useEffect(()=>{
+    getProfile(
+
+
+    )
+  })
   useEffect(() => {
+    getProfile()
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
+
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
@@ -45,7 +56,25 @@ const StaffNavbar = ({ onMobileToggle }) => {
       markAllNotificationsAsRead();
     }
   };
+const getProfile = async () => {
+  try {
+    const res = await getMyProfile();
+    const data = res.data.data;
 
+    setCurrentUser({
+      name: data.fullName,
+      role: data.role,
+      email: data.email,
+      avatarColor: "#0F172A",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+if (!currentUser) {
+  return null;
+}
   return (
     <header className="h-[70px] sticky top-0 right-0 flex items-center justify-between px-6 bg-bg-secondary/80 backdrop-blur-md border-b border-border-color z-[90] transition-all">
       <div className="flex items-center gap-4">
@@ -124,6 +153,7 @@ const StaffNavbar = ({ onMobileToggle }) => {
             </span>
             <span className="text-xs text-text-muted">{currentUser.role}</span>
           </div>
+
           <MdArrowDropDown className="text-xl text-gray-500" />
 
           {showProfileMenu && (
@@ -136,7 +166,8 @@ const StaffNavbar = ({ onMobileToggle }) => {
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdPerson />
-                <span>My Profile</span>
+                <span>My Profilesssss</span>
+                
               </div>
               <div className="flex items-center gap-3 px-4 py-3 text-sm text-text-secondary transition-all cursor-pointer hover:bg-bg-primary hover:text-primary">
                 <MdLockOpen />
@@ -149,6 +180,7 @@ const StaffNavbar = ({ onMobileToggle }) => {
                 <MdLogout className="text-danger" />
                 <span className="text-danger">Sign Out</span>
               </div>
+
             </div>
           )}
         </div>

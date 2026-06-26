@@ -13,6 +13,10 @@ export enum AttendanceStatus {
   LATE = "Late",
   HALF_DAY = "Half Day",
   ON_LEAVE = "On Leave",
+  WORK_FROM_HOME = "Work From Home",
+  HOLIDAY = "Holiday",
+  WEEKLY_OFF = "Weekly Off",
+  MISSED_PUNCH = "Missed Punch",
 }
 
 @Entity("staff_attendance")
@@ -33,6 +37,12 @@ export class StaffAttendance {
   @Column({ type: "timestamp", nullable: true })
   clockOut!: Date | null;
 
+  @Column({ type: "timestamp", nullable: true })
+  breakIn!: Date | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  breakOut!: Date | null;
+
   
   @Column({ type: "jsonb", default: [] })
   breaks!: Array<{
@@ -41,14 +51,28 @@ export class StaffAttendance {
   }>;
 
   @Column({
-    type: "enum",
-    enum: AttendanceStatus,
-    default: AttendanceStatus.ABSENT,
+    type: "varchar",
+    default: "Absent",
   })
-  status!: AttendanceStatus;
+  status!: string;
 
   @Column({ type: "decimal", precision: 5, scale: 2, default: 0 })
   workingHours!: number;
+
+  @Column({ type: "varchar", nullable: true })
+  shiftId!: string | null;
+
+  @Column({ type: "integer", default: 0 })
+  lateMinutes!: number;
+
+  @Column({ type: "integer", default: 0 })
+  overtimeMinutes!: number;
+
+  @Column({ type: "integer", default: 0 })
+  breakDuration!: number;
+
+  @Column({ type: "boolean", default: false })
+  payrollProcessed!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -56,3 +80,4 @@ export class StaffAttendance {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+

@@ -42,7 +42,7 @@ export const clockOutService = async (dbName: string, staffId: number) => {
   if (attendance.clockOut) {
     throw new Error("Already clocked out for today");
   }
-
+  // today date will mentioned during the clock out
   const now = new Date();
   attendance.clockOut = now;
 
@@ -51,6 +51,7 @@ export const clockOutService = async (dbName: string, staffId: number) => {
     const lastBreak = attendance.breaks[attendance.breaks.length - 1];
     if (!lastBreak.breakIn) {
       lastBreak.breakIn = now;
+      attendance.breakOut = now;
     }
   }
 
@@ -93,7 +94,10 @@ export const startBreakService = async (dbName: string, staffId: number) => {
     }
   }
 
-  attendance.breaks.push({ breakOut: new Date() });
+  const now = new Date();
+  attendance.breakIn = now;
+  attendance.breakOut = null;
+  attendance.breaks.push({ breakOut: now });
   return await attendanceRepo.save(attendance);
 };
 
@@ -121,7 +125,9 @@ export const endBreakService = async (dbName: string, staffId: number) => {
     throw new Error("Not currently on break");
   }
 
-  lastBreak.breakIn = new Date();
+  const now = new Date();
+  attendance.breakOut = now;
+  lastBreak.breakIn = now;
   return await attendanceRepo.save(attendance);
 };
 
@@ -152,4 +158,11 @@ export const getAttendanceHistoryService = async (
     where: filter,
     order: { date: "DESC" },
   });
+};
+
+export const resetAttendanceService = async (dbName: string, staffId: number) => {
+  const dataSource = await getTenantConnection(dbName);
+  const attendanceRepo = dataSource.getRepository(StaffAttendance);
+  const today = getTodayDate();
+  await attendanceRepo.delete({ staffId, date: today });
 };

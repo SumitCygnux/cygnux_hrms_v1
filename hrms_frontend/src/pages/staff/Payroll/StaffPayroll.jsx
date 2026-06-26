@@ -105,7 +105,7 @@ const StaffPayroll = () => {
           <p className="text-base font-bold text-slate-800 mb-1">
             Salary Breakdown — {currentPayroll.month}
           </p>
-          <p className="text-xs text-slate-400 mb-5">Gross to net computation</p>
+          <p className="text-xs text-slate-400 mb-5">gross net totel</p>
           <div className="flex flex-col gap-3">
             {breakdown.map((item) => (
               <div
