@@ -43,6 +43,7 @@ import StaffCalendar from "./pages/staff/Calendar/StaffCalendar";
 
 
 import "react-toastify/dist/ReactToastify.css";
+import Addemployee from "./pages/admin/Employees/Addemployee";
 
 
 function AdminRoute() {
@@ -108,7 +109,10 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/employees" element={<EmployeeList />} />
+          <Route path="/addemployee" element={<Addemployee />} />
           <Route path="/employees/:id" element={<EmployeeProfile />} />
+          <Route path="/updateemployee/:id" element={<Addemployee />} />
+
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/leave" element={<Leave />} />
           <Route path="/payroll" element={<Payroll />} />
@@ -136,16 +140,12 @@ function App() {
         {/* Fallback */}
         <Route
           path="*"
-          element={
-            <Navigate
-              to={isAuthenticated ? (isStaff ? "/staff/dashboard" : "/dashboard") : "/login"}
-              replace
-            />
-
-            <Route path="/setup-password" element={<SetupPassword />} />
+          element={ <Navigate to={isAuthenticated ? (isStaff ? "/staff/dashboard" : "/dashboard") : "/login"} replace ></Navigate> }/>
+             
+              <Route path="/setup-password" element={<SetupPassword />} /> 
 
             {/* Admin Protected Routes — admin only, staff gets redirected to /staff/dashboard */}
-            <Route element={<AdminRoute />}>
+              <Route element={<AdminRoute />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeeList />} />
