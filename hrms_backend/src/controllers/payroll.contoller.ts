@@ -43,7 +43,6 @@ export const getAllPayroll = async (
 ) => {
 
   try {
-
     const dbName = (req as any).user.dbName;
 
     const payroll = await getAllPayrollService(dbName);
