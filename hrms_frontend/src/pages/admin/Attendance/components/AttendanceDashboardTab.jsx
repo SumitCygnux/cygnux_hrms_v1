@@ -14,6 +14,7 @@ const AttendanceDashboardTab = () => {
     halfDay: 0,
     workFromHome: 0,
     pendingRequests: 0,
+    pendingClockOuts: 0,
     activeShifts: 0,
     totalEmployees: 0,
     attendancePercentage: 0,
@@ -74,9 +75,10 @@ const AttendanceDashboardTab = () => {
         <KPICard title="On Leave" value={metrics.onLeave} icon={<MdCancel />} color="violet" variant="clean"  />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <KPICard title="Half Day" value={metrics.halfDay} icon={<MdSchedule />} color="orange" variant="clean"  />
         <KPICard title="Pending Request" value={metrics.pendingRequests} icon={<MdHourglassEmpty />} color="yellow" variant="clean"  />
+        <KPICard title="Pending Clock-Out" value={metrics.pendingClockOuts} icon={<MdHourglassEmpty />} color="rose" variant="clean"  />
         <KPICard title="Active Shift" value={metrics.activeShifts} icon={<MdOutlineAssignment />} color="teal" variant="clean"  />
         <KPICard title="Total Employee" value={metrics.totalEmployees} icon={<MdPeople />} color="indigo" variant="clean"  />
         <KPICard title="Attendance Rate" value={`${metrics.attendancePercentage}%`} icon={<MdTrendingUp />} color="emerald" variant="clean"  />

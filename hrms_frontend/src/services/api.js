@@ -108,20 +108,39 @@ export const getAllLeave = (data) => {
 };
 
 
-// attendance api
+// attendance api (staff)
 export const clockIn = () => api.post("/attendance/clock-in");
 export const clockOut = () => api.post("/attendance/clock-out");
-export const breakIn = () => api.post("/attendance/break-in");
-export const breakOut = () => api.post("/attendance/break-out");
+export const breakIn = (data) => api.post("/attendance/break-in", data);
+export const breakOut = (data) => api.post("/attendance/break-out", data);
 export const getTodayAttendance = () => api.get("/attendance/today");
 export const getAttendanceHistory = (params) => api.get("/attendance/history", { params });
+export const getStaffAttendanceDashboard = () => api.get("/attendance/dashboard");
+export const getMyAttendanceRequests = () => api.get("/attendance/my-requests");
+export const createMyAttendanceRequest = (data) => api.post("/attendance/requests", data);
 export const resetTodayAttendance = () => api.delete("/attendance/reset");
 
 
 export const getAttendanceMetrics = () => api.get("/attendance/dashboard/metrics");
 export const getAttendanceCharts = () => api.get("/attendance/dashboard/charts");
 export const getAttendanceRecords = (params) => api.get("/attendance/records", { params });
+export const createManualAttendance = (data) => api.post("/attendance/records", data);
 export const updateAttendanceRecord = (id, data) => api.put(`/attendance/records/${id}`, data);
+export const runAttendanceMaintenance = () => api.post("/attendance/maintenance/run");
+
+
+// attendance reports
+export const getDailyReport = (params) => api.get("/attendance/reports/daily", { params });
+export const getMonthlyReport = (params) => api.get("/attendance/reports/monthly", { params });
+export const getEmployeeReport = (params) => api.get("/attendance/reports/employee", { params });
+export const getDepartmentReport = (params) => api.get("/attendance/reports/department", { params });
+export const getLateReport = (params) => api.get("/attendance/reports/late", { params });
+export const getOvertimeReport = (params) => api.get("/attendance/reports/overtime", { params });
+export const getBreakReport = (params) => api.get("/attendance/reports/break", { params });
+export const getMissedPunchReport = (params) => api.get("/attendance/reports/missed-punch", { params });
+export const getAttendanceSummaryReport = (params) => api.get("/attendance/reports/summary", { params });
+export const getShiftReport = () => api.get("/attendance/reports/shift");
+export const getHolidayReport = () => api.get("/attendance/reports/holiday");
 
 export const createShift = (data) => api.post("/attendance/shifts", data);
 export const getShifts = () => api.get("/attendance/shifts");

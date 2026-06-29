@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getHolidays, createHoliday, updateHoliday, deleteHoliday } from "../../../../services/api";
+import { getHolidays, createHoliday, updateHoliday, deleteHoliday, getDepartments } from "../../../../services/api";
 import DataTable from "../../../../components/tables/DataTable";
 import Button from "../../../../components/common/Button";
 import Badge from "../../../../components/common/Badge";
@@ -8,8 +8,23 @@ import { MdAdd, MdEdit, MdDelete, MdChevronLeft, MdChevronRight, MdList, MdCalen
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 
+const HOLIDAY_TYPES = ["National", "State", "Company", "Branch", "Festival"];
+
+const EMPTY_HOLIDAY = {
+  holidayName: "",
+  holidayDate: "",
+  description: "",
+  holidayType: "Company",
+  branch: "",
+  departmentId: "",
+  isRecurring: false,
+  isPaid: true,
+  isActive: true,
+};
+
 const HolidayManagementTab = () => {
   const [holidays, setHolidays] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -20,15 +35,13 @@ const HolidayManagementTab = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
 
   // Form Fields
-  const [formData, setFormData] = useState({
-    holidayName: "",
-    holidayDate: "",
-    description: "",
-    isActive: true,
-  });
+  const [formData, setFormData] = useState(EMPTY_HOLIDAY);
 
   useEffect(() => {
     fetchHolidays();
+    getDepartments()
+      .then((res) => res.data?.success && setDepartments(res.data.data))
+      .catch(() => {});
   }, []);
 
   const fetchHolidays = async () => {
@@ -48,12 +61,7 @@ const HolidayManagementTab = () => {
   const handleOpenAdd = () => {
     setIsEdit(false);
     setSelectedId(null);
-    setFormData({
-      holidayName: "",
-      holidayDate: "",
-      description: "",
-      isActive: true,
-    });
+    setFormData(EMPTY_HOLIDAY);
     setIsModalOpen(true);
   };
 
@@ -64,6 +72,11 @@ const HolidayManagementTab = () => {
       holidayName: holiday.holidayName,
       holidayDate: holiday.holidayDate,
       description: holiday.description || "",
+      holidayType: holiday.holidayType || "Company",
+      branch: holiday.branch || "",
+      departmentId: holiday.departmentId || "",
+      isRecurring: !!holiday.isRecurring,
+      isPaid: holiday.isPaid !== undefined ? holiday.isPaid : true,
       isActive: holiday.isActive,
     });
     setIsModalOpen(true);
@@ -85,16 +98,21 @@ const HolidayManagementTab = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      ...formData,
+      branch: formData.branch?.trim() ? formData.branch.trim() : null,
+      departmentId: formData.departmentId || null,
+    };
     try {
       if (isEdit && selectedId) {
-        const res = await updateHoliday(selectedId, formData);
+        const res = await updateHoliday(selectedId, payload);
         if (res.data?.success) {
           toast.success("Holiday updated successfully");
           setIsModalOpen(false);
           fetchHolidays();
         }
       } else {
-        const res = await createHoliday(formData);
+        const res = await createHoliday(payload);
         if (res.data?.success) {
           toast.success("Holiday created successfully");
           setIsModalOpen(false);
@@ -135,10 +153,41 @@ const HolidayManagementTab = () => {
     );
   };
 
+  const deptName = (id) => departments.find((d) => d.id === id)?.name || "All";
+
   const columns = [
     { header: "Holiday Name", accessor: "holidayName", sortable: true },
     { header: "Date", accessor: "holidayDate", sortable: true },
-    { header: "Description", accessor: "description" },
+    {
+      header: "Type",
+      accessor: "holidayType",
+      sortable: true,
+      render: (row) => (
+        <span className="text-xs font-semibold text-text-primary">{row.holidayType || "Company"}</span>
+      ),
+    },
+    {
+      header: "Scope",
+      accessor: "branch",
+      render: (row) => (
+        <span className="text-xs text-text-secondary">
+          {row.branch ? `${row.branch}` : "All"}
+          {row.departmentId ? ` · ${deptName(row.departmentId)}` : ""}
+        </span>
+      ),
+    },
+    {
+      header: "Paid",
+      accessor: "isPaid",
+      render: (row) => (
+        <Badge status={row.isPaid ? "Active" : "InActive"}>{row.isPaid ? "Paid" : "Unpaid"}</Badge>
+      ),
+    },
+    {
+      header: "Recurring",
+      accessor: "isRecurring",
+      render: (row) => (row.isRecurring ? "Yearly" : "—"),
+    },
     {
       header: "Status",
       accessor: "isActive",
@@ -285,6 +334,64 @@ const HolidayManagementTab = () => {
               onChange={(e) => setFormData({ ...formData, holidayDate: e.target.value })}
               className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Holiday Type</label>
+              <select
+                value={formData.holidayType}
+                onChange={(e) => setFormData({ ...formData, holidayType: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              >
+                {HOLIDAY_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Branch (optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. Mumbai HQ"
+                value={formData.branch}
+                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-text-secondary">Department (optional)</label>
+            <select
+              value={formData.departmentId}
+              onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.isRecurring}
+                onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
+              />
+              Recurring (every year)
+            </label>
+            <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.isPaid}
+                onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
+              />
+              Paid Holiday
+            </label>
           </div>
 
           <div className="flex flex-col gap-2">

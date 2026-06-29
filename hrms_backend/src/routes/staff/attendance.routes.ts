@@ -7,6 +7,9 @@ import {
   endBreak,
   getTodayAttendance,
   getAttendanceHistory,
+  getStaffDashboard,
+  createMyRequest,
+  getMyRequests,
   resetAttendance,
 } from "../../controllers/staff/attendance.controller";
 
@@ -20,6 +23,9 @@ router.post("/break-in", startBreak);
 router.post("/break-out", endBreak);
 router.get("/today", getTodayAttendance);
 router.get("/history", getAttendanceHistory);
+router.get("/dashboard", getStaffDashboard);
+router.get("/my-requests", getMyRequests);
+router.post("/requests", createMyRequest);
 router.delete("/reset", resetAttendance);
 
 export default router;
