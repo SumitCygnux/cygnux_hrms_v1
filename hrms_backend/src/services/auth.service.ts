@@ -13,7 +13,8 @@ import { Permission } from "../entity/tenant/permissions.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 import { generateToken } from "../utils/jwt";
-
+import { seedDepartments } from "../seeders/department.seed";
+import { seedDesignations } from "../seeders/designation.seed";
 export const registerCompanyService = async (payload: any) => {
   const {
     companyName,
@@ -45,7 +46,6 @@ export const registerCompanyService = async (payload: any) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const subdomain = companyName.toLowerCase().replace(/\s+/g, "_");
   const dbName = `hrms_${subdomain}`;
 
@@ -73,8 +73,18 @@ export const registerCompanyService = async (payload: any) => {
   await queryRunner.release();
   const tenantDataSource = await getTenantConnection(dbName);
 
-await seedPermissions(tenantDataSource);
 
+  await seedPermissions(tenantDataSource);
+
+  await seedDepartments(
+  tenantDataSource,
+  industry
+);
+
+await seedDesignations(
+    tenantDataSource,
+    industry
+);
   const roleRepo = DatabaseConnection.getRepository(Roles);
 
   const tenantAdminRole = await roleRepo.findOne({
