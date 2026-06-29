@@ -1,10 +1,10 @@
 const Badge = ({ children, status = "neutral", className = "" }) => {
   const getVariant = (val) => {
     const v = val.toLowerCase();
-    if (v === "active" || v === "present" || v === "approved" || v === "processed" || v === "hired" || v === "on-time" || v === "on time") return "success";
-    if (v === "on leave" || v === "late" || v === "pending" || v === "screening" || v === "technical round" || v === "offer" || v === "interview" || v === "half-day" || v === "half day") return "warning";
-    if (v === "absent" || v === "rejected" || v === "suspended" || v === "inactive") return "danger";
-    if (v === "wfh" || v === "work from home" || v === "applied" || v === "active reviews") return "info";
+    if (v === "active" || v === "present" || v === "approved" || v === "processed" || v === "hired" || v === "on-time" || v === "on time" || v === "paid" || v === "on duty" || v === "business trip") return "success";
+    if (v === "on leave" || v === "late" || v === "pending" || v === "screening" || v === "technical round" || v === "offer" || v === "interview" || v === "half-day" || v === "half day" || v === "missed punch" || v === "weekly off") return "warning";
+    if (v === "absent" || v === "rejected" || v === "suspended" || v === "inactive" || v === "unpaid") return "danger";
+    if (v === "wfh" || v === "work from home" || v === "applied" || v === "active reviews" || v === "holiday") return "info";
     return "neutral";
   };
 

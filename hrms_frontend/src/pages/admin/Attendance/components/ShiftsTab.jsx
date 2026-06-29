@@ -19,17 +19,37 @@ const SATURDAY_POLICIES = [
   { value: "1st_4th", label: "1st & 4th Saturdays Off" },
 ];
 
+const SHIFT_TYPES = ["General", "Morning", "Evening", "Night", "Flexible", "Rotational"];
+
+const DAYS = [
+  { n: 0, label: "Sun" },
+  { n: 1, label: "Mon" },
+  { n: 2, label: "Tue" },
+  { n: 3, label: "Wed" },
+  { n: 4, label: "Thu" },
+  { n: 5, label: "Fri" },
+  { n: 6, label: "Sat" },
+];
+
 const EMPTY_FORM = {
   shiftName: "",
   shiftCode: "",
+  shiftType: "General",
   startTime: "09:00",
   endTime: "18:00",
   breakMinutes: 60,
   graceMinutes: 10,
   requiredHours: 8,
+  minWorkingHours: 8,
+  earlyExitMinutes: 0,
+  overtimeAfterHours: "",
+  autoClockOut: false,
+  autoClockOutAfterMinutes: 0,
+  crossMidnight: false,
   halfDayAfter: "",
   absentAfter: "",
   weeklyOff: "Sunday",
+  weeklyOffDays: [0],
   saturdayPolicy: "none",
   isActive: true,
 };
@@ -71,18 +91,37 @@ const ShiftsTab = () => {
     setForm({
       shiftName: shift.shiftName,
       shiftCode: shift.shiftCode,
+      shiftType: shift.shiftType || "General",
       startTime: shift.startTime,
       endTime: shift.endTime,
       breakMinutes: shift.breakMinutes,
       graceMinutes: shift.graceMinutes,
       requiredHours: shift.requiredHours,
+      minWorkingHours: shift.minWorkingHours ?? shift.requiredHours ?? 8,
+      earlyExitMinutes: shift.earlyExitMinutes ?? 0,
+      overtimeAfterHours: shift.overtimeAfterHours ?? "",
+      autoClockOut: !!shift.autoClockOut,
+      autoClockOutAfterMinutes: shift.autoClockOutAfterMinutes ?? 0,
+      crossMidnight: !!shift.crossMidnight,
       halfDayAfter: shift.halfDayAfter || "",
       absentAfter: shift.absentAfter || "",
       weeklyOff: shift.weeklyOff,
+      weeklyOffDays:
+        Array.isArray(shift.weeklyOffDays) && shift.weeklyOffDays.length
+          ? shift.weeklyOffDays.map(Number)
+          : [],
       saturdayPolicy: shift.saturdayPolicy || "none",
       isActive: shift.isActive,
     });
     setIsModalOpen(true);
+  };
+
+  const toggleOffDay = (n) => {
+    setForm((f) => {
+      const set = new Set(f.weeklyOffDays);
+      set.has(n) ? set.delete(n) : set.add(n);
+      return { ...f, weeklyOffDays: Array.from(set).sort((a, b) => a - b) };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -94,6 +133,16 @@ const ShiftsTab = () => {
         breakMinutes: Number(form.breakMinutes),
         graceMinutes: Number(form.graceMinutes),
         requiredHours: Number(form.requiredHours),
+        minWorkingHours: Number(form.minWorkingHours),
+        earlyExitMinutes: Number(form.earlyExitMinutes),
+        autoClockOutAfterMinutes: Number(form.autoClockOutAfterMinutes),
+        overtimeAfterHours:
+          form.overtimeAfterHours === "" ? null : Number(form.overtimeAfterHours),
+        weeklyOffDays: (form.weeklyOffDays || []).map(Number),
+        weeklyOff:
+          form.weeklyOffDays && form.weeklyOffDays.length
+            ? DAYS.find((d) => d.n === form.weeklyOffDays[0])?.label || form.weeklyOff
+            : form.weeklyOff,
         halfDayAfter: form.halfDayAfter || null,
         absentAfter: form.absentAfter || null,
       };
@@ -138,6 +187,16 @@ const ShiftsTab = () => {
   const saturdayLabel = (policy) =>
     SATURDAY_POLICIES.find((p) => p.value === policy)?.label || policy;
 
+  const weeklyOffLabel = (row) => {
+    if (Array.isArray(row.weeklyOffDays) && row.weeklyOffDays.length) {
+      return row.weeklyOffDays
+        .map((n) => DAYS.find((d) => d.n === Number(n))?.label)
+        .filter(Boolean)
+        .join(", ");
+    }
+    return row.weeklyOff || "—";
+  };
+
   const columns = [
     {
       header: "Shift",
@@ -151,11 +210,20 @@ const ShiftsTab = () => {
       ),
     },
     {
+      header: "Type",
+      accessor: "shiftType",
+      sortable: true,
+      render: (row) => (
+        <span className="text-xs font-semibold text-text-primary">{row.shiftType || "General"}</span>
+      ),
+    },
+    {
       header: "Timing",
       accessor: "startTime",
       render: (row) => (
         <span className="text-sm text-text-primary">
           {row.startTime} – {row.endTime}
+          {row.crossMidnight && <span className="text-[10px] text-amber-600 ml-1">+1d</span>}
         </span>
       ),
     },
@@ -177,6 +245,9 @@ const ShiftsTab = () => {
     {
       header: "Weekly Off",
       accessor: "weeklyOff",
+      render: (row) => (
+        <span className="text-xs text-text-primary">{weeklyOffLabel(row)}</span>
+      ),
     },
     {
       header: "Saturday Policy",
@@ -279,6 +350,20 @@ const ShiftsTab = () => {
             </div>
           </div>
 
+          {/* Shift Type */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-text-secondary">Shift Type</label>
+            <select
+              value={form.shiftType}
+              onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
+              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+            >
+              {SHIFT_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Timing */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
@@ -339,6 +424,83 @@ const ShiftsTab = () => {
             </div>
           </div>
 
+          {/* Rules: min hours / early exit / overtime */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Min Working Hrs</label>
+              <input
+                type="number"
+                min="0"
+                max="24"
+                step="0.5"
+                value={form.minWorkingHours}
+                onChange={(e) => setForm({ ...form, minWorkingHours: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              />
+              <span className="text-[10px] text-text-secondary">Below → Half Day</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Early Exit (mins)</label>
+              <input
+                type="number"
+                min="0"
+                value={form.earlyExitMinutes}
+                onChange={(e) => setForm({ ...form, earlyExitMinutes: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              />
+              <span className="text-[10px] text-text-secondary">Flag if left this early</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Overtime After (hrs)</label>
+              <input
+                type="number"
+                min="0"
+                max="24"
+                step="0.5"
+                placeholder="Use global"
+                value={form.overtimeAfterHours}
+                onChange={(e) => setForm({ ...form, overtimeAfterHours: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              />
+              <span className="text-[10px] text-text-secondary">Blank = global setting</span>
+            </div>
+          </div>
+
+          {/* Automation */}
+          <div className="grid grid-cols-2 gap-4 border-t border-border-color pt-4">
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.autoClockOut}
+                  onChange={(e) => setForm({ ...form, autoClockOut: e.target.checked })}
+                />
+                Auto Clock-Out
+              </label>
+              {form.autoClockOut && (
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Minutes after shift end"
+                  value={form.autoClockOutAfterMinutes}
+                  onChange={(e) => setForm({ ...form, autoClockOutAfterMinutes: e.target.value })}
+                  className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+                />
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.crossMidnight}
+                  onChange={(e) => setForm({ ...form, crossMidnight: e.target.checked })}
+                />
+                Crosses Midnight (Night Shift)
+              </label>
+              <span className="text-[10px] text-text-secondary">End time falls on the next day</span>
+            </div>
+          </div>
+
           {/* Optional thresholds */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
@@ -369,34 +531,45 @@ const ShiftsTab = () => {
 
           {/* Weekend Policy */}
           <div className="flex flex-col gap-3 border-t border-border-color pt-4">
-            <p className="text-xs font-bold text-text-primary">Weekend / Off-Day Policy</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-text-secondary">Weekly Off Day</label>
-                <select
-                  value={form.weeklyOff}
-                  onChange={(e) => setForm({ ...form, weeklyOff: e.target.value })}
-                  className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-                >
-                  <option value="Sunday">Sunday</option>
-                  <option value="Saturday">Saturday</option>
-                  <option value="None">None (No fixed off)</option>
-                </select>
+            <p className="text-xs font-bold text-text-primary">Weekly Off / Off-Day Policy</p>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Weekly Off Days (select one or more)</label>
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((d) => {
+                  const active = form.weeklyOffDays.includes(d.n);
+                  return (
+                    <button
+                      key={d.n}
+                      type="button"
+                      onClick={() => toggleOffDay(d.n)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                        active
+                          ? "bg-primary text-white border-primary"
+                          : "bg-bg-primary text-text-secondary border-border-color hover:border-primary"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-text-secondary">Saturday Policy</label>
-                <select
-                  value={form.saturdayPolicy}
-                  onChange={(e) => setForm({ ...form, saturdayPolicy: e.target.value })}
-                  className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-                >
-                  {SATURDAY_POLICIES.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <span className="text-[10px] text-text-secondary">
+                Supports custom / multiple weekly offs (e.g. Sat + Sun).
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Alternate Saturday Policy</label>
+              <select
+                value={form.saturdayPolicy}
+                onChange={(e) => setForm({ ...form, saturdayPolicy: e.target.value })}
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+              >
+                {SATURDAY_POLICIES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

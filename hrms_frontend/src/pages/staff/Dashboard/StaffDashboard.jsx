@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
+import dayjs from "dayjs";
+import { toast } from "react-toastify";
 import PageHeader from "../../../components/layouts/PageHeader";
 import KPICard from "../../../components/cards/KPICard";
 import { BarChartComponent } from "../../../components/charts/ChartWrappers";
@@ -14,30 +16,13 @@ import {
   MdEvent,
 } from "react-icons/md";
 import { useHRMSData } from "../../../context/HRMSDataContext";
-
-// ── Static Data ───────────────────────────────────────────────────────────────
-const weeklyData = [
-  { day: "Mon", work: 7.8, break: 0.5 },
-  { day: "Tue", work: 8.5, break: 1.0 },
-  { day: "Wed", work: 4.0, break: 0.5 },
-  { day: "Thu", work: 8.3, break: 0.75 },
-  { day: "Fri", work: 7.5, break: 0.5 },
-  { day: "Sat", work: 0, break: 0 },
-  { day: "Today", work: 4.2, break: 0.25 },
-];
-
-const recentActivity = [
-  { id: 1, title: "Clock In", subtitle: "08:45 AM · On-Time", time: "Today", type: "success" },
-  { id: 2, title: "Leave Approved", subtitle: "Casual Leave · Jun 25–26", time: "2 days ago", type: "info" },
-  { id: 3, title: "Payroll Processed", subtitle: "May 2026 · ₹10,500 Net", time: "5 days ago", type: "success" },
-  { id: 4, title: "Performance Review", subtitle: "Q2 Review Submitted", time: "1 week ago", type: "warning" },
-];
-
-const upcomingEvents = [
-  { id: 1, title: "Quarterly Townhall", date: "Jun 18", time: "10:00 AM", type: "Meeting" },
-  { id: 2, title: "Design Feedback Review", date: "Jun 23", time: "2:00 PM", type: "Workshop" },
-  { id: 3, title: "Juneteenth Holiday", date: "Jun 19", time: "Full Day", type: "Holiday" },
-];
+import {
+  getStaffAttendanceDashboard,
+  clockIn as apiClockIn,
+  clockOut as apiClockOut,
+  breakIn as apiBreakIn,
+  breakOut as apiBreakOut,
+} from "../../../services/api";
 
 const leaveBalance = [
   { type: "Sick Leave", used: 4, total: 12, color: "#EF4444" },
@@ -45,42 +30,82 @@ const leaveBalance = [
   { type: "Paid Leave", used: 8, total: 24, color: "#2563EB" },
 ];
 
-const fmtTime = (d) =>
-  d
-    ? d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
-    : "—";
+const fmtTime = (d) => (d ? dayjs(d).format("hh:mm A") : "—");
 
-// ── Component ─────────────────────────────────────────────────────────────────
 const StaffDashboard = () => {
   const { currentUser } = useHRMSData();
 
-  const totalWorkThisWeek = weeklyData.reduce((s, d) => s + d.work, 0).toFixed(1);
-  const totalBreakThisWeek = weeklyData.reduce((s, d) => s + d.break, 0).toFixed(1);
+  const [dashboard, setDashboard] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const tickRef = useRef(null);
 
-  const workHoursData = weeklyData.map((d) => ({ name: d.day, value: d.work }));
-  const breakHoursData = weeklyData.map((d) => ({ name: d.day, value: d.break }));
+  const today = dashboard?.today || null;
+  const shift = dashboard?.shift || null;
+  const monthly = dashboard?.monthly || {
+    present: 0, late: 0, halfDay: 0, absent: 0, leave: 0, wfh: 0, workedHours: 0,
+  };
+  const weekly = dashboard?.weekly || [];
 
-  const [clockState, setClockState] = useState("idle");
-  const [clockInTime, setClockInTime] = useState(null);
-  const [clockOutTime, setClockOutTime] = useState(null);
-  const [breakSessions, setBreakSessions] = useState([]);
-  const [currentBreakStart, setCurrentBreakStart] = useState(null);
+  const openBreak = useMemo(() => (today?.breaks || []).find((b) => !b.end), [today]);
 
-  const totalBreakMins = breakSessions.reduce((acc, s) => {
-    if (s.end) return acc + Math.round((s.end - s.start) / 60000);
+  const clockState = useMemo(() => {
+    if (!today || !today.clockIn) return "idle";
+    if (today.clockOut) return "clocked_out";
+    if (openBreak) return "on_break";
+    return "clocked_in";
+  }, [today, openBreak]);
+
+  const fetchDashboard = async () => {
+    try {
+      const res = await getStaffAttendanceDashboard();
+      if (res.data?.success) setDashboard(res.data.data);
+    } catch (err) {
+      console.error("Failed to load staff dashboard:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    if (clockState === "clocked_in" || clockState === "on_break") {
+      tickRef.current = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(tickRef.current);
+    }
+    clearInterval(tickRef.current);
+  }, [clockState]);
+
+  const breakMsCompleted = (today?.breaks || []).reduce((acc, b) => {
+    if (b.start && b.end) return acc + (new Date(b.end) - new Date(b.start));
     return acc;
   }, 0);
+  const breakMsLive =
+    breakMsCompleted + (openBreak ? now - new Date(openBreak.start).getTime() : 0);
+  const totalBreakMins = Math.floor(breakMsLive / 60000);
 
-  const handleClockIn = () => { setClockInTime(new Date()); setClockState("clocked_in"); };
-  const handleBreakIn = () => { setCurrentBreakStart(new Date()); setClockState("on_break"); };
-  const handleBreakOut = () => {
-    if (currentBreakStart) {
-      setBreakSessions((prev) => [...prev, { start: currentBreakStart, end: new Date() }]);
+  const act = async (fn, okMsg) => {
+    setBusy(true);
+    try {
+      await fn();
+      if (okMsg) toast.success(okMsg);
+      await fetchDashboard();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Action failed");
+    } finally {
+      setBusy(false);
     }
-    setCurrentBreakStart(null);
-    setClockState("clocked_in");
   };
-  const handleClockOut = () => { setClockOutTime(new Date()); setClockState("clocked_out"); };
+
+  const handleClockIn = () => act(apiClockIn, "Clocked in");
+  const handleClockOut = () => act(apiClockOut, "Clocked out");
+  const handleBreakIn = () => act(() => apiBreakIn({ type: "Break" }), "Break started");
+  const handleBreakOut = () => act(() => apiBreakOut({}), "Break ended");
+
+  const workHoursData = weekly.map((d) => ({ name: d.name, value: d.value }));
+  const totalWorkThisWeek = weekly.reduce((s, d) => s + Number(d.value || 0), 0).toFixed(1);
+  const presentThisMonth = monthly.present + monthly.late;
 
   const clockStatusLabel = {
     idle: "Not Started",
@@ -117,7 +142,12 @@ const StaffDashboard = () => {
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">
                   Today's Attendance
                 </p>
-                <p className="text-sm font-semibold text-slate-600">Thursday, 18 June 2026</p>
+                <p className="text-sm font-semibold text-slate-600">{dayjs().format("dddd, DD MMMM YYYY")}</p>
+                {shift ? (
+                  <p className="text-xs text-slate-400 mt-0.5">{shift.shiftName} ({shift.startTime}–{shift.endTime})</p>
+                ) : (
+                  <p className="text-xs text-amber-600 mt-0.5 font-semibold">No shift assigned</p>
+                )}
               </div>
               <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${clockStatusStyle}`}>
                 {clockStatusLabel}
@@ -125,10 +155,10 @@ const StaffDashboard = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "Clock In", value: fmtTime(clockInTime) },
-                { label: "Clock Out", value: fmtTime(clockOutTime) },
+                { label: "Clock In", value: fmtTime(today?.clockIn) },
+                { label: "Clock Out", value: fmtTime(today?.clockOut) },
                 { label: "Break Duration", value: totalBreakMins > 0 ? `${totalBreakMins} min` : "—" },
-                { label: "Break Count", value: breakSessions.length > 0 ? `${breakSessions.length} break${breakSessions.length > 1 ? "s" : ""}` : "—" },
+                { label: "Break Count", value: (today?.breaks?.length || 0) > 0 ? `${today.breaks.length} break${today.breaks.length > 1 ? "s" : ""}` : "—" },
               ].map((item) => (
                 <div key={item.label} className="border border-slate-100 rounded-xl p-3 bg-slate-50/40">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{item.label}</p>
@@ -143,22 +173,22 @@ const StaffDashboard = () => {
 
           <div className="flex flex-row lg:flex-col gap-3 lg:justify-center lg:min-w-[164px]">
             {clockState === "idle" && (
-              <button onClick={handleClockIn} className="flex-1 lg:flex-none px-6 py-3 bg-primary text-white rounded-xl text-sm font-bold uppercase tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20">
+              <button onClick={handleClockIn} disabled={busy} className="flex-1 lg:flex-none px-6 py-3 bg-primary text-white rounded-xl text-sm font-bold uppercase tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20 disabled:opacity-60">
                 Clock In
               </button>
             )}
             {clockState === "clocked_in" && (
               <>
-                <button onClick={handleBreakIn} className="flex-1 lg:flex-none px-6 py-3 border-2 border-warning text-warning bg-warning/5 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-warning/10 active:scale-95 transition-all">
+                <button onClick={handleBreakIn} disabled={busy} className="flex-1 lg:flex-none px-6 py-3 border-2 border-warning text-warning bg-warning/5 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-warning/10 active:scale-95 transition-all disabled:opacity-60">
                   Break In
                 </button>
-                <button onClick={handleClockOut} className="flex-1 lg:flex-none px-6 py-3 border-2 border-danger text-danger bg-danger/5 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-danger/10 active:scale-95 transition-all">
+                <button onClick={handleClockOut} disabled={busy} className="flex-1 lg:flex-none px-6 py-3 border-2 border-danger text-danger bg-danger/5 rounded-xl text-sm font-bold uppercase tracking-wide hover:bg-danger/10 active:scale-95 transition-all disabled:opacity-60">
                   Clock Out
                 </button>
               </>
             )}
             {clockState === "on_break" && (
-              <button onClick={handleBreakOut} className="flex-1 lg:flex-none px-6 py-3 bg-warning text-white rounded-xl text-sm font-bold uppercase tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-md shadow-warning/20">
+              <button onClick={handleBreakOut} disabled={busy} className="flex-1 lg:flex-none px-6 py-3 bg-warning text-white rounded-xl text-sm font-bold uppercase tracking-wide hover:opacity-90 active:scale-95 transition-all shadow-md shadow-warning/20 disabled:opacity-60">
                 Break Out
               </button>
             )}
@@ -192,8 +222,8 @@ const StaffDashboard = () => {
           <div className="flex flex-wrap gap-4">
             {[
               { label: "Work Hours (week)", value: `${totalWorkThisWeek}h` },
-              { label: "Break Hours (week)", value: `${totalBreakThisWeek}h` },
-              { label: "This Month Present", value: "12 days" },
+              { label: "Worked Hours (month)", value: `${monthly.workedHours || 0}h` },
+              { label: "This Month Present", value: `${presentThisMonth} days` },
             ].map((item) => (
               <div key={item.label} className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 min-w-[120px] text-center border border-white/10">
                 <p className="text-white/60 text-xs mb-1">{item.label}</p>
@@ -206,35 +236,55 @@ const StaffDashboard = () => {
 
       {/* ── KPI CARDS ───────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        <KPICard title="Days Present (Jun)" value="12" icon={<MdCalendarToday />} trend="On-Time streak: 5 days"  />
+        <KPICard title="Days Present (Month)" value={presentThisMonth} icon={<MdCalendarToday />} trend={`${monthly.late || 0} late arrivals`} />
         <KPICard title="Leave Balance" value="26" icon={<MdEventBusy />} trend="Sick · Casual · Paid combined" />
         <KPICard title="KPI Score" value="95%" icon={<MdStarBorder />} trend="+3% from last quarter" />
         <KPICard title="Net Salary (May)" value="₹10,500" icon={<MdAttachMoney />} trend="Payroll processed" />
       </div>
 
-      {/* ── CHARTS ──────────────────────────────────────────────────────────── */}
+      {/* ── CHARTS / HOLIDAYS ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-7">
         <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
           <div className="text-base font-bold text-slate-800 mb-5 flex items-center justify-between">
             <span>Weekly Work Hours</span>
-            <span className="text-xs text-slate-400 font-normal">Jun 12–18, 2026</span>
+            <span className="text-xs text-slate-400 font-normal">Last 7 days</span>
           </div>
           <BarChartComponent data={workHoursData} xKey="name" yKey="value" color="#22C55E" label="Work (h)" />
         </div>
 
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
-          <div className="text-base font-bold text-slate-800 mb-5 flex items-center justify-between">
-            <span>Weekly Break Hours</span>
-            <span className="text-xs text-slate-400 font-normal">Jun 12–18, 2026</span>
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col">
+          <div className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+            <MdEvent className="text-blue-600 text-lg" />
+            <span>Upcoming Holidays</span>
           </div>
-          <BarChartComponent data={breakHoursData} xKey="name" yKey="value" color="#F59E0B" label="Break (h)" />
+          <p className="text-xs text-slate-400 mb-4">Next 60 days</p>
+          <div className="flex-1 flex flex-col gap-2.5">
+            {(dashboard?.upcomingHolidays || []).map((h) => (
+              <div key={h.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0">
+                    <span className="text-[9px] font-bold text-primary uppercase leading-none">{dayjs(h.holidayDate).format("MMM")}</span>
+                    <span className="text-sm font-extrabold text-primary leading-none">{dayjs(h.holidayDate).format("DD")}</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-700">{h.holidayName}</p>
+                    <p className="text-[10px] text-slate-400">{h.holidayType}</p>
+                  </div>
+                </div>
+                <Badge status="WFH">Holiday</Badge>
+              </div>
+            ))}
+            {(dashboard?.upcomingHolidays || []).length === 0 && (
+              <p className="text-xs text-slate-400 text-center py-6">No upcoming holidays</p>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ── BOTTOM ROW WIDGETS ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Leave Balance */}
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[370px]">
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col">
           <div className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
             <MdEventBusy className="text-amber-500 text-lg" />
             <span>Leave Balance</span>
@@ -255,62 +305,31 @@ const StaffDashboard = () => {
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: leave.color }} />
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-[10px] text-slate-400">{leave.used} used</span>
-                    <span className="text-[10px] text-slate-400">{pct}%</span>
-                  </div>
                 </div>
               );
             })}
           </div>
-          <button className="mt-4 text-xs text-primary font-bold uppercase tracking-wide hover:text-primary-hover transition-all text-left">
-            Apply for Leave →
-          </button>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[370px]">
+        {/* Monthly Attendance Summary */}
+        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col">
           <div className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
             <MdSchedule className="text-emerald-500 text-lg" />
-            <span>Recent Activity</span>
+            <span>This Month's Attendance</span>
           </div>
-          <p className="text-xs text-slate-400 mb-4">Your latest updates</p>
-          <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
-            {recentActivity.map((act) => (
-              <div key={act.id} className="flex items-center justify-between p-2.5 bg-slate-50/50 rounded-xl border border-slate-100 hover:border-blue-500/20 hover:translate-x-0.5 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${act.type === "success" ? "bg-success" : act.type === "info" ? "bg-info" : "bg-warning"}`} />
-                  <div>
-                    active titel
-                  </div>
-                </div>
-                <span className="text-xs text-slate-400 font-semibold whitespace-nowrap ml-2">{act.time}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Upcoming Events */}
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col h-[370px]">
-          <div className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
-            <MdEvent className="text-blue-600 text-lg" />
-            <span>Upcoming Events</span>
-          </div>
-          <p className="text-xs text-slate-400 mb-4">Scheduled for this month</p>
-          <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
-            {upcomingEvents.map((ev) => (
-              <div key={ev.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:border-blue-500/20 hover:translate-x-0.5 transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0">
-                    <span className="text-[9px] font-bold text-primary uppercase leading-none">{ev.date.split(" ")[0]}</span>
-                    <span className="text-sm font-extrabold text-primary leading-none">{ev.date.split[1]}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-700">{ev.title}</p>
-                    <p className="text-[10px] text-slate-400">{ev.time}</p>
-                  </div>
-                </div>
-                <Badge status={ev.type === "Holiday" ? "WFH" : "Active"}>{ev.type}</Badge>
+          <p className="text-xs text-slate-400 mb-4">{dayjs().format("MMMM YYYY")} summary</p>
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              { label: "Present", value: monthly.present || 0, color: "text-emerald-600" },
+              { label: "Late", value: monthly.late || 0, color: "text-amber-600" },
+              { label: "Half Day", value: monthly.halfDay || 0, color: "text-orange-600" },
+              { label: "Absent", value: monthly.absent || 0, color: "text-rose-600" },
+              { label: "On Leave", value: monthly.leave || 0, color: "text-violet-600" },
+              { label: "WFH", value: monthly.wfh || 0, color: "text-blue-600" },
+            ].map((s) => (
+              <div key={s.label} className="border border-slate-100 rounded-xl p-3 bg-slate-50/40 flex flex-col">
+                <span className={`text-2xl font-extrabold ${s.color}`}>{s.value}</span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</span>
               </div>
             ))}
           </div>

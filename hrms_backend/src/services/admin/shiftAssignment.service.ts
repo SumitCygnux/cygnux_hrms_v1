@@ -12,7 +12,7 @@ export const getShiftAssignmentsService = async (dbName: string) => {
     .createQueryBuilder("sa")
     .leftJoin(Staff, "s", "s.id = sa.employeeId")
     .leftJoin(Department, "dept", "dept.id = s.departmentId")
-    .leftJoin(Shift, "shift", "shift.id = sa.shiftId")
+    .leftJoin(Shift, "shift", "shift.id::text = sa.shiftId")
     .select("sa.id", "id")
     .addSelect("sa.employeeId", "employeeId")
     .addSelect("sa.shiftId", "shiftId")
