@@ -25,7 +25,7 @@ const startAttendanceSweeper = () => {
 DatabaseConnection.initialize()
   .then(async () => {
     console.log("Master Database Connected");
-    await seedRoles();
+  
 
     app.listen(PORT, () => {
       console.log(`Server Running On Port ${PORT}`);
