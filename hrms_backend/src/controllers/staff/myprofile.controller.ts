@@ -8,9 +8,7 @@ export const getMyProfile = async (
   try {
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
-console.log((req as any).user ,"myprofile");
-console.log("User =>", (req as any).user);
-console.log("StaffId =>", (req as any).user.userId);
+
     const profile = await getMyProfileService(
       dbName,
       Number(staffId)

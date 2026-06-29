@@ -9,6 +9,7 @@ import { Staff } from "../entity/tenant/staff.entity";
 import { getTenantConnection } from "../connection/tenant.connection";
 import { seedPermissions } from "../seeders/permission.seed";
 import { Role } from "../entity/tenant/roles.entity";
+import { seedRoles } from "../seeders/roles.seeder";
 import { Permission } from "../entity/tenant/permissions.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
@@ -73,6 +74,7 @@ export const registerCompanyService = async (payload: any) => {
   await queryRunner.release();
   const tenantDataSource = await getTenantConnection(dbName);
 
+  await seedRoles(tenantDataSource);
 
   await seedPermissions(tenantDataSource);
 
