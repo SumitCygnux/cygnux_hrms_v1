@@ -87,6 +87,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -165,7 +166,7 @@ const Register = () => {
                   <div className="flex flex-col">
                     <label className="block text-xs font-semibold text-gray-900 mb-1">Industry</label>
                     <select name="industry" required value={formData.industry} onChange={handleChange} className="block w-full px-3 py-2 border border-gray-200 rounded-xl text-xs bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200">
-                      <option value="">Select Industry</option>
+                      <option value="" disabled>Select Industry</option>
                       <option value="it">Information Technology</option>
                       <option value="finance">Finance</option>
                       <option value="manufacturing">Manufacturing</option>
@@ -177,7 +178,7 @@ const Register = () => {
                   <div className="flex flex-col">
                     <label className="block text-xs font-semibold text-gray-900 mb-1">Company Size</label>
                     <select name="companySize" required value={formData.companySize} onChange={handleChange} className="block w-full px-3 py-2 border border-gray-200 rounded-xl text-xs bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200">
-                      <option value="">Select Size</option>
+                      <option value="" disabled >Select Size</option>
                       <option value="1-10">1-10 Employees</option>
                       <option value="11-50">11-50 Employees</option>
                       <option value="51-200">51-200 Employees</option>
@@ -189,9 +190,9 @@ const Register = () => {
                   <div className="flex flex-col">
                     <label className="block text-xs font-semibold text-gray-900 mb-1">Country</label>
                     <select name="country" required value={formData.country} onChange={handleChange} className="block w-full px-3 py-2 border border-gray-200 rounded-xl text-xs bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-200">
-                      <option value="">Select Country</option>
+                      <option value="" disabled>Select Country</option>
                       {countriesList.map((country) => (
-                        <option key={country.isoCode} value={country.isoCode}>
+                        <option key={country.isoCode} value={country.isoCode}>  
                           {country.name}
                         </option>
                       ))}

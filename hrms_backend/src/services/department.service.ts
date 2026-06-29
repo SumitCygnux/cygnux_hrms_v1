@@ -44,9 +44,7 @@ export const updateDepartmentService = async (dbName: string, id: string, payloa
         throw new Error("Department not found");
     }
     department.name = payload.name;
-    department.managerId = payload.managerId;
-    department.budget = payload.budget;
-    department.openPositions = payload.openPositions;
+ 
     return await departmentRepo.save(department);
 };
 
@@ -68,7 +66,9 @@ export const deleteDepartmentService = async (dbName: string, id: string) => {
 
     const designationCount =await designationRepo.count({
       where: {
-        department_id: id,
+        department: {
+      id: id,
+    },
         is_deleted: false
       }
     });

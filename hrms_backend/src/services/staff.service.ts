@@ -105,7 +105,7 @@ export const getStaffByIdService = async (dbName: string, id: number) => {
 
     designationName: designation?.title || "",
 
-    baseSalary: designation?.baseSalary || 0,
+   
   };
 };
 

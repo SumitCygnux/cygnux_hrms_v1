@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { registerCompanyService, loginService } from "../services/auth.service";
 
 export const registerCompany = async (req: Request, res: Response) => {
+      console.log(req.body);
+
     try {
         const result = await registerCompanyService(req.body);
         return res.status(201).json({

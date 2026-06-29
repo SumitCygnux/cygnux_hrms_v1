@@ -18,7 +18,10 @@ export const getDesignationsService =async (dbName:string) => {
   return await designationRepo.find({
     where:{
       is_deleted:false
-    }
+    },
+      relations: {
+    department: true,
+  }
   });
 };
 
@@ -36,8 +39,11 @@ export const updateDesignationService = async (dbName:string,id:string,payload:a
     throw new Error("Designation not found");
   }
   designation.title = payload.title;
-  designation.department_id = payload.department_id;
-  designation.baseSalary = payload.baseSalary;
+  // designation.department_id = payload.department_id;
+ designation.department = {
+  id: payload.department_id,
+  } as any;
+
   return await designationRepo.save(designation);
 };
 
@@ -64,9 +70,14 @@ export const getDesignationByDepartmentService = async (dbName: string,departmen
   const designationRepo = dataSource.getRepository(Designation);
 
   return await designationRepo.find({
-    where: {
-      department_id: departmentId,
-      is_deleted: false,
+     where: {
+    department: {
+      id: departmentId,
     },
+    is_deleted: false,
+  },
+  relations: {
+    department: true,
+  },
   });
 };
