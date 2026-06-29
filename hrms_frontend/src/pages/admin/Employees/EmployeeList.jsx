@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import PageHeader from "../../../components/layouts/PageHeader";
 import DataTable from "../../../components/tables/DataTable";
@@ -15,19 +15,24 @@ import {
   MdVisibility,
 } from "react-icons/md";
 
+
+
 import {
   getDepartments,
   getDesignations,
-  getAllStaff,
+      getAllStaff,
   createStaff,
   getDesignationByDepartment,
   getRoles,
     updateStaff,
+   
 } from "../../../services/api";
 
 import { toast } from "react-toastify";
 
 const EmployeeList = () => {
+
+  const navigate=useNavigate()
   // STATE
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -38,9 +43,6 @@ const EmployeeList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDept, setSelectedDept] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
-
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // const [showForm, setShowForm] = useState(false);
   const [activeView, setActiveView] = useState("list");
@@ -65,6 +67,7 @@ const EmployeeList = () => {
   useEffect(() => {
     loadData();
   }, []);
+
 
   const loadData = async () => {
     try {
@@ -91,6 +94,7 @@ const EmployeeList = () => {
       }));
 
       setEmployees(formattedEmployees);
+      
       setDepartments(dept.data.data);
       setRoles(roleRes.data.data);
 
@@ -144,73 +148,11 @@ const EmployeeList = () => {
       salary: "8000",
     });
 
-    setActiveView("form");
+   
   };
 
-  const handleEdit = (employee) => {
-    setEditId(employee.id);
 
-    setFormData({
-      fullName: employee.fullName,
-      email: employee.email,
-      phone: employee.phone,
-      departmentId: employee.departmentId,
-      designationId: employee.designationId,
-      joiningDate: employee.joiningDate?.split("T")[0],
-      gender: employee.gender,
-      dob: employee.dob?.split("T")[0],
-      address: employee.address,
-      role: employee.role,
-      accessRoleId: employee.accessRoleId,
-      salary: employee.salary,
-    });
-
-    setActiveView("form");
-  };
-
-  // CREATE STAFF
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const payload = {
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password,
-      gender: formData.gender,
-
-      departmentId: formData.departmentId,
-      designationId: formData.designationId,
-
-      dob: formData.dob,
-      joiningDate: formData.joiningDate,
-      salary: Number(formData.salary),
-      role: formData.role,
-      accessRoleId: formData.accessRoleId,
-      address: formData.address,
-    };
-
-    try {
-      if (editId) {
-        await updateStaff(editId, payload);
-
-        toast.success("Employee Updated Successfully");
-      } else {
-        await createStaff(payload);
-
-        toast.success("Employee Added Successfully");
-      }
-
-      loadData();
-
-      setEditId(null);
-
-      setActiveView("list");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
 
@@ -232,10 +174,8 @@ const EmployeeList = () => {
       console.log(error);
     }
   };
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+
+  
 
   // CSV Exporter
   const exportToCSV = () => {
@@ -313,12 +253,15 @@ const EmployeeList = () => {
             variant="ghost"
             className="hover:text-red-500!"
             iconBefore={<MdUpdate className="text-lg text-green-500" />}
-            onClick={() => handleEdit(row)}
-            aria-label="Delete Employee"
+              onClick={() =>
+             navigate(`/updateemployee/${row.id}`)
+          }
+      
+            aria-label="update Employee"
           />
         </div>
       ),
-    },
+    }, 
   ];
 
   return (
@@ -330,7 +273,8 @@ const EmployeeList = () => {
           <Button
             variant="primary"
             iconBefore={<MdPersonAdd />}
-            onClick={handleAdd}
+            // onClick={handleAdd}
+            onClick={() => navigate("/addemployee")}
           >
             Add Employee
           </Button>
@@ -386,248 +330,11 @@ const EmployeeList = () => {
         </div>
       </div>
 
-      {/* 22222 */}
+    
 
-      {activeView === "list" ? (
-        <DataTable columns={columns} data={filteredEmployees} />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <h2>{editId ? "Update Employee" : "Add Employee"}</h2>
+      
+   <DataTable columns={columns} data={filteredEmployees} />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            {/* Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Full Name
-              </label>
-              <input
-                type="text"
-                required
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="e.g. John Doe"
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="e.g. john.d@company.com"
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                value={formData.password}
-                disabled={!!editId}
-                onChange={handleChange}
-                placeholder="Enter Password"
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            {/* Phone */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                required
-                maxLength="10"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="e.g. +91 9876543210"
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            {/* Gender */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-
-            {/* Department (IMPORTANT FIX: ID store) */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Department
-              </label>
-              <select
-                name="departmentId"
-                value={formData.departmentId}
-                onChange={handleDepartmentChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              >
-                <option value="">Select Department</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Designation */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Designation
-              </label>
-
-              <select
-                name="designationId"
-                value={formData.designationId}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              >
-                <option value="">Select Designation</option>
-
-                {designations.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* DOB */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            {/* Joining Date */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Joining Date
-              </label>
-              <input
-                type="date"
-                name="joiningDate"
-                value={formData.joiningDate}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            {/* Salary */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Basic Monthly Salary ($)
-              </label>
-              <input
-                type="number"
-                name="salary"
-                value={formData.salary}
-                onChange={handleChange}
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Role
-              </label>
-              <input
-                type="text"
-                required
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                placeholder="e.g. John Doe"
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-  <label className="text-xs font-semibold text-text-secondary">
-    Access Role
-  </label>
-
-  <select
-    name="accessRoleId"
-    value={formData.accessRoleId}
-    onChange={handleChange}
-    className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-  >
-    <option value="">Select Role</option>
-
-    {roles.map((role) => (
-      <option key={role.id} value={role.id}>
-        {role.name}
-      </option>
-    ))}
-  </select>
-</div>
-
-            {/* Address */}
-            <div className="col-span-1 sm:col-span-2 flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-text-secondary">
-                Home Address
-              </label>
-              <textarea
-                name="address"
-                rows="2"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Street name, City, Zipcode..."
-                className="px-3.5 py-2.5 rounded-md border border-border-color bg-bg-primary text-text-primary text-sm outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-border-color mt-6">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => setActiveView("list")}
-            >
-              Cancel
-            </Button>
-
-            <Button type="submit" variant="primary">
-              {editId ? "Update Employee" : "Register Employee"}
-            </Button>
-          </div>
-        </form>
-      )}
     </div>
   );
 };
