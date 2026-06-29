@@ -42,7 +42,7 @@ const Login = () => {
       localStorage.setItem("permissions",JSON.stringify(permissions || []));
 
       console.log("USER =>", user);
-console.log("PERMISSIONS =>", permissions);
+      console.log("PERMISSIONS =>", permissions);
 
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
@@ -71,7 +71,7 @@ console.log("PERMISSIONS =>", permissions);
           {/* LEFT SIDE */}
           <div className="hidden md:flex flex-col justify-center px-12 lg:px-16 bg-slate-50/40 border-r border-slate-100">
             <div className=" flex items-center">
-              <img
+              <img 
                 src={logo}
                 alt="HRMS Logo"
                 className="h-24 w-auto object-contain"

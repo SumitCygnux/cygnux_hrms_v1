@@ -1,20 +1,38 @@
 import { getTenantConnection }from "../connection/tenant.connection";
 import { Designation }from "../entity/tenant/designation.entity";
+import { Department } from "../entity/tenant/department.entity";
+
 
 export const createDesignationService =async (dbName:string,payload:any) => {
   const dataSource = await getTenantConnection(dbName);
-  const designationRepo =dataSource.getRepository(Designation);
-  const designation =await designationRepo.save({
-    title:payload.title,
-    department_id:payload.department_id,
-    baseSalary:payload.baseSalary
+  const designationRepo = dataSource.getRepository(Designation);
+    const departmentRepo = dataSource.getRepository(Department);
+
+     
+  const department = await departmentRepo.findOne({
+    where: {
+      id: payload.department_id,
+      is_deleted: false,
+    },
   });
-  return designation;
+
+    if (!department) {
+    throw new Error("Department not found");
+    
+  }
+
+// Create Designation
+  const designation = designationRepo.create({
+    title: payload.title,
+    department: department,
+  });
+
+ return await designationRepo.save(designation);
 };
 
 export const getDesignationsService =async (dbName:string) => {
   const dataSource = await getTenantConnection(dbName);
-  const designationRepo =dataSource.getRepository(Designation);
+  const designationRepo = dataSource.getRepository(Designation);
   return await designationRepo.find({
     where:{
       is_deleted:false
