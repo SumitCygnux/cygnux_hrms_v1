@@ -13,14 +13,13 @@ export const authMiddleware = (req: Request,res: Response,next: NextFunction): a
     }
 
     const token = authHeader.split(" ")[1];
-
     const decoded =
       jwt.verify(
         token,
         process.env.JWT_SECRET as string
       );
     (req as any).user = decoded;
-    next();
+     next();
   } catch (error) {
      console.log("JWT Error:", error);
     return res.status(401).json({

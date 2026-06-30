@@ -51,9 +51,6 @@ export const getTenantConnection = async (dbName: string) => {
  await dataSource.initialize();
 
   console.log(`${dbName} Connected`);
-  console.log("Staff Entity Loaded");
-
   tenantConnections.set(dbName, dataSource);
-
   return dataSource;
 };

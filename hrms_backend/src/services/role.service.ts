@@ -1,44 +1,50 @@
 import { getTenantConnection } from "../connection/tenant.connection";
 import { Role } from "../entity/tenant/roles.entity";
+import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 export const createRoleService = async (
   dbName: string,
-  data: any
+  payload: any
 ) => {
+
   const dataSource = await getTenantConnection(dbName);
 
   const roleRepo = dataSource.getRepository(Role);
 
-  const existingRole = await roleRepo.findOne({
+  const exists = await roleRepo.findOne({
     where: {
-      name: data.name,
+      name: payload.name,
     },
   });
 
-  if (existingRole) {
+  if (exists) {
     throw new Error("Role already exists");
   }
 
-  const role = roleRepo.create({
-    name: data.name,
-    description: data.description,
+  const role = await roleRepo.save({
+    name: payload.name,
+    description: payload.description,
+    is_system: false,
   });
 
-  return await roleRepo.save(role);
+  return role;
 };
 
-export const getRolesService = async (
-  dbName: string
-) => {
+export const getAllRolesService = async (dbName: string) => {
   const dataSource = await getTenantConnection(dbName);
 
   const roleRepo = dataSource.getRepository(Role);
 
-  return await roleRepo.find({
+  const roles = await roleRepo.find({
+    where: {
+      is_deleted: false,
+    },
     order: {
-      name: "ASC",
+      created_at: "ASC",
     },
   });
+
+  return roles;
 };
 
 export const updateRoleService = async (
@@ -65,3 +71,5 @@ export const updateRoleService = async (
 
   return await roleRepo.save(role);
 };
+
+// permission asssign

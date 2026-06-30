@@ -13,33 +13,20 @@ import permissionRoutes from "./permission.routes";
 import rolePermissionRoutes from "./rolePermission.routes";
 import Payroll from "./payroll.routes";
 
-
-
 const router = Router();
 
 router.use("/auth", authRoutes);
-router.use("/departments",departmentRoutes);
-router.use("/designations",designationRoutes);
+router.use("/departments", departmentRoutes);
+router.use("/designations", designationRoutes);
 router.use("/staff", staffRoutes);
 router.use("/leave", leaveRoutes);
-router.use("/myprofile",myprofile );
+router.use("/myprofile", myprofile);
 router.use("/payroll", Payroll);
 router.use("/attendance", attendanceRoutes);
 router.use("/attendance", adminAttendanceRoutes);
 router.use("/attendance/reports", attendanceReportRoutes);
-router.use(
-  "/roles",
-  roleRoutes
-);
-router.use(
-  "/permissions",
-  permissionRoutes
-);
-router.use(
-  "/role-permissions",
-  rolePermissionRoutes
-);
-
-
+router.use("/roles", roleRoutes);
+router.use("/permissions", permissionRoutes);
+router.use("/role-permissions", rolePermissionRoutes);
 
 export default router;

@@ -12,7 +12,7 @@ import { number } from "zod";
 
 export const createStaff = async (
   req: Request,
-  res: Response
+  res: Response 
 ) => {
   try {
     const dbName = (req as any).user.dbName;

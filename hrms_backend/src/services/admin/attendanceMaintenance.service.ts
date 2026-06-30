@@ -120,7 +120,7 @@ export const runMaintenanceForTenant = async (dbName: string) => {
   await markYesterday(ds, settings);
 };
 
-/** Run maintenance across every active tenant (used by the scheduled sweeper). */
+/** Run maintenance across every active tenant (used by the scheduled sweeper). */ 
 export const runMaintenanceAllTenants = async () => {
   if (!DatabaseConnection.isInitialized) return;
   const tenants = await DatabaseConnection.getRepository(Tenant_dbs).find({

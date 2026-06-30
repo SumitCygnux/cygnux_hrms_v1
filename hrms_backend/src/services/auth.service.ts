@@ -16,6 +16,7 @@ import { RolePermission } from "../entity/tenant/rolePermission.entity";
 import { generateToken } from "../utils/jwt";
 import { seedDepartments } from "../seeders/department.seed";
 import { seedDesignations } from "../seeders/designation.seed";
+import { seedRolePermissions } from "../seeders/rolePermission.seed";
 export const registerCompanyService = async (payload: any) => {
   const {
     companyName,
@@ -38,8 +39,7 @@ export const registerCompanyService = async (payload: any) => {
   const existingUser = await userRepo.findOne({
     where: {
       email: adminEmail,
-    }
-   
+    },
   });
 
   if (existingUser) {
@@ -51,7 +51,6 @@ export const registerCompanyService = async (payload: any) => {
   const dbName = `hrms_${subdomain}`;
 
   const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
-  
 
   const tenant = await tenantRepo.save({
     name: companyName,
@@ -77,16 +76,10 @@ export const registerCompanyService = async (payload: any) => {
   await seedRoles(tenantDataSource);
 
   await seedPermissions(tenantDataSource);
+  await seedRolePermissions(tenantDataSource);
+  await seedDepartments(tenantDataSource, industry);
 
-  await seedDepartments(
-  tenantDataSource,
-  industry
-);
-
-await seedDesignations(
-    tenantDataSource,
-    industry
-);
+  await seedDesignations(tenantDataSource, industry);
   const roleRepo = DatabaseConnection.getRepository(Roles);
 
   const tenantAdminRole = await roleRepo.findOne({
@@ -102,7 +95,7 @@ await seedDesignations(
   const user = await userRepo.save({
     email: adminEmail,
     name: adminName,
-    
+
     password: hashedPassword,
     role_id: tenantAdminRole.id,
     tenant_id: tenant.id,
@@ -121,37 +114,102 @@ await seedDesignations(
   };
 };
 
+
 export const loginService = async (payload: any) => {
   const { email, password } = payload;
+
   const userRepo = DatabaseConnection.getRepository(Users);
   const roleRepo = DatabaseConnection.getRepository(Roles);
   const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
 
-  // --- Admin login ---
-  const user = await userRepo.findOne({ where: { email } });
+  
+  const user = await userRepo.findOne({
+    where: { email },
+  });
 
   if (user) {
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Invalid Password");
 
-    const role = await roleRepo.findOne({ where: { id: user.role_id } });
-    const company = await tenantRepo.findOne({ where: { id: user.tenant_id } });
+    if (!isMatch) {
+      throw new Error("Invalid Password");
+    }
+
+    const role = await roleRepo.findOne({
+      where: {
+        id: user.role_id,
+      },
+    });
+
+    const company = await tenantRepo.findOne({
+      where: {
+        id: user.tenant_id,
+      },
+    });
+
+    // Tenant DB Connection
+    const tenantConnection = await getTenantConnection(user.db_name);
+
+    const tenantRoleRepo =
+      tenantConnection.getRepository(Role);
+
+    const permissionRepo =
+      tenantConnection.getRepository(Permission);
+
+    const rolePermissionRepo =
+      tenantConnection.getRepository(RolePermission);
+
+    // Find Tenant Role
+    const tenantRole = await tenantRoleRepo.findOne({
+      where: {
+        name: role?.name,
+      },
+    });
+
+    if (!tenantRole) {
+      throw new Error("Tenant role not found");
+    }
+
+    // Get Role Permissions
+    const rolePermissions =
+      await rolePermissionRepo.find({
+        where: {
+          roleId: tenantRole.id,
+        },
+      });
+
+    const permissionIds =
+      rolePermissions.map(
+        (rp) => rp.permissionId
+      );
+
+    const permissions =
+      await permissionRepo.find();
+
+    const permissionNames =
+      permissions
+        .filter((p) =>
+          permissionIds.includes(p.id)
+        )
+        .map((p) => p.name);
 
     const token = generateToken({
       userId: user.id,
       tenantId: user.tenant_id,
-      roleId: user.role_id,
+      roleId: tenantRole.id,
       dbName: user.db_name,
     });
 
     return {
       token,
+
+      permissions: permissionNames,
+
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        role_id: user.role_id,
-        role: role?.name,
+        role_id: tenantRole.id,
+        role: tenantRole.name,
         tenant_id: user.tenant_id,
         companyName: company?.name,
         db_name: user.db_name,
@@ -159,82 +217,103 @@ export const loginService = async (payload: any) => {
     };
   }
 
-  // --- Staff login: search all tenant databases ---
-  const allTenants = await tenantRepo.find({ where: { is_active: true } });
-
-  for (const tenant of allTenants) {
-    const tenantConnection = await getTenantConnection(tenant.db_name);
-    const staffRepo = tenantConnection.getRepository(Staff);
-    const staff = await staffRepo.findOne({ where: { email } });
-    
-
-    if (staff) {
-  if (staff.password !== password)
-    throw new Error("Invalid Password");
-
-  const roleRepo =
-    tenantConnection.getRepository(Role);
-
-  const permissionRepo =
-    tenantConnection.getRepository(Permission);
-
-  const rolePermissionRepo =
-    tenantConnection.getRepository(RolePermission);
-
-  const role = staff.accessRoleId
-    ? await roleRepo.findOne({ where: { id: staff.accessRoleId } })
-    : null;
-
-  const rolePermissions = staff.accessRoleId
-    ? await rolePermissionRepo.find({ where: { roleId: staff.accessRoleId } })
-    : [];
-
-  const permissionIds =
-    rolePermissions.map(
-      (rp) => rp.permissionId
-    );
-
-  const permissions =
-    await permissionRepo.find();
-
-  const permissionNames =
-    permissions
-      .filter((p) =>
-        permissionIds.includes(p.id)
-      )
-      .map((p) => p.name);
-
-  const token = generateToken({
-    userId: staff.id,
-    tenantId: tenant.id,
-    roleId: staff.accessRoleId,
-    dbName: tenant.db_name,
+ 
+  const allTenants = await tenantRepo.find({
+    where: {
+      is_active: true,
+    },
   });
 
-  return {
-    token,
+  for (const tenant of allTenants) {
+    const tenantConnection =
+      await getTenantConnection(tenant.db_name);
 
-    permissions: permissionNames,
+    const staffRepo =
+      tenantConnection.getRepository(Staff);
 
-    requiresPasswordSetup:
-      staff.status === "InActive",
+    const staff = await staffRepo.findOne({
+      where: {
+        email,
+      },
+    });
 
-    user: {
-      id: staff.id,
-      name: staff.fullName,
-      email: staff.email,
+    if (staff) {
+      if (staff.password !== password) {
+        throw new Error("Invalid Password");
+      }
 
-      role: "EMPLOYEE",
-      accessRole: role?.name,
+      const roleRepo =
+        tenantConnection.getRepository(Role);
 
-      isStaff: true,
-      status: staff.status,
-      tenant_id: tenant.id,
-      companyName: tenant.name,
-      db_name: tenant.db_name,
-    },
-  };
-}
+      const permissionRepo =
+        tenantConnection.getRepository(Permission);
+
+      const rolePermissionRepo =
+        tenantConnection.getRepository(RolePermission);
+
+      const role = staff.accessRoleId
+        ? await roleRepo.findOne({
+            where: {
+              id: staff.accessRoleId,
+            },
+          })
+        : null;
+
+      const rolePermissions = staff.accessRoleId
+        ? await rolePermissionRepo.find({
+            where: {
+              roleId: staff.accessRoleId,
+            },
+          })
+        : [];
+
+      const permissionIds =
+        rolePermissions.map(
+          (rp) => rp.permissionId
+        );
+
+      const permissions =
+        await permissionRepo.find();
+
+      const permissionNames =
+        permissions
+          .filter((p) =>
+            permissionIds.includes(p.id)
+          )
+          .map((p) => p.name);
+
+      const token = generateToken({
+        userId: staff.id,
+        tenantId: tenant.id,
+        roleId: staff.accessRoleId,
+        dbName: tenant.db_name,
+      });
+
+      return {
+        token,
+
+        permissions: permissionNames,
+
+        requiresPasswordSetup:
+          staff.status === "InActive",
+
+        user: {
+          id: staff.id,
+          name: staff.fullName,
+          email: staff.email,
+
+          role: role?.name,
+          accessRole: role?.name,
+
+          isStaff: true,
+          status: staff.status,
+
+          tenant_id: tenant.id,
+          companyName: tenant.name,
+          db_name: tenant.db_name,
+        },
+      };
+    }
   }
 
   throw new Error("Invalid Email");
