@@ -7,6 +7,7 @@ import staffRoutes from "./staff.routes";
 import leaveRoutes from "./staff/staff.leave.route";
 import attendanceRoutes from "./staff/attendance.routes";
 import adminAttendanceRoutes from "./admin/attendance.routes";
+import attendanceReportRoutes from "./admin/report.routes";
 import roleRoutes from "./role.routes";
 import permissionRoutes from "./permission.routes";
 import rolePermissionRoutes from "./rolePermission.routes";
@@ -25,6 +26,7 @@ router.use("/myprofile",myprofile );
 router.use("/payroll", Payroll);
 router.use("/attendance", attendanceRoutes);
 router.use("/attendance", adminAttendanceRoutes);
+router.use("/attendance/reports", attendanceReportRoutes);
 router.use(
   "/roles",
   roleRoutes

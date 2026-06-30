@@ -7,6 +7,7 @@ import ShiftsTab from "./components/ShiftsTab";
 import ShiftAssignmentTab from "./components/ShiftAssignmentTab";
 import HolidayManagementTab from "./components/HolidayManagementTab";
 import AttendanceRequestsTab from "./components/AttendanceRequestsTab";
+import AttendanceReportsTab from "./components/AttendanceReportsTab";
 import AttendanceSettingsTab from "./components/AttendanceSettingsTab";
 
 const Attendance = () => {
@@ -19,6 +20,7 @@ const Attendance = () => {
     { id: "assignments", label: "Shift Assignment" },
     { id: "holidays", label: "Holidays" },
     { id: "requests", label: "Requests" },
+    { id: "reports", label: "Reports" },
     { id: "settings", label: "Settings" },
   ];
 
@@ -39,6 +41,7 @@ const Attendance = () => {
           {activeTab === "assignments" && <ShiftAssignmentTab />}
           {activeTab === "holidays" && <HolidayManagementTab />}
           {activeTab === "requests" && <AttendanceRequestsTab />}
+          {activeTab === "reports" && <AttendanceReportsTab />}
           {activeTab === "settings" && <AttendanceSettingsTab />}
         </div>
       </div>

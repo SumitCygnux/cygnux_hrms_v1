@@ -12,6 +12,9 @@ const AttendanceSettingsTab = () => {
     overtimeAfterHours: 8.0,
     allowRegularization: true,
     allowShiftChangeRequest: true,
+    requireClockOutApproval: false,
+    autoClockOutEnabled: true,
+    autoMarkAbsent: true,
   });
 
   useEffect(() => {
@@ -23,13 +26,17 @@ const AttendanceSettingsTab = () => {
       setLoading(true);
       const res = await getAttendanceSettings();
       if (res.data?.success) {
+        const d = res.data.data;
         setFormData({
-          lateAfterMinutes: res.data.data.lateAfterMinutes,
-          halfDayAfterHours: res.data.data.halfDayAfterHours,
-          absentAfterHours: res.data.data.absentAfterHours,
-          overtimeAfterHours: res.data.data.overtimeAfterHours,
-          allowRegularization: res.data.data.allowRegularization,
-          allowShiftChangeRequest: res.data.data.allowShiftChangeRequest,
+          lateAfterMinutes: d.lateAfterMinutes,
+          halfDayAfterHours: d.halfDayAfterHours,
+          absentAfterHours: d.absentAfterHours,
+          overtimeAfterHours: d.overtimeAfterHours,
+          allowRegularization: d.allowRegularization,
+          allowShiftChangeRequest: d.allowShiftChangeRequest,
+          requireClockOutApproval: !!d.requireClockOutApproval,
+          autoClockOutEnabled: d.autoClockOutEnabled !== undefined ? d.autoClockOutEnabled : true,
+          autoMarkAbsent: d.autoMarkAbsent !== undefined ? d.autoMarkAbsent : true,
         });
       }
     } catch (err) {
@@ -153,6 +160,37 @@ const AttendanceSettingsTab = () => {
                 onChange={(e) => setFormData({ ...formData, allowShiftChangeRequest: e.target.checked })}
               />
               Allow employees to submit Shift Change requests
+            </label>
+          </div>
+        </div>
+
+        {/* Automation & Approval */}
+        <div className="flex flex-col gap-4 border-t border-border-color pt-4">
+          <h4 className="text-sm font-bold text-text-primary">Automation & Approval</h4>
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.requireClockOutApproval}
+                onChange={(e) => setFormData({ ...formData, requireClockOutApproval: e.target.checked })}
+              />
+              Require admin approval for clock-out (holds record as Pending)
+            </label>
+            <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.autoClockOutEnabled}
+                onChange={(e) => setFormData({ ...formData, autoClockOutEnabled: e.target.checked })}
+              />
+              Enable auto clock-out for shifts configured with it (missed clock-outs)
+            </label>
+            <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.autoMarkAbsent}
+                onChange={(e) => setFormData({ ...formData, autoMarkAbsent: e.target.checked })}
+              />
+              Auto-mark Absent for employees with no punch on a working day
             </label>
           </div>
         </div>

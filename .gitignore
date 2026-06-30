@@ -8,9 +8,6 @@ hrms_frontend/.env.local
 
 
 hrms_backend/.env
-hrms_backend/.env
-hrms_backend/.env
-hrms_backend/.env
 
 *.env
 .env

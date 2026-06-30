@@ -17,6 +17,7 @@ import {
   deleteHolidayService,
   getAttendanceRecordsService,
   updateAttendanceRecordService,
+  createManualAttendanceService,
   getAttendanceMetricsService,
   getAttendanceChartsService,
   getAttendanceRequestsService,
@@ -24,6 +25,7 @@ import {
   approveAttendanceRequestService,
   rejectAttendanceRequestService,
 } from "../../services/admin/attendance.service";
+import { runMaintenanceForTenant } from "../../services/admin/attendanceMaintenance.service";
 
 const getUser = (req: Request) => (req as any).user as { userId: string; dbName: string };
 
@@ -193,6 +195,26 @@ export const updateAttendanceRecord = async (req: Request, res: Response) => {
     const { dbName } = getUser(req);
     const data = await updateAttendanceRecordService(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
+  } catch (e: any) {
+    return res.status(400).json({ success: false, message: e.message });
+  }
+};
+
+export const createManualAttendance = async (req: Request, res: Response) => {
+  try {
+    const { dbName } = getUser(req);
+    const data = await createManualAttendanceService(dbName, req.body);
+    return res.status(201).json({ success: true, data });
+  } catch (e: any) {
+    return res.status(400).json({ success: false, message: e.message });
+  }
+};
+
+export const runMaintenance = async (req: Request, res: Response) => {
+  try {
+    const { dbName } = getUser(req);
+    await runMaintenanceForTenant(dbName);
+    return res.json({ success: true, message: "Attendance maintenance completed" });
   } catch (e: any) {
     return res.status(400).json({ success: false, message: e.message });
   }

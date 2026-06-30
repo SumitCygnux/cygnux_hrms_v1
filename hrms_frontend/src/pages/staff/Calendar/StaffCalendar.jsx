@@ -47,7 +47,7 @@ const StaffCalendar = () => {
   const upcomingEvents = events
     .filter((e) => new Date(e.date) >= new Date("2026-06-18"))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(0, 6);
+    .slice(0,6)
 
   return (
     <div>

@@ -17,6 +17,8 @@ import {
   deleteHoliday,
   getAttendanceRecords,
   updateAttendanceRecord,
+  createManualAttendance,
+  runMaintenance,
   getAttendanceMetrics,
   getAttendanceCharts,
   getAttendanceRequests,
@@ -34,7 +36,9 @@ router.get("/dashboard/charts", getAttendanceCharts);
 
 
 router.get("/records", getAttendanceRecords);
+router.post("/records", createManualAttendance);
 router.put("/records/:id", updateAttendanceRecord);
+router.post("/maintenance/run", runMaintenance);
 
 
 router.get("/shifts", getShifts);
