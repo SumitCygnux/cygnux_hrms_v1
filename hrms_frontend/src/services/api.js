@@ -87,7 +87,7 @@ export const getRolePermissions = (roleId) =>
   api.get(`/role-permissions/${roleId}`);
 
 export const saveRolePermissions = (data) =>
-  api.post("/role-permissions", data);
+  api.put("/role-permissions", data);
 
 export const updateStaff = (id, data) => {
   return api.put(`/staff/${id}`, data);
@@ -108,7 +108,7 @@ export const getAllLeave = (data) => {
 };
 
 
-// attendance api (staff)
+
 export const clockIn = () => api.post("/attendance/clock-in");
 export const clockOut = () => api.post("/attendance/clock-out");
 export const breakIn = (data) => api.post("/attendance/break-in", data);

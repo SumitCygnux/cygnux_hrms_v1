@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {createRoleService,getRolesService,updateRoleService} from "../services/role.service";
+import {createRoleService,getAllRolesService,updateRoleService} from "../services/role.service";
 
 export const createRole = async (
   req: any,
@@ -28,13 +28,18 @@ export const createRole = async (
   }
 };
 
-export const getRoles = async (req: Request,res: Response) => {
+export const getRoles = async (
+  req: any,
+  res: Response
+) => {
   try {
-    const dbName = (req as any).user.dbName;
-    const result = await getRolesService(dbName);
+    const roles = await getAllRolesService(
+      req.user.dbName
+    );
+
     return res.status(200).json({
       success: true,
-      data: result,
+      data: roles,
     });
   } catch (error: any) {
     return res.status(400).json({
@@ -43,6 +48,7 @@ export const getRoles = async (req: Request,res: Response) => {
     });
   }
 };
+
 export const updateRole = async (req: Request,res: Response) => {
   try {
     const dbName = (req as any).user.dbName;

@@ -1,5 +1,6 @@
 import { getTenantConnection } from "../connection/tenant.connection";
 import { Role } from "../entity/tenant/roles.entity";
+import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 export const createRoleService = async (
   dbName: string,
@@ -29,19 +30,21 @@ export const createRoleService = async (
   return role;
 };
 
-
-export const getRolesService = async (
-  dbName: string
-) => {
+export const getAllRolesService = async (dbName: string) => {
   const dataSource = await getTenantConnection(dbName);
 
   const roleRepo = dataSource.getRepository(Role);
 
-  return await roleRepo.find({
+  const roles = await roleRepo.find({
+    where: {
+      is_deleted: false,
+    },
     order: {
-      name: "ASC",
+      created_at: "ASC",
     },
   });
+
+  return roles;
 };
 
 export const updateRoleService = async (
@@ -68,3 +71,5 @@ export const updateRoleService = async (
 
   return await roleRepo.save(role);
 };
+
+// permission asssign

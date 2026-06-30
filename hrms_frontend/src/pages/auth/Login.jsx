@@ -47,11 +47,37 @@ const Login = () => {
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
 
+      // if (requiresPasswordSetup) {
+      //   navigate("/setup-password");
+      // } else {
+      //   navigate(user.role === "EMPLOYEE" || user.isStaff === true ? "/staff/dashboard" : "/dashboard");
+      // }
+
       if (requiresPasswordSetup) {
-        navigate("/setup-password");
-      } else {
-        navigate(user.role === "EMPLOYEE" || user.isStaff === true ? "/staff/dashboard" : "/dashboard");
-      }
+  navigate("/setup-password");
+} else {
+  switch (user.role) {
+    case "TENANT_ADMIN":
+      navigate("/dashboard");
+      break;
+
+    case "HR":
+      navigate("/hr/dashboard");
+      break;
+
+    case "MANAGER":
+      navigate("/manager/dashboard");
+      break;
+
+    case "EMPLOYEE":
+      navigate("/staff/dashboard");
+      break;
+
+    default:
+      navigate("/");
+      break;
+  }
+}
       
     } catch (error) {
       // alert(error?.response?.data?.message || "Invalid Credentials");
