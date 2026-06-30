@@ -1,22 +1,30 @@
 import { Request, Response } from "express";
 import {createRoleService,getRolesService,updateRoleService} from "../services/role.service";
 
-export const createRole = async (req: Request,res: Response) => {
+export const createRole = async (
+  req: any,
+  res: Response
+) => {
+
   try {
-    const dbName = (req as any).user.dbName;
-    const result = await createRoleService(
+ const dbName = (req as any).user.dbName;
+    const role = await createRoleService(
       dbName,
       req.body
     );
+
     return res.status(201).json({
       success: true,
-      data: result,
+      data: role,
     });
-  } catch (error: any) {
+
+  } catch (err: any) {
+
     return res.status(400).json({
       success: false,
-      message: error.message,
+      message: err.message,
     });
+
   }
 };
 

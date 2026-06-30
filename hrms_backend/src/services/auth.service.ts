@@ -16,6 +16,7 @@ import { RolePermission } from "../entity/tenant/rolePermission.entity";
 import { generateToken } from "../utils/jwt";
 import { seedDepartments } from "../seeders/department.seed";
 import { seedDesignations } from "../seeders/designation.seed";
+import { seedRolePermissions } from "../seeders/rolePermission.seed";
 export const registerCompanyService = async (payload: any) => {
   const {
     companyName,
@@ -77,7 +78,7 @@ export const registerCompanyService = async (payload: any) => {
   await seedRoles(tenantDataSource);
 
   await seedPermissions(tenantDataSource);
-
+  await seedRolePermissions(tenantDataSource);
   await seedDepartments(
   tenantDataSource,
   industry

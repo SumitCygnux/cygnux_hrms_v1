@@ -10,7 +10,7 @@ export const seedRoles = async (tenantDataSource: DataSource) => {
 
   const defaultRoles = [
     {
-      name: "SUPER_ADMIN",
+      name:"SUPER_ADMIN",
       description: "Super Admin",
       is_system: true,
     },
