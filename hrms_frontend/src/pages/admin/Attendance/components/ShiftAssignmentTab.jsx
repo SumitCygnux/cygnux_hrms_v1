@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { getShiftAssignments, createShiftAssignment, updateShiftAssignment, getAllStaff, getDepartments, getShifts } from "../../../../services/api";
+import { 
+  getShiftAssignments, 
+  createShiftAssignment, 
+  updateShiftAssignment, 
+  deleteShiftAssignment, // Added this import
+  getAllStaff, 
+  getDepartments, 
+  getShifts 
+} from "../../../../services/api";
 import DataTable from "../../../../components/tables/DataTable";
 import Button from "../../../../components/common/Button";
 import Badge from "../../../../components/common/Badge";
@@ -17,6 +25,9 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Edit States
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   const [assignmentType, setAssignmentType] = useState("Single"); 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
@@ -59,6 +70,8 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
   };
 
   const handleOpenAssign = () => {
+    setIsEditing(false);
+    setEditId(null);
     setAssignmentType("Single");
     setSelectedEmployeeId("");
     setSelectedDeptId("");
@@ -70,40 +83,85 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
     setIsModalOpen(true);
   };
 
-  const handleDeactivateAssignment = async (id) => {
+  // Populate modal for editing
+  const handleEdit = (row) => {
+    setIsEditing(true);
+    setEditId(row.id);
+    setAssignmentType("Single"); // Usually edits are done on a per-employee basis
+    setSelectedEmployeeId(row.employeeId || "");
+    setSelectedShiftId(row.shiftId || "");
+    setEffectiveFrom(row.effectiveFrom || dayjs().format("YYYY-MM-DD"));
+    setEffectiveTo(row.effectiveTo || "");
+    setRemarks(row.remarks || "");
+    setIsModalOpen(true);
+  };
+
+  // Toggle between Active and InActive
+  const handleToggleStatus = async (row) => {
     try {
-      const res = await updateShiftAssignment(id, { status: "InActive" });
+      const newStatus = row.status === "Active" ? "InActive" : "Active";
+      const res = await updateShiftAssignment(row.id, { status: newStatus });
       if (res.data?.success) {
-        toast.success("Shift assignment deactivated successfully");
+        toast.success(`Shift assignment ${newStatus === "Active" ? "activated" : "deactivated"} successfully`);
         fetchData();
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to deactivate assignment");
+      toast.error(err.response?.data?.message || "Failed to update status");
+    }
+  };
+
+  // Delete Assignment
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this shift assignment?")) return;
+    
+    try {
+      const res = await deleteShiftAssignment(id);
+      if (res.data?.success) {
+        toast.success("Shift assignment deleted successfully");
+        fetchData();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete assignment");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = {
-        assignmentType,
-        shiftId: selectedShiftId,
-        effectiveFrom,
-        effectiveTo: effectiveTo || null,
-        remarks,
-        employeeId: selectedEmployeeId ? Number(selectedEmployeeId) : undefined,
-        departmentId: selectedDeptId || undefined,
-        bulkEmployeeIds: bulkEmployeeIds.map(Number),
-      };
+      let res;
+      
+      if (isEditing) {
+        // Edit existing assignment
+        const updatePayload = {
+          shiftId: selectedShiftId,
+          effectiveFrom,
+          effectiveTo: effectiveTo || null,
+          remarks,
+          // Add other fields if your backend requires them for updates
+        };
+        res = await updateShiftAssignment(editId, updatePayload);
+      } else {
+        // Create new assignment
+        const createPayload = {
+          assignmentType,
+          shiftId: selectedShiftId,
+          effectiveFrom,
+          effectiveTo: effectiveTo || null,
+          remarks,
+          employeeId: selectedEmployeeId ? Number(selectedEmployeeId) : undefined,
+          departmentId: selectedDeptId || undefined,
+          bulkEmployeeIds: bulkEmployeeIds.map(Number),
+        };
+        res = await createShiftAssignment(createPayload);
+      }
 
-      const res = await createShiftAssignment(payload);
       if (res.data?.success) {
-        toast.success("Shift assigned successfully");
+        toast.success(`Shift ${isEditing ? "updated" : "assigned"} successfully`);
         setIsModalOpen(false);
         fetchData();
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Error assigning shift");
+      toast.error(err.response?.data?.message || "Error saving shift assignment");
     }
   };
 
@@ -148,16 +206,40 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
       header: "Actions",
       accessor: "id",
       render: (row) => (
-        <div>
-          {row.status === "Active" && (
-            <Button variant="outline" size="sm" onClick={() => handleDeactivateAssignment(row.id)}>
-              Deactivate
-            </Button>
-          )}
+        <div className="flex items-center gap-6">
+          {/* Activate / Deactivate text button */}
+          <button 
+            type="button"
+            onClick={() => handleToggleStatus(row)}
+            className="text-blue-600 font-semibold hover:text-blue-800 transition-colors"
+            style={{ color: '#2563eb' }}
+          >
+            {row.status === "Active" ? "Deactivate" : "Activate"}
+          </button>
+          
+          {/* Edit text button */}
+          <button 
+            type="button"
+            onClick={() => handleEdit(row)}
+            className="text-blue-600 font-semibold hover:text-blue-800 transition-colors"
+            style={{ color: '#2563eb' }}
+          >
+            Edit
+          </button>
+          
+          {/* Delete outline button */}
+          <button 
+            type="button"
+            onClick={() => handleDelete(row.id)}
+            className="px-4 py-1.5 border border-red-500 text-red-500 font-semibold rounded-md hover:bg-red-50 transition-colors"
+            style={{ borderColor: '#ef4444', color: '#ef4444' }}
+          >
+            Delete
+          </button>
         </div>
       ),
     },
-  ];
+  ]; 
 
   if (loading) {
     return <div className="py-12 text-center text-text-secondary">Loading Assignments...</div>;
@@ -177,43 +259,47 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
       <DataTable columns={columns} data={assignments} pageSize={8} emptyMessage="No shift assignments registered yet." />
 
       {/* Assignment Modal */}
-      <DetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Assign Employee Shift" maxWidth="500px">
+      <DetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "Edit Shift Assignment" : "Assign Employee Shift"} maxWidth="500px">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-text-secondary">Assignment Type</label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-                <input
-                  type="radio"
-                  name="assignType"
-                  value="Single"
-                  checked={assignmentType === "Single"}
-                  onChange={() => setAssignmentType("Single")}
-                />
-                Single Staff
-              </label>
-              <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-                <input
-                  type="radio"
-                  name="assignType"
-                  value="Bulk"
-                  checked={assignmentType === "Bulk"}
-                  onChange={() => setAssignmentType("Bulk")}
-                />
-                Bulk Staff
-              </label>
-              <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-                <input
-                  type="radio"
-                  name="assignType"
-                  value="Department"
-                  checked={assignmentType === "Department"}
-                  onChange={() => setAssignmentType("Department")}
-                />
-                Department
-              </label>
+          
+          {/* Hide Assignment Type toggle if we are editing an existing assignment */}
+          {!isEditing && (
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-text-secondary">Assignment Type</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+                  <input
+                    type="radio"
+                    name="assignType"
+                    value="Single"
+                    checked={assignmentType === "Single"}
+                    onChange={() => setAssignmentType("Single")}
+                  />
+                  Single Staff
+                </label>
+                <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+                  <input
+                    type="radio"
+                    name="assignType"
+                    value="Bulk"
+                    checked={assignmentType === "Bulk"}
+                    onChange={() => setAssignmentType("Bulk")}
+                  />
+                  Bulk Staff
+                </label>
+                <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+                  <input
+                    type="radio"
+                    name="assignType"
+                    value="Department"
+                    checked={assignmentType === "Department"}
+                    onChange={() => setAssignmentType("Department")}
+                  />
+                  Department
+                </label>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Form Conditional fields */}
           {assignmentType === "Single" && (
@@ -221,9 +307,10 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
               <label className="text-xs font-bold text-text-secondary">Select Employee *</label>
               <select
                 required
+                disabled={isEditing} // Often you lock the user selection while editing
                 value={selectedEmployeeId}
                 onChange={(e) => setSelectedEmployeeId(e.target.value)}
-                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
+                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary disabled:opacity-50"
               >
                 <option value="">-- Choose Employee --</option>
                 {employees.map((emp) => (
@@ -233,7 +320,7 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
             </div>
           )}
 
-          {assignmentType === "Department" && (
+          {!isEditing && assignmentType === "Department" && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-text-secondary">Select Department *</label>
               <select
@@ -250,7 +337,7 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
             </div>
           )}
 
-          {assignmentType === "Bulk" && (
+          {!isEditing && assignmentType === "Bulk" && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-text-secondary">Select Employees (Multiple) *</label>
               <div className="border border-border-color rounded-md p-3 max-h-40 overflow-y-auto bg-bg-primary flex flex-col gap-2">
@@ -322,7 +409,7 @@ const ShiftAssignmentTab = ({ defaultShiftId }) => {
               Cancel
             </Button>
             <Button type="submit" variant="primary">
-              Assign Shift
+              {isEditing ? "Save Changes" : "Assign Shift"}
             </Button>
           </div>
         </form>
