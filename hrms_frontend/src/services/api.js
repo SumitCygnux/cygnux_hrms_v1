@@ -107,11 +107,15 @@ export const getAllLeave = (data) => {
   return api.get("/staff/leave", data);
 };
 
+export const updateLeaveStatus = (id, status) => {
+  return api.put(`/staff/leave/${id}/status`, { status });
+};
+
 
 
 // attendance api (staff)
 export const clockIn = () => api.post("/attendance/clock-in");
-export const clockOut = () => api.post("/attendance/clock-out");
+export const clockOut = (data) => api.post("/attendance/clock-out", data);
 export const breakIn = (data) => api.post("/attendance/break-in", data);
 export const breakOut = (data) => api.post("/attendance/break-out", data);
 export const getTodayAttendance = () => api.get("/attendance/today");

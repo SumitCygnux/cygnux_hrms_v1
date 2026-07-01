@@ -7,9 +7,9 @@ import { applyLeave, getLeave } from "../../../services/api";
 import { toast } from "react-toastify";
 
 const statusDot = {
-  Approved: "bg-success",
-  Pending: "bg-warning",
-  Rejected: "bg-danger",
+  approved: "bg-success",
+  pending: "bg-warning",
+  rejected: "bg-danger",
 };
 
 const totalLeaves = {
@@ -20,6 +20,7 @@ const totalLeaves = {
 
 const StaffLeave = () => {
   const [showModal, setShowModal] = useState(false);
+  const [isMultiDay, setIsMultiDay] = useState(false);
   const [form, setForm] = useState({
     leaveType: "Sick Leave",
     fromDate: "",
@@ -29,16 +30,27 @@ const StaffLeave = () => {
 
   const [history, setHistory] = useState([]);
 
+  const handleOpenModal = () => {
+    setForm({
+      leaveType: "Sick Leave",
+      fromDate: "",
+      toDate: "",
+      reason: "",
+    });
+    setIsMultiDay(false);
+    setShowModal(true);
+  };
+
   const leaveBalance = Object.keys(totalLeaves).map((type) => {
     const used = history
       .filter(
-        (leave) => leave.leaveType === type && leave.status === "Approved",
+        (leave) => leave.leaveType === type && leave.status?.toLowerCase() === "approved",
       )
       .reduce((total, leave) => {
         const days =
           Math.ceil(
             (new Date(leave.toDate) - new Date(leave.fromDate)) /
-              (1000 * 60 * 60 * 24),
+            (1000 * 60 * 60 * 24),
           ) + 1;
 
         return total + days;
@@ -77,15 +89,22 @@ const StaffLeave = () => {
   const handleApply = async () => {
     console.log("form", form);
     try {
-      if (!form.leaveType || !form.fromDate || !form.toDate || !form.reason) {
+      const from = form.fromDate;
+      const to = isMultiDay ? form.toDate : form.fromDate;
+
+      if (!form.leaveType || !from || !to || !form.reason) {
         toast.error("All fields are required");
         return;
       }
-      if (new Date(form.toDate) < new Date(form.fromDate)) {
+      if (new Date(to) < new Date(from)) {
         toast.error("To Date cannot be earlier than From Date");
         return;
       }
-      const response = await applyLeave(form);
+      const response = await applyLeave({
+        ...form,
+        fromDate: from,
+        toDate: to,
+      });
 
       toast.success(response.data.message);
       await fetchLeaveHistory();
@@ -95,7 +114,7 @@ const StaffLeave = () => {
         toDate: "",
         reason: "",
       });
-
+      setIsMultiDay(false);
       setShowModal(false);
     } catch (error) {
       console.log(error);
@@ -129,7 +148,7 @@ const StaffLeave = () => {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => setShowModal(true)}
+            onClick={handleOpenModal}
             id="apply-leave-btn"
           >
             Apply Leave
@@ -230,7 +249,7 @@ const StaffLeave = () => {
                   <td className="px-5 py-3.5 text-slate-500 font-bold">
                     {Math.ceil(
                       (new Date(req.toDate) - new Date(req.fromDate)) /
-                        (1000 * 60 * 60 * 24),
+                      (1000 * 60 * 60 * 24),
                     ) + 1}
                   </td>
                   <td className="px-5 py-3.5 text-slate-500 max-w-[180px] truncate">
@@ -243,9 +262,8 @@ const StaffLeave = () => {
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          statusDot[req.status] || "bg-slate-300"
-                        }`}
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot[req.status?.toLowerCase()] || "bg-slate-300"
+                          }`}
                       />
                       <Badge status={req.status}>{req.status}</Badge>
                     </div>
@@ -301,34 +319,69 @@ const StaffLeave = () => {
                     <option>Paid Leave</option>
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                {/* Multi-day Checkbox */}
+                <div className="flex items-center gap-2 mb-1">
+                  <input
+                    type="checkbox"
+                    id="isMultiDay"
+                    checked={isMultiDay}
+                    onChange={(e) => {
+                      setIsMultiDay(e.target.checked);
+                      if (!e.target.checked) {
+                        setForm((prev) => ({ ...prev, toDate: prev.fromDate }));
+                      }
+                    }}
+                    className="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
+                  />
+                  <label htmlFor="isMultiDay" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                    Apply for Multiple Days
+                  </label>
+                </div>
+
+                {!isMultiDay ? (
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
-                      From
+                      Date
                     </label>
                     <input
                       type="date"
                       value={form.fromDate}
                       onChange={(e) =>
-                        setForm({ ...form, fromDate: e.target.value })
+                        setForm({ ...form, fromDate: e.target.value, toDate: e.target.value })
                       }
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
-                      To
-                    </label>
-                    <input
-                      type="date"
-                      value={form.toDate}
-                      onChange={(e) =>
-                        setForm({ ...form, toDate: e.target.value })
-                      }
-                      className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
-                    />
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
+                        From
+                      </label>
+                      <input
+                        type="date"
+                        value={form.fromDate}
+                        onChange={(e) =>
+                          setForm({ ...form, fromDate: e.target.value })
+                        }
+                        className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
+                        To
+                      </label>
+                      <input
+                        type="date"
+                        value={form.toDate}
+                        onChange={(e) =>
+                          setForm({ ...form, toDate: e.target.value })
+                        }
+                        className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
                 <div>
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                     Reason

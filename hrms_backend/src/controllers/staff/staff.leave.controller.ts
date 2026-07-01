@@ -8,9 +8,16 @@ export const applyLeave = async (
   try {
 
     const dbName = (req as any).user.dbName;
-
     const staffId = (req as any).user.userId;
 
+    if (isNaN(Number(staffId))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid session staffId. Please log out and log back in.",
+      });
+    }
+
+    console.log("applyLeave DEBUG - dbName:", dbName, "staffId:", staffId, "user:", (req as any).user, "body:", req.body);
    
     const leave = await applyLeaveService(
       dbName,
@@ -43,6 +50,13 @@ export const getLeave = async (
   try {
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
+
+    if (isNaN(Number(staffId))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid session staffId. Please log out and log back in.",
+      });
+    }
 
     const leaves = await getLeaveService(
       dbName,

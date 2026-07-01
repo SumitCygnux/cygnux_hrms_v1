@@ -1,534 +1,694 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import PageHeader from "../../../components/layouts/PageHeader";
 import Badge from "../../../components/common/Badge";
 import Button from "../../../components/common/Button";
-import KPICard from "../../../components/cards/KPICard";
+import DataTable from "../../../components/tables/DataTable";
 import DetailModal from "../../../components/modals/DetailModal";
-import { BarChartComponent } from "../../../components/charts/ChartWrappers";
 import {
-  MdCheckCircle,
-  MdSchedule,
-  MdHome,
-  MdCancel,
-  MdLogin,
-  MdLogout,
-  MdFreeBreakfast,
-  MdPlayArrow,
-  MdAdd,
-  MdEvent,
+  MdSearch,
+  MdFilterList,
+  MdFileDownload,
+  MdCalendarToday,
+  MdList,
+  MdInbox,
+  MdWarning,
+  MdRefresh,
+  MdChevronLeft,
+  MdChevronRight,
+  MdBeachAccess,
+  MdInfoOutline
 } from "react-icons/md";
 import {
-  getStaffAttendanceDashboard,
   getAttendanceHistory,
   getMyAttendanceRequests,
-  clockIn as apiClockIn,
-  clockOut as apiClockOut,
-  breakIn as apiBreakIn,
-  breakOut as apiBreakOut,
-  createMyAttendanceRequest,
+  getHolidays
 } from "../../../services/api";
-
-const BREAK_TYPES = ["Lunch", "Tea", "Personal", "Other"];
-const REQUEST_TYPES = [
-  "Regularization",
-  "Missed Punch",
-  "Attendance Correction",
-  "Work From Home",
-  "On Duty",
-];
 
 const fmtTime = (d) => (d ? dayjs(d).format("hh:mm A") : "—");
 
-const fmtDuration = (ms) => {
-  if (!ms || ms < 0) ms = 0;
-  const totalMin = Math.floor(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  const s = Math.floor((ms % 60000) / 1000);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-};
-
 const StaffAttendance = () => {
-  const [dashboard, setDashboard] = useState(null);
+  // Tabs: "History" | "Holidays" | "Requests"
+  const [activeTab, setActiveTab] = useState("History");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Data States
   const [logs, setLogs] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
+  const [holidays, setHolidays] = useState([]);
 
-  const [activeFilter, setActiveFilter] = useState("All");
-  const filters = ["All", "Present", "Late", "Absent", "Half Day", "On Leave", "Work From Home"];
+  // Search & Filter States
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [monthFilter, setMonthFilter] = useState("All");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
 
-  // Break modal
-  const [breakModal, setBreakModal] = useState(false);
-  const [breakType, setBreakType] = useState("Lunch");
-  const [breakRemarks, setBreakRemarks] = useState("");
+  // Holiday view mode: "Cards" | "Calendar"
+  const [holidayView, setHolidayView] = useState("Cards");
+  const [holidayYear, setHolidayYear] = useState(() => new Date().getFullYear());
+  const [calendarDate, setCalendarDate] = useState(() => dayjs());
 
-  // Request modal
-  const [reqModal, setReqModal] = useState(false);
-  const [reqForm, setReqForm] = useState({
-    requestType: "Regularization",
-    requestDate: dayjs().format("YYYY-MM-DD"),
-    reason: "",
-    clockIn: "",
-    clockOut: "",
-  });
+  // Request details modal
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  const tickRef = useRef(null);
-
-  const today = dashboard?.today || null;
-  const shift = dashboard?.shift || null;
-
-  const openBreak = useMemo(() => (today?.breaks || []).find((b) => !b.end), [today]);
-
-  const clockState = useMemo(() => {
-    if (!today || !today.clockIn) return "idle";
-    if (today.clockOut) return "clocked_out";
-    if (openBreak) return "on_break";
-    return "clocked_in";
-  }, [today, openBreak]);
-
-  // Live ticking only while a session is active.
-  useEffect(() => {
-    if (clockState === "clocked_in" || clockState === "on_break") {
-      tickRef.current = setInterval(() => setNow(Date.now()), 1000);
-      return () => clearInterval(tickRef.current);
-    }
-    clearInterval(tickRef.current);
-  }, [clockState]);
-
-  const fetchAll = async () => {
+  const fetchAttendanceDetails = async () => {
     try {
-      const [dashRes, histRes, reqRes] = await Promise.all([
-        getStaffAttendanceDashboard(),
+      setLoading(true);
+      setError(null);
+
+      const [histRes, reqRes, holRes] = await Promise.all([
         getAttendanceHistory(),
         getMyAttendanceRequests(),
+        getHolidays()
       ]);
-      if (dashRes.data?.success) setDashboard(dashRes.data.data);
+
       if (histRes.data?.success) setLogs(histRes.data.data || []);
       if (reqRes.data?.success) setRequests(reqRes.data.data || []);
+      if (holRes.data?.success) setHolidays(holRes.data.data || []);
+
+      setLoading(false);
     } catch (err) {
-      console.error("Failed to load attendance:", err);
-    } finally {
+      console.error("Failed to load attendance logs", err);
+      setError("Unable to load attendance details. Please check your network.");
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAll();
+    fetchAttendanceDetails();
   }, []);
 
-  // ── Live durations ───────────────────────────────────────────────────────
-  const breakMsCompleted = (today?.breaks || []).reduce((acc, b) => {
-    if (b.start && b.end) return acc + (new Date(b.end) - new Date(b.start));
-    return acc;
-  }, 0);
-  const breakMsLive =
-    breakMsCompleted + (openBreak ? now - new Date(openBreak.start).getTime() : 0);
-  const workedMsLive =
-    today?.clockIn && !today?.clockOut
-      ? Math.max(0, now - new Date(today.clockIn).getTime() - breakMsLive)
-      : Number(today?.workingHours || 0) * 3600000;
+  // ── FILTERS & SEARCH FOR HISTORY ──────────────────────────────────────────
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      // 1. Search term (status or date)
+      const matchesSearch =
+        log.date.includes(searchTerm) ||
+        (log.status && log.status.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  // ── Actions ──────────────────────────────────────────────────────────────
-  const act = async (fn, okMsg) => {
-    setBusy(true);
-    try {
-      await fn();
-      if (okMsg) toast.success(okMsg);
-      await fetchAll();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Action failed");
-    } finally {
-      setBusy(false);
-    }
-  };
+      // 2. Status Filter
+      const matchesStatus = statusFilter === "All" || log.status === statusFilter;
 
-  const handleClockIn = () => act(apiClockIn, "Clocked in");
-  const handleClockOut = () => act(apiClockOut, "Clocked out");
-  const handleEndBreak = () => act(() => apiBreakOut({}), "Break ended");
-  const handleStartBreak = async () => {
-    setBreakModal(false);
-    await act(() => apiBreakIn({ type: breakType, remarks: breakRemarks }), "Break started");
-    setBreakRemarks("");
-  };
+      // 3. Month Filter
+      let matchesMonth = true;
+      if (monthFilter !== "All") {
+        const logMonth = dayjs(log.date).format("MM");
+        matchesMonth = logMonth === monthFilter;
+      }
 
-  const submitRequest = async (e) => {
-    e.preventDefault();
-    const payload = {};
-    if (reqForm.clockIn) payload.clockIn = `${reqForm.requestDate}T${reqForm.clockIn}:00`;
-    if (reqForm.clockOut) payload.clockOut = `${reqForm.requestDate}T${reqForm.clockOut}:00`;
-    if (reqForm.requestType === "Work From Home") payload.status = "Work From Home";
-    if (reqForm.requestType === "On Duty") payload.status = "On Duty";
-    await act(
-      () =>
-        createMyAttendanceRequest({
-          requestType: reqForm.requestType,
-          requestDate: reqForm.requestDate,
-          reason: reqForm.reason,
-          payload: Object.keys(payload).length ? payload : null,
-        }),
-      "Request submitted"
-    );
-    setReqModal(false);
-    setReqForm({
-      requestType: "Regularization",
-      requestDate: dayjs().format("YYYY-MM-DD"),
-      reason: "",
-      clockIn: "",
-      clockOut: "",
+      // 4. Date Range Filter
+      let matchesRange = true;
+      if (startDateFilter && endDateFilter) {
+        const logDate = dayjs(log.date);
+        matchesRange =
+          (logDate.isSame(startDateFilter, "day") || logDate.isAfter(startDateFilter)) &&
+          (logDate.isSame(endDateFilter, "day") || logDate.isBefore(endDateFilter));
+      }
+
+      return matchesSearch && matchesStatus && matchesMonth && matchesRange;
     });
+  }, [logs, searchTerm, statusFilter, monthFilter, startDateFilter, endDateFilter]);
+
+  // Months lists
+  const months = [
+    { label: "January", value: "01" },
+    { label: "February", value: "02" },
+    { label: "March", value: "03" },
+    { label: "April", value: "04" },
+    { label: "May", value: "05" },
+    { label: "June", value: "06" },
+    { label: "July", value: "07" },
+    { label: "August", value: "08" },
+    { label: "September", value: "09" },
+    { label: "October", value: "10" },
+    { label: "November", value: "11" },
+    { label: "December", value: "12" },
+  ];
+
+  // CSV Exporter
+  const handleExportCSV = () => {
+    if (filteredLogs.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    const headers = ["Date", "Clock In", "Clock Out", "Working Hours", "Break Minutes", "Status", "Notes"];
+    const rows = filteredLogs.map((log) => [
+      log.date,
+      log.clockIn ? dayjs(log.clockIn).format("hh:mm A") : "—",
+      log.clockOut ? dayjs(log.clockOut).format("hh:mm A") : "—",
+      log.workingHours || "0",
+      log.breakDuration || "0",
+      log.status,
+      log.notes || "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Attendance_Logs_${dayjs().format("YYYY-MM-DD")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("CSV file exported successfully");
   };
 
-  const monthly = dashboard?.monthly || {
-    present: 0, late: 0, halfDay: 0, absent: 0, leave: 0, wfh: 0, workedHours: 0,
+  // ── HOLIDAY CALCULATIONS ──────────────────────────────────────────────────
+  const filteredHolidays = useMemo(() => {
+    return holidays.filter((h) => {
+      const year = dayjs(h.holidayDate).year();
+      return h.isActive && year === Number(holidayYear);
+    });
+  }, [holidays, holidayYear]);
+
+  const holidayStats = useMemo(() => {
+    const total = filteredHolidays.length;
+    const mandatory = filteredHolidays.filter((h) => h.isPaid).length;
+    const optional = total - mandatory;
+    return { total, mandatory, optional };
+  }, [filteredHolidays]);
+
+  // Calendar calculations
+  const generateCalendarDays = () => {
+    const startOfMonth = calendarDate.startOf("month");
+    const endOfMonth = calendarDate.endOf("month");
+    const startDate = startOfMonth.startOf("week");
+    const endDate = endOfMonth.endOf("week");
+
+    const days = [];
+    let day = startDate;
+
+    while (day.isBefore(endDate)) {
+      days.push(day);
+      day = day.add(1, "day");
+    }
+    return days;
   };
-  const weekly = dashboard?.weekly || [];
 
-  const filtered =
-    activeFilter === "All" ? logs : logs.filter((l) => l.status === activeFilter);
+  const calendarDays = generateCalendarDays();
+  const getHolidayForDay = (day) => {
+    return holidays.find((h) => h.isActive && dayjs(h.holidayDate).isSame(day, "day"));
+  };
 
-  const statusLabel = {
-    idle: "Not Started",
-    clocked_in: "Working",
-    on_break: "On Break",
-    clocked_out: "Day Complete",
-  }[clockState];
+  const handleOpenRequestDetail = (req) => {
+    setSelectedRequest(req);
+    setIsRequestModalOpen(true);
+  };
 
-  const statusStyle = {
-    idle: "bg-slate-100 text-slate-500",
-    clocked_in: "bg-success/10 text-success border border-success/20",
-    on_break: "bg-warning/10 text-warning border border-warning/20",
-    clocked_out: "bg-slate-100 text-slate-500",
-  }[clockState];
+  // Reusable empty state component
+  const EmptyState = ({ message, subtitle }) => (
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-slate-50/50 border border-slate-100 rounded-3xl gap-4">
+      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-3xl">
+        <MdInbox />
+      </div>
+      <div>
+        <h4 className="text-sm font-bold text-slate-800">{message}</h4>
+        {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+      </div>
+    </div>
+  );
+
+  // Table columns definition for History
+  const historyColumns = [
+    {
+      header: "Date",
+      accessor: "date",
+      sortable: true,
+      render: (row) => <span className="font-semibold text-slate-700">{row.date}</span>,
+    },
+    {
+      header: "Clock In",
+      accessor: "clockIn",
+      render: (row) => <span className="text-slate-600 font-medium">{row.clockIn ? fmtTime(row.clockIn) : "—"}</span>,
+    },
+    {
+      header: "Clock Out",
+      accessor: "clockOut",
+      render: (row) => <span className="text-slate-600 font-medium">{row.clockOut ? fmtTime(row.clockOut) : "—"}</span>,
+    },
+    {
+      header: "Working Hours",
+      accessor: "workingHours",
+      sortable: true,
+      render: (row) => <span className="font-bold text-slate-800">{Number(row.workingHours || 0).toFixed(1)} hrs</span>,
+    },
+    {
+      header: "Break Duration",
+      accessor: "breakDuration",
+      render: (row) => <span className="text-slate-600">{row.breakDuration || 0} mins</span>,
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      sortable: true,
+      render: (row) => <Badge status={row.status}>{row.status}</Badge>,
+    },
+    {
+      header: "Notes",
+      accessor: "notes",
+      render: (row) => (
+        <span className="text-xs text-slate-400 max-w-[180px] truncate block" title={row.notes}>
+          {row.notes || "—"}
+        </span>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
-      <div>
-        <PageHeader title="My Attendance" subtitle="Track your daily check-in / check-out records" />
-        <div className="py-16 text-center text-slate-400">Loading attendance…</div>
+      <div className="flex flex-col gap-6 animate-pulse">
+        <PageHeader title="Attendance Logs" subtitle="Fetching logs & details..." />
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 h-96" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 bg-white border border-slate-100 rounded-3xl text-center max-w-xl mx-auto shadow-sm my-16 gap-6">
+        <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 text-3xl">
+          <MdWarning />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-slate-800 mb-1">Failed to load attendance logs</h3>
+          <p className="text-sm text-slate-500">{error}</p>
+        </div>
+        <Button variant="primary" onClick={fetchAttendanceDetails} iconBefore={<MdRefresh />}>
+          Retry Fetching
+        </Button>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <PageHeader
-        title="My Attendance"
-        subtitle="Live clock-in / out, breaks, and your attendance history"
+        title="Attendance & Leave Logs"
+        subtitle="Review your historical check-in logs, company holidays, and correction requests"
       />
 
-      {/* ── LIVE TRACKER ──────────────────────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-7 bg-white rounded-[24px] border border-slate-100 shadow-[0_12px_45px_rgba(0,0,0,0.04)] p-6"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-stretch gap-6">
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-5">
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                  Today's Attendance
-                </p>
-                <p className="text-sm font-semibold text-slate-600">
-                  {dayjs().format("dddd, DD MMMM YYYY")}
-                </p>
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  {shift ? (
-                    <span className="text-xs text-slate-500">
-                      <span className="font-bold text-slate-700">{shift.shiftName}</span>{" "}
-                      ({shift.startTime}–{shift.endTime})
-                    </span>
-                  ) : (
-                    <span className="text-xs text-amber-600 font-semibold">No shift assigned</span>
-                  )}
-                  {dashboard?.isHolidayToday && <Badge status="WFH">Holiday</Badge>}
-                  {dashboard?.isWeeklyOffToday && <Badge status="WFH">Weekly Off</Badge>}
-                </div>
+      {/* Tab Selectors */}
+      <div className="flex border-b border-slate-100 gap-6 text-sm font-semibold uppercase tracking-wider text-slate-400">
+        {[
+          { id: "History", label: "Attendance Logs" },
+          { id: "Holidays", label: "Holidays Directory" },
+          { id: "Requests", label: "Correction Log" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`pb-3 relative transition-all ${
+              activeTab === tab.id
+                ? "text-primary border-b-2 border-primary"
+                : "hover:text-slate-600"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── TAB 1: HISTORY TABLE ────────────────────────────────────────────── */}
+      {activeTab === "History" && (
+        <div className="flex flex-col gap-5">
+          {/* Advanced Multi-Filters Header */}
+          <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Search */}
+              <div className="flex-1 relative">
+                <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" />
+                <input
+                  type="text"
+                  placeholder="Search logs by date, status..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-2xl bg-slate-50 text-xs text-slate-700 outline-none focus:border-primary focus:bg-white transition-all font-medium"
+                />
               </div>
-              <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${statusStyle}`}>
-                {statusLabel}
-              </span>
+
+              {/* CSV Export Button */}
+              <Button
+                variant="outline"
+                onClick={handleExportCSV}
+                iconBefore={<MdFileDownload className="text-base" />}
+              >
+                Export CSV
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: "Clock In", value: fmtTime(today?.clockIn) },
-                { label: "Clock Out", value: fmtTime(today?.clockOut) },
-                { label: "Worked", value: fmtDuration(workedMsLive) },
-                { label: "Break", value: fmtDuration(breakMsLive) },
-              ].map((item) => (
-                <div key={item.label} className="border border-slate-100 rounded-xl p-3 bg-slate-50/40">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{item.label}</p>
-                  <p className="text-sm font-bold text-slate-700 tabular-nums">{item.value}</p>
-                </div>
-              ))}
+              {/* Status Filter */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs text-slate-700 outline-none focus:border-primary"
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="Present">Present</option>
+                  <option value="Late">Late</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Half Day">Half Day</option>
+                  <option value="On Leave">On Leave</option>
+                  <option value="Work From Home">Work From Home</option>
+                  <option value="Missed Punch">Missed Punch</option>
+                </select>
+              </div>
+
+              {/* Month Filter */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Month</label>
+                <select
+                  value={monthFilter}
+                  onChange={(e) => setMonthFilter(e.target.value)}
+                  className="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs text-slate-700 outline-none focus:border-primary"
+                >
+                  <option value="All">All Months</option>
+                  {months.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Date Start */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">From Date</label>
+                <input
+                  type="date"
+                  value={startDateFilter}
+                  onChange={(e) => setStartDateFilter(e.target.value)}
+                  className="p-1.5 border border-slate-200 rounded-xl bg-slate-50 text-xs text-slate-700 outline-none focus:border-primary"
+                />
+              </div>
+
+              {/* Date End */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">To Date</label>
+                <input
+                  type="date"
+                  value={endDateFilter}
+                  onChange={(e) => setEndDateFilter(e.target.value)}
+                  className="p-1.5 border border-slate-200 rounded-xl bg-slate-50 text-xs text-slate-700 outline-none focus:border-primary"
+                />
+              </div>
             </div>
-
-            {today && (
-              <div className="flex items-center gap-3 mt-3 text-[11px] text-slate-400 flex-wrap">
-                {today.status && (
-                  <span className="flex items-center gap-1">Status: <Badge status={today.status}>{today.status}</Badge></span>
-                )}
-                {today.lateMinutes > 0 && <span className="text-rose-500 font-semibold">Late {today.lateMinutes}m</span>}
-                {today.overtimeMinutes > 0 && <span className="text-emerald-600 font-semibold">OT {today.overtimeMinutes}m</span>}
-                {today.clockOutApproval === "Pending" && <Badge status="Pending">Clock-out pending approval</Badge>}
-              </div>
-            )}
           </div>
 
-          <div className="hidden lg:block w-px bg-slate-100" />
-          <div className="block lg:hidden h-px bg-slate-100" />
-
-          <div className="flex flex-row lg:flex-col gap-3 lg:justify-center lg:min-w-[180px]">
-            {clockState === "idle" && (
-              <Button variant="primary" size="lg" className="flex-1" disabled={busy} onClick={handleClockIn} iconBefore={<MdLogin />}>
-                Clock In
-              </Button>
-            )}
-            {clockState === "clocked_in" && (
-              <>
-                <Button variant="warning" className="flex-1" disabled={busy} onClick={() => setBreakModal(true)} iconBefore={<MdFreeBreakfast />}>
-                  Break In
-                </Button>
-                <Button variant="danger" className="flex-1" disabled={busy} onClick={handleClockOut} iconBefore={<MdLogout />}>
-                  Clock Out
-                </Button>
-              </>
-            )}
-            {clockState === "on_break" && (
-              <Button variant="success" size="lg" className="flex-1" disabled={busy} onClick={handleEndBreak} iconBefore={<MdPlayArrow />}>
-                End Break
-              </Button>
-            )}
-            {clockState === "clocked_out" && (
-              <div className="flex-1 flex items-center justify-center py-3 px-4 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Day Complete</p>
-              </div>
-            )}
-            <Button variant="outline" size="sm" onClick={() => setReqModal(true)} iconBefore={<MdAdd />}>
-              Request
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── KPI CARDS (this month) ────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-        <KPICard title="Present (This Month)" value={monthly.present + monthly.late} icon={<MdCheckCircle />} color="emerald" variant="clean" trend={`${monthly.workedHours}h worked`} />
-        <KPICard title="Late Arrivals" value={monthly.late} icon={<MdSchedule />} color="amber" variant="clean" trendType="down" trend="After grace period" />
-        <KPICard title="WFH Days" value={monthly.wfh} icon={<MdHome />} color="blue" variant="clean" trend="Work from home" />
-        <KPICard title="Absent Days" value={monthly.absent} icon={<MdCancel />} color="rose" variant="clean" trendType="down" trend="No attendance" />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-7">
-        {/* Weekly hours chart */}
-        <div className="xl:col-span-2 bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base font-bold text-slate-800">Hours Logged This Week</span>
-            <span className="text-xs text-slate-400">Last 7 days</span>
-          </div>
-          <p className="text-xs text-slate-400 mb-4">Your daily working hours</p>
-          <BarChartComponent data={weekly} xKey="name" yKey="value" color="#2563EB" label="Hours" />
-        </div>
-
-        {/* Upcoming holidays */}
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 flex flex-col">
-          <div className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
-            <MdEvent className="text-blue-600 text-lg" />
-            <span>Upcoming Holidays</span>
-          </div>
-          <p className="text-xs text-slate-400 mb-4">Next 60 days</p>
-          <div className="flex-1 flex flex-col gap-2.5">
-            {(dashboard?.upcomingHolidays || []).map((h) => (
-              <div key={h.id} className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0">
-                    <span className="text-[9px] font-bold text-primary uppercase leading-none">{dayjs(h.holidayDate).format("MMM")}</span>
-                    <span className="text-sm font-extrabold text-primary leading-none">{dayjs(h.holidayDate).format("DD")}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-700">{h.holidayName}</p>
-                    <p className="text-[10px] text-slate-400">{h.holidayType}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {(dashboard?.upcomingHolidays || []).length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-6">No upcoming holidays</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── MY REQUESTS ───────────────────────────────────────────────────── */}
-      {requests.length > 0 && (
-        <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 p-6 mb-7">
-          <p className="text-base font-bold text-slate-800 mb-4">My Requests</p>
-          <div className="flex flex-col gap-2">
-            {requests.slice(0, 5).map((r) => (
-              <div key={r.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
-                <div>
-                  <p className="text-xs font-semibold text-slate-700">{r.requestType} · {r.requestDate}</p>
-                  <p className="text-[11px] text-slate-400">{r.reason}</p>
-                </div>
-                <Badge status={r.status}>{r.status}</Badge>
-              </div>
-            ))}
-          </div>
+          {/* History Data Table */}
+          {filteredLogs.length > 0 ? (
+            <DataTable columns={historyColumns} data={filteredLogs} pageSize={10} />
+          ) : (
+            <EmptyState message="No attendance records found matching filters." subtitle="Try adjusting your filter settings or search terms above." />
+          )}
         </div>
       )}
 
-      {/* ── HISTORY TABLE ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[24px] shadow-[0_12px_45px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-base font-bold text-slate-800">Attendance Log</p>
-            <p className="text-xs text-slate-400 mt-0.5">{filtered.length} records</p>
+      {/* ── TAB 2: REDESIGNED HOLIDAYS ──────────────────────────────────────── */}
+      {activeTab === "Holidays" && (
+        <div className="flex flex-col gap-5">
+          {/* Controls & Stats header */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+            
+            {/* Year filter & View modes */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase">Year</span>
+                <select
+                  value={holidayYear}
+                  onChange={(e) => setHolidayYear(Number(e.target.value))}
+                  className="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs font-semibold text-slate-700 outline-none focus:border-primary"
+                >
+                  <option value={2026}>2026</option>
+                  <option value={2027}>2027</option>
+                </select>
+              </div>
+
+              <div className="flex border border-slate-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setHolidayView("Cards")}
+                  className={`p-2 flex items-center justify-center text-lg transition-all ${
+                    holidayView === "Cards" ? "bg-primary text-white" : "text-slate-400 hover:bg-slate-50"
+                  }`}
+                  title="Card view"
+                >
+                  <MdList />
+                </button>
+                <button
+                  onClick={() => setHolidayView("Calendar")}
+                  className={`p-2 flex items-center justify-center text-lg transition-all ${
+                    holidayView === "Calendar" ? "bg-primary text-white" : "text-slate-400 hover:bg-slate-50"
+                  }`}
+                  title="Calendar Grid view"
+                >
+                  <MdCalendarToday />
+                </button>
+              </div>
+            </div>
+
+            {/* Counters */}
+            <div className="flex gap-4 text-xs font-bold text-slate-500 justify-between sm:justify-start">
+              <span className="px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100">
+                Total: <span className="text-slate-800">{holidayStats.total}</span>
+              </span>
+              <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                Mandatory: <span className="text-emerald-800">{holidayStats.mandatory}</span>
+              </span>
+              <span className="px-3 py-1.5 bg-amber-50 text-amber-700 rounded-xl border border-amber-100">
+                Optional: <span className="text-amber-800">{holidayStats.optional}</span>
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  activeFilter === f
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                }`}
+
+          {/* Cards View */}
+          {holidayView === "Cards" && (
+            filteredHolidays.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredHolidays.map((holiday, idx) => (
+                  <motion.div
+                    key={holiday.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className={`bg-white rounded-3xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 ${
+                      holiday.isPaid ? "border-l-4 border-l-emerald-500" : "border-l-4 border-l-amber-500"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0">
+                          <span className="text-[9px] font-bold text-primary uppercase leading-none">
+                            {dayjs(holiday.holidayDate).format("MMM")}
+                          </span>
+                          <span className="text-sm font-extrabold text-primary leading-none mt-0.5">
+                            {dayjs(holiday.holidayDate).format("DD")}
+                          </span>
+                        </div>
+                        <Badge status={holiday.isPaid ? "Active" : "InActive"}>
+                          {holiday.isPaid ? "Mandatory" : "Optional"}
+                        </Badge>
+                      </div>
+
+                      <h4 className="text-sm font-bold text-slate-800 mb-1">{holiday.holidayName}</h4>
+                      <p className="text-[10px] text-slate-400 mb-2">
+                        {dayjs(holiday.holidayDate).format("dddd")} · {holiday.holidayType || "Public"}
+                      </p>
+                      <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                        {holiday.description || "No description provided for this holiday."}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState message="No holidays found for this year." />
+            )
+          )}
+
+          {/* Calendar Grid View */}
+          {holidayView === "Calendar" && (
+            <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="text-sm font-bold text-slate-800">{calendarDate.format("MMMM YYYY")}</h4>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCalendarDate(calendarDate.subtract(1, "month"))}
+                    className="p-2 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-base"
+                  >
+                    <MdChevronLeft />
+                  </button>
+                  <button
+                    onClick={() => setCalendarDate(calendarDate.add(1, "month"))}
+                    className="p-2 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 text-base"
+                  >
+                    <MdChevronRight />
+                  </button>
+                </div>
+              </div>
+
+              {/* Day names */}
+              <div className="grid grid-cols-7 text-center font-bold text-[10px] text-slate-400 border-b border-slate-100 pb-2 mb-1 uppercase tracking-wider">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div key={day}>{day}</div>
+                ))}
+              </div>
+
+              {/* Calendar cells */}
+              <div className="grid grid-cols-7 gap-1.5 min-h-[300px]">
+                {calendarDays.map((day, index) => {
+                  const isCurrentMonth = day.month() === calendarDate.month();
+                  const holiday = getHolidayForDay(day);
+
+                  return (
+                    <div
+                      key={index}
+                      className={`border border-slate-100 rounded-xl p-2 flex flex-col justify-between min-h-[75px] relative transition-all ${
+                        isCurrentMonth ? "bg-white" : "bg-slate-50/50 opacity-40"
+                      } ${
+                        holiday
+                          ? holiday.isPaid
+                            ? "border-emerald-200 bg-emerald-50/5"
+                            : "border-amber-200 bg-amber-50/5"
+                          : ""
+                      }`}
+                    >
+                      <span className={`text-[10px] font-bold ${holiday ? "text-primary" : "text-slate-400"}`}>
+                        {day.date()}
+                      </span>
+                      {holiday && (
+                        <div
+                          className={`rounded px-1.5 py-0.5 text-[8px] font-bold w-full truncate text-center ${
+                            holiday.isPaid ? "bg-emerald-500 text-white" : "bg-amber-500 text-white"
+                          }`}
+                          title={holiday.holidayName}
+                        >
+                          {holiday.holidayName}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 3: REQUESTS ─────────────────────────────────────────────────── */}
+      {activeTab === "Requests" && (
+        requests.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {requests.map((r, idx) => (
+              <motion.div
+                key={r.id}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                onClick={() => handleOpenRequestDetail(r)}
+                className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all cursor-pointer flex justify-between items-center gap-4 hover:border-primary/20"
               >
-                {f}
-              </button>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-bold text-slate-700">{r.requestType}</span>
+                    <Badge status={r.status}>{r.status}</Badge>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-semibold mb-1">
+                    Date: {dayjs(r.requestDate).format("MMM DD, YYYY")}
+                  </p>
+                  <p className="text-xs text-slate-500 truncate max-w-[280px]">Reason: {r.reason}</p>
+                </div>
+                <MdInfoOutline className="text-slate-400 text-lg flex-shrink-0" />
+              </motion.div>
             ))}
           </div>
-        </div>
+        ) : (
+          <EmptyState message="No attendance requests found." subtitle="Any correction or regularization requests filed will appear here." />
+        )
+      )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-100">
-              <tr>
-                {["Date", "Clock In", "Clock Out", "Hours", "Break", "Late", "Overtime", "Status"].map((h) => (
-                  <th key={h} className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((log, idx) => (
-                <motion.tr
-                  key={log.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: Math.min(idx * 0.02, 0.3) }}
-                  className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
-                >
-                  <td className="px-5 py-3.5 text-slate-700 font-medium">{log.date}</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.clockIn ? fmtTime(log.clockIn) : "—"}</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.clockOut ? fmtTime(log.clockOut) : "—"}</td>
-                  <td className="px-5 py-3.5 text-slate-700 font-semibold">{Number(log.workingHours || 0)}h</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.breakDuration || 0}m</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.lateMinutes > 0 ? <span className="text-rose-500 font-semibold">{log.lateMinutes}m</span> : "—"}</td>
-                  <td className="px-5 py-3.5 text-slate-600">{log.overtimeMinutes > 0 ? <span className="text-emerald-600 font-semibold">+{log.overtimeMinutes}m</span> : "—"}</td>
-                  <td className="px-5 py-3.5"><Badge status={log.status}>{log.status}</Badge></td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-          {filtered.length === 0 && (
-            <div className="py-10 text-center text-slate-400 text-sm">No records found</div>
-          )}
-        </div>
-      </div>
-
-      {/* ── BREAK MODAL ───────────────────────────────────────────────────── */}
-      <DetailModal isOpen={breakModal} onClose={() => setBreakModal(false)} title="Start Break" maxWidth="420px">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-text-secondary">Break Type</label>
-            <select
-              value={breakType}
-              onChange={(e) => setBreakType(e.target.value)}
-              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-            >
-              {BREAK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-text-secondary">Remarks (optional)</label>
-            <input
-              type="text"
-              value={breakRemarks}
-              onChange={(e) => setBreakRemarks(e.target.value)}
-              placeholder="e.g. Lunch with team"
-              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-            />
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="secondary" onClick={() => setBreakModal(false)}>Cancel</Button>
-            <Button variant="warning" onClick={handleStartBreak} disabled={busy}>Start Break</Button>
-          </div>
-        </div>
-      </DetailModal>
-
-      {/* ── REQUEST MODAL ─────────────────────────────────────────────────── */}
-      <DetailModal isOpen={reqModal} onClose={() => setReqModal(false)} title="Submit Attendance Request" maxWidth="480px">
-        <form onSubmit={submitRequest} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Request Type</label>
-              <select
-                value={reqForm.requestType}
-                onChange={(e) => setReqForm({ ...reqForm, requestType: e.target.value })}
-                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-              >
-                {REQUEST_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
+      {/* Request details modal */}
+      <DetailModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+        title="Request Details"
+        maxWidth="460px"
+      >
+        {selectedRequest && (
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <span className="text-sm font-bold text-slate-800">{selectedRequest.requestType}</span>
+              <Badge status={selectedRequest.status}>{selectedRequest.status}</Badge>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Date *</label>
-              <input
-                type="date"
-                required
-                value={reqForm.requestDate}
-                onChange={(e) => setReqForm({ ...reqForm, requestDate: e.target.value })}
-                className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
-              />
-            </div>
-          </div>
 
-          {["Regularization", "Missed Punch", "Attendance Correction"].includes(reqForm.requestType) && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-text-secondary">Clock In</label>
-                <input type="time" value={reqForm.clockIn} onChange={(e) => setReqForm({ ...reqForm, clockIn: e.target.value })} className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary" />
+            <div className="flex flex-col gap-3 text-xs font-medium">
+              <div className="flex justify-between py-1 border-b border-slate-50">
+                <span className="text-slate-400">Request Date</span>
+                <span className="text-slate-700 font-bold">
+                  {dayjs(selectedRequest.requestDate).format("dddd, MMMM DD, YYYY")}
+                </span>
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-text-secondary">Clock Out</label>
-                <input type="time" value={reqForm.clockOut} onChange={(e) => setReqForm({ ...reqForm, clockOut: e.target.value })} className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary" />
+              
+              {selectedRequest.payload?.clockIn && (
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-400">Requested Clock In</span>
+                  <span className="text-slate-700 font-bold">
+                    {dayjs(selectedRequest.payload.clockIn).format("hh:mm A")}
+                  </span>
+                </div>
+              )}
+
+              {selectedRequest.payload?.clockOut && (
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-400">Requested Clock Out</span>
+                  <span className="text-slate-700 font-bold">
+                    {dayjs(selectedRequest.payload.clockOut).format("hh:mm A")}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex flex-col py-1 gap-1">
+                <span className="text-slate-400">Reason</span>
+                <p className="text-slate-700 bg-slate-50 rounded-xl p-3 border border-slate-100 leading-relaxed resize-none">
+                  {selectedRequest.reason}
+                </p>
               </div>
+
+              {selectedRequest.approvalComment && (
+                <div className="flex flex-col py-1 gap-1">
+                  <span className="text-emerald-600 font-bold">Manager Comments</span>
+                  <p className="text-emerald-800 bg-emerald-50/50 rounded-xl p-3 border border-emerald-100 leading-relaxed">
+                    {selectedRequest.approvalComment}
+                  </p>
+                </div>
+              )}
+
+              {selectedRequest.rejectionComment && (
+                <div className="flex flex-col py-1 gap-1">
+                  <span className="text-rose-600 font-bold">Rejection Reason</span>
+                  <p className="text-rose-800 bg-rose-50/50 rounded-xl p-3 border border-rose-100 leading-relaxed">
+                    {selectedRequest.rejectionComment}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-text-secondary">Reason *</label>
-            <textarea
-              required
-              rows="3"
-              value={reqForm.reason}
-              onChange={(e) => setReqForm({ ...reqForm, reason: e.target.value })}
-              placeholder="Explain your request…"
-              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary resize-none"
-            />
+            <div className="flex justify-end pt-3 border-t border-slate-100 mt-2">
+              <Button onClick={() => setIsRequestModalOpen(false)}>Close Details</Button>
+            </div>
           </div>
-
-          <div className="flex justify-end gap-3 pt-2 border-t border-border-color">
-            <Button type="button" variant="secondary" onClick={() => setReqModal(false)}>Cancel</Button>
-            <Button type="submit" variant="primary" disabled={busy}>Submit Request</Button>
-          </div>
-        </form>
+        )}
       </DetailModal>
     </div>
   );

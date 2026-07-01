@@ -15,13 +15,13 @@ import {
   MdClose,
   MdAdd,
 } from "react-icons/md";
+import { toast } from "react-hot-toast";
 
-import { getAllLeave ,getAllStaff} from "../../../services/api";
+import { getAllLeave ,getAllStaff, updateLeaveStatus} from "../../../services/api";
 
 const Leave = () => {
   const {
     leaveRequests,
-    updateLeaveRequestStatus,
   } = useHRMSData();
 
   const [leaves, setLeaves] = useState([]);
@@ -48,6 +48,17 @@ const Leave = () => {
       setLeaves(res.data.data);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const handleStatusUpdate = async (id, status) => {
+    try {
+      const res = await updateLeaveStatus(id, status);
+      toast.success(res.data.message || `Leave request ${status.toLowerCase()} successfully`);
+      fetchLeaves();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update leave status");
     }
   };
 
@@ -89,7 +100,7 @@ const stats = useMemo(() => {
       accessor: "employeeName",
       sortable: true,
       render: (row) => {
-        const emp = employees.find((e) => e.id === row.employeeId);
+        const emp = employees.find((e) => e.id === row.staffId);
         return (
           <div className="flex items-center gap-3">
             <Avatar
@@ -102,7 +113,7 @@ const stats = useMemo(() => {
                 {row.employeeName}
               </span>
               <span className="text-xs text-text-secondary">
-                {row.employeeId}
+                ID: {row.staffId}
               </span>
             </div>
           </div>
@@ -153,7 +164,7 @@ const stats = useMemo(() => {
             <Button
               size="sm"
               variant="success"
-              onClick={() => updateLeaveRequestStatus(row.id, "Approved")}
+              onClick={() => handleStatusUpdate(row.id, "APPROVED")}
               style={{ padding: "6px" }}
               aria-label="Approve Leave"
             >
@@ -162,7 +173,7 @@ const stats = useMemo(() => {
             <Button
               size="sm"
               variant="danger"
-              onClick={() => updateLeaveRequestStatus(row.id, "Rejected")}
+              onClick={() => handleStatusUpdate(row.id, "REJECTED")}
               style={{ padding: "6px" }}
               aria-label="Reject Leave"
             >
