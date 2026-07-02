@@ -4,11 +4,13 @@ import PageHeader from "../../../components/layouts/PageHeader";
 import Tabs from "../../../components/common/Tabs";
 import Button from "../../../components/common/Button";
 import Badge from "../../../components/common/Badge";
+import { MdEdit } from "react-icons/md";
+
 import {
   getRoles,
   createRole,
   updateRole,
-  getPermissions,
+  getModules,
   getRolePermissions,
   saveRolePermissions,
 } from "../../../services/api";
@@ -19,9 +21,9 @@ const Settings = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingRoleId, setEditingRoleId] = useState(null);
-  const [permissions, setPermissions] = useState([]);
+  const [modules, setModules] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-
+const [rolePermissions, setRolePermissions] = useState([]);
   const [roleForm, setRoleForm] = useState({
     name: "",
     description: "",
@@ -75,10 +77,19 @@ const Settings = () => {
     { id: "notifications", label: "Notification Settings" },
   ];
 
-  useEffect(() => {
-    loadRoles();
-    fetchPermissions();
-  }, []);
+const loadModules = async () => {
+  const res = await getModules();
+   console.log("module ",res.data);
+
+   
+  setModules(res.data.data);
+};
+
+useEffect(() => {
+  loadRoles();
+  loadModules();
+}, []);
+ 
 
   const loadRoles = async () => {
     try {
@@ -108,39 +119,72 @@ const Settings = () => {
     );
   };
 
-  const handleRoleSelect = async (role) => {
-    try {
-      setSelectedRole(role);
 
-      const res = await getRolePermissions(role.id);
+const handleRoleSelect = async (role) => {
+  setSelectedRole(role);
 
-      // System roles => all permissions
-      if (role.name === "SUPER_ADMIN" || role.name === "TENANT_ADMIN") {
-        setSelectedPermissions(permissions.map((p) => p.id));
-        return;
-      }
+  const res = await getRolePermissions(role.id);
 
-      setSelectedPermissions(
-        res.data.data.filter((item) => item.assigned).map((item) => item.id),
-      );
-    } catch (error) {
-      console.log(error);
+  setRolePermissions(res.data.data);
+};
+
+const handleOperationChange = (
+  moduleId,
+  operation,
+  checked
+) => {
+
+  setRolePermissions((prev) => {
+
+    const index = prev.findIndex(
+      (p) => p.module.id === moduleId
+    );
+
+    if (index >= 0) {
+
+      const copy = [...prev];
+
+      copy[index].operations[operation] = checked;
+
+      return copy;
     }
-  };
 
-  const handleSavePermissions = async () => {
-    if (!selectedRole) {
-      toast.error("Select Role First");
-      return;
-    }
+    return [
+      ...prev,
+      {
+        module: {
+          id: moduleId,
+        },
+        operations: {
+          create: false,
+          view: false,
+          update: false,
+          delete: false,
+          approve: false,
+          export: false,
+          [operation]: checked,
+        },
+      },
+    ];
+  });
+};
+const handleSavePermissions = async () => {
+  if (!selectedRole) {
+    toast.error("Select Role First");
+    return;
+  }
 
-    await saveRolePermissions({
-      roleId: selectedRole.id,
-      permissionIds: selectedPermissions,
-    });
+  await saveRolePermissions({
+    roleId: selectedRole.id,
+    permissions: rolePermissions.map((item) => ({
+      moduleId: item.module.id,
+      operations: item.operations,
+    })),
+  });
 
-    toast.success("Permissions Saved Successfully");
-  };
+  toast.success("Permissions Saved Successfully");
+};
+
 
   const handleCompanySubmit = (e) => {
     e.preventDefault();
@@ -316,46 +360,94 @@ const Settings = () => {
                             handleEditRole(role);
                           }}
                         >
-                          ✏️
+                          <MdEdit />
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
+
+
               {/* Permissions */}
               <div className="lg:col-span-2 bg-bg-primary border border-border-color rounded-xl p-4">
-                <h4 className="font-semibold text-text-primary mb-4">
-                  Assigned Permissions
-                </h4>
+  <h4 className="font-semibold text-text-primary mb-4">
+    Module Permissions
+  </h4>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {permissions.map((permission) => (
-                    <label
-                      key={permission.id}
-                      className="flex items-center gap-3"
-                    >
-                      <input
-                        type="checkbox"
-                        disabled={
-                          selectedRole?.name === "SUPER_ADMIN" ||
-                          selectedRole?.name === "TENANT_ADMIN"
-                        }
-                        checked={selectedPermissions.includes(permission.id)}
-                        onChange={() => handlePermissionToggle(permission.id)}
-                      />
+  <div className="overflow-x-auto">
+    <table className="min-w-full border border-border-color">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border p-2 text-left">Module</th>
+          <th className="border p-2">Create</th>
+          <th className="border p-2">View</th>
+          <th className="border p-2">Update</th>
+          <th className="border p-2">Delete</th>
+          <th className="border p-2">Approve</th>
+          <th className="border p-2">Export</th>
+        </tr>
+      </thead>
 
-                      <span>{permission.name}</span>
-                    </label>
-                  ))}
-                </div>
+      <tbody>
+        {modules.map((module) => {
+          const permission = rolePermissions.find(
+            (p) => p.module.id === module.id
+          );
 
-                <div className="flex justify-end mt-6">
-                  <Button variant="primary" onClick={handleSavePermissions}>
-                    Save Permissions
-                  </Button>
-                </div>
-              </div>
+          return (
+            <tr key={module.id}>
+              <td className="border p-2 font-medium">
+                {module.name}
+              </td>
+
+              {[
+                "create",
+                "view",
+                "update",
+                "delete",
+                "approve",
+                "export",
+              ].map((operation) => (
+                <td
+                  key={operation}
+                  className="border p-2 text-center"
+                >
+                  <input
+                    type="checkbox"
+                    disabled={
+                      selectedRole?.name === "SUPER_ADMIN" ||
+                      selectedRole?.name === "TENANT_ADMIN"
+                    }
+                    checked={
+                      permission?.operations?.[operation] || false
+                    }
+                    onChange={(e) =>
+                      handleOperationChange(
+                        module.id,
+                        operation,
+                        e.target.checked
+                      )
+                    }
+                  />
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  <div className="flex justify-end mt-6">
+    <Button
+      variant="primary"
+      onClick={handleSavePermissions}
+    >
+      Save Permissions
+    </Button>
+  </div>
+</div>
             </div>
           </div>
         )}

@@ -21,9 +21,7 @@ export const seedRolePermissions = async (
 
       switch (role.name) {
 
-        // ==========================
-        // SUPER ADMIN
-        // ==========================
+      
 
         case "SUPER_ADMIN":
 
@@ -38,9 +36,6 @@ export const seedRolePermissions = async (
 
           break;
 
-        // ==========================
-        // TENANT ADMIN
-        // ==========================
 
         case "TENANT_ADMIN":
 
@@ -55,6 +50,7 @@ export const seedRolePermissions = async (
               "payroll",
               "performance",
               "reports",
+              "profile",
               "calendar",
               "settings",
             ].includes(module.identifier)
@@ -72,9 +68,6 @@ export const seedRolePermissions = async (
 
           break;
 
-        // ==========================
-        // HR
-        // ==========================
 
         case "HR":
 
@@ -112,6 +105,15 @@ export const seedRolePermissions = async (
 
               break;
 
+               case "profile":
+
+              operations = {
+                view: true,
+                update: true,
+              };
+
+              break;
+
             case "payroll":
 
               operations = {
@@ -123,10 +125,7 @@ export const seedRolePermissions = async (
 
           break;
 
-        // ==========================
-        // MANAGER
-        // ==========================
-
+      
         case "MANAGER":
 
           switch (module.identifier) {
@@ -173,13 +172,20 @@ export const seedRolePermissions = async (
 
               break;
 
+               case "profile":
+
+              operations = {
+                view: true,
+                update: true,
+              };
+
+              break;
+
           }
 
           break;
 
-        // ==========================
-        // EMPLOYEE
-        // ==========================
+     
 
         case "EMPLOYEE":
 

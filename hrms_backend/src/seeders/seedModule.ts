@@ -117,6 +117,14 @@ export const seedModules = async (
       path: "/settings",
       sortOrder: 12,
     },
+     {
+      name: "profile",
+      identifier: "profile",
+      description: "profile Module",
+      icon: "FiUser",
+      path: "/profile",
+      sortOrder: 12,
+    },
 
   ];
 
