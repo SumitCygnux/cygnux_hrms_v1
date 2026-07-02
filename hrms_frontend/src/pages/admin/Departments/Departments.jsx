@@ -135,8 +135,8 @@ const Departments = () => {
           <div className="col-span-4 text-right">Actions</div>
         </div>
 
-        {/* Data */}
-        {departments.map((dept, index) => (
+         {/* Data */}
+           {departments.map((dept, index) => (
           <div
             key={dept.id}
             className="grid grid-cols-12 items-center px-6 py-4 border-b border-gray-100 hover:bg-blue-50 transition"
@@ -217,7 +217,7 @@ const Departments = () => {
               {isEdit ? "Update Department" : "Create Department"}
             </Button>
           </div>
-        </form>
+        </form> 
       </DetailModal>
     </div>
   );

@@ -1,77 +1,76 @@
 import { getTenantConnection } from "../connection/tenant.connection";
+import { Role } from "../entity/tenant/roles.entity";
+import { Module } from "../entity/tenant/module.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
+export const saveRolePermissionsService = async (
+  dbName: string,
+  roleId: string,
+  permissions: any[]
+) => {
 
-// export const saveRolePermissionsService = async (
-//   dbName: string,
-//   roleId: string,
-//   permissionIds: string[]
-// ) => {
+  const dataSource = await getTenantConnection(dbName);
 
-//   const dataSource = await getTenantConnection(dbName);
-//   const repo =dataSource.getRepository(RolePermission);
-//   await repo.delete({ roleId });
-  
-//   // const data = permissionIds.map(
-//   //   (permissionId) => ({
-//   //     roleId,
-//   //     permissionId,
-//   //   })
-//   // );
-//   // return await repo.save(data);
+  const roleRepo = dataSource.getRepository(Role);
+  const moduleRepo = dataSource.getRepository(Module);
+  const rolePermissionRepo = dataSource.getRepository(RolePermission);
 
-  
-//   // Save new permissions
-//   for (const permissionId of permissionIds) {
-//     await repo.save({
-//       roleId,
-//       permissionId,
-//     });
-//   }
+  const role = await roleRepo.findOne({
+    where: { id: roleId },
+  });
 
-//   return {
-//     message: "Permissions assigned successfully",
-//   };
-// };
+  if (!role) {
+    throw new Error("Role not found");
+  }
 
+  // Delete old permissions
+  await rolePermissionRepo.delete({
+    role: {
+      id: roleId,
+    },
+  });
 
+  for (const item of permissions) {
 
-// export const getRolePermissionsService = async (
-//   dbName: string,
-//   roleId: string
-// ) => {
-//   const dataSource = await getTenantConnection(dbName);
-//   const repo = dataSource.getRepository(RolePermission);
-//   const alldata= await repo.find({
-//     where: { roleId },
-//   });
+    const module = await moduleRepo.findOne({
+      where: {
+        id: item.moduleId,
+      },
+    });
 
-//   return alldata;
-// };
+    if (!module) continue;
 
-// export const getRolePermissionsService = async (
-//   dbName: string,
-//   roleId: string
-// ) => {
-//   const dataSource = await getTenantConnection(dbName);
+    const permission = rolePermissionRepo.create({
+      role,
+      module,
+      operations: item.operations,
+      isActive: true,
+    });
 
-//   const rolePermissionRepo = dataSource.getRepository(RolePermission);
-//   const permissionRepo =  dataSource.getRepository(Permission);
+    await rolePermissionRepo.save(permission);
+  }
 
-//   const rolePermissions = await rolePermissionRepo.find({
-//     where: { roleId },
-//   });
+  return {
+    message: "Permissions Assigned Successfully",
+  };
+};
 
-//   const permissionIds = rolePermissions.map(
-//     (rp) => rp.permissionId
-//   );
+export const getRolePermissionsService = async (
+  dbName: string,
+  roleId: string
+) => {
 
-//   const permissions = await permissionRepo.find();
+  const dataSource = await getTenantConnection(dbName);
 
-//   return permissions.map((permission) => ({
-//     id: permission.id,
-//     name: permission.name,
-//     description: permission.description,
-//     assigned: permissionIds.includes(permission.id),
-//   }));
-// };
+  const repo = dataSource.getRepository(RolePermission);
+
+  const permissions = await repo.find({
+    where: {
+      role: {
+        id: roleId,
+      },
+    },
+  });
+
+  return permissions;
+};

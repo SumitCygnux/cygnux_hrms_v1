@@ -87,7 +87,12 @@ export const getRolePermissions = (roleId) =>
   api.get(`/role-permissions/${roleId}`);
 
 export const saveRolePermissions = (data) =>
-  api.put("/role-permissions", data);
+   api.put("/role-permissions", data);
+
+export const getModules =()=>{
+  return api.get("/module")
+}
+
 
 export const updateStaff = (id, data) => {
   return api.put(`/staff/${id}`, data);

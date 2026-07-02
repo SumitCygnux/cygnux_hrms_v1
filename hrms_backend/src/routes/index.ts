@@ -12,6 +12,7 @@ import roleRoutes from "./role.routes";
 
 import rolePermissionRoutes from "./rolePermission.routes";
 import Payroll from "./payroll.routes";
+import module from "./module.routes";
 
 const router = Router();
 
@@ -27,4 +28,5 @@ router.use("/attendance", adminAttendanceRoutes);
 router.use("/attendance/reports", attendanceReportRoutes);
 router.use("/roles", roleRoutes);
 router.use("/role-permissions", rolePermissionRoutes);
+router.use("/module",module );
 export default router;
