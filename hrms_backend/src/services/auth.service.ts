@@ -7,16 +7,17 @@ import { Users } from "../entity/master/users.entity";
 import { Roles } from "../entity/master/roles.entity";
 import { Staff } from "../entity/tenant/staff.entity";
 import { getTenantConnection } from "../connection/tenant.connection";
-import { seedPermissions } from "../seeders/permission.seed";
+
 import { Role } from "../entity/tenant/roles.entity";
 import { seedRoles } from "../seeders/roles.seeder";
-import { Permission } from "../entity/tenant/permissions.entity";
+
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 import { generateToken } from "../utils/jwt";
 import { seedDepartments } from "../seeders/department.seed";
 import { seedDesignations } from "../seeders/designation.seed";
 import { seedRolePermissions } from "../seeders/rolePermission.seed";
+import { seedModules } from "../seeders/seedModule";
 export const registerCompanyService = async (payload: any) => {
   const {
     companyName,
@@ -74,8 +75,8 @@ export const registerCompanyService = async (payload: any) => {
   const tenantDataSource = await getTenantConnection(dbName);
 
   await seedRoles(tenantDataSource);
+  await seedModules(tenantDataSource);
 
-  await seedPermissions(tenantDataSource);
   await seedRolePermissions(tenantDataSource);
   await seedDepartments(tenantDataSource, industry);
 
@@ -114,7 +115,6 @@ export const registerCompanyService = async (payload: any) => {
   };
 };
 
-
 export const loginService = async (payload: any) => {
   const { email, password } = payload;
 
@@ -122,7 +122,6 @@ export const loginService = async (payload: any) => {
   const roleRepo = DatabaseConnection.getRepository(Roles);
   const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
 
-  
   const user = await userRepo.findOne({
     where: { email },
   });
@@ -149,14 +148,9 @@ export const loginService = async (payload: any) => {
     // Tenant DB Connection
     const tenantConnection = await getTenantConnection(user.db_name);
 
-    const tenantRoleRepo =
-      tenantConnection.getRepository(Role);
+    const tenantRoleRepo = tenantConnection.getRepository(Role);
 
-    const permissionRepo =
-      tenantConnection.getRepository(Permission);
-
-    const rolePermissionRepo =
-      tenantConnection.getRepository(RolePermission);
+    const rolePermissionRepo = tenantConnection.getRepository(RolePermission);
 
     // Find Tenant Role
     const tenantRole = await tenantRoleRepo.findOne({
@@ -170,27 +164,24 @@ export const loginService = async (payload: any) => {
     }
 
     // Get Role Permissions
-    const rolePermissions =
-      await rolePermissionRepo.find({
-        where: {
-          roleId: tenantRole.id,
+    const rolePermissions = await rolePermissionRepo.find({
+      where: {
+        role: {
+          id: tenantRole.id,
         },
-      });
+        isActive: true,
+      },
 
-    const permissionIds =
-      rolePermissions.map(
-        (rp) => rp.permissionId
-      );
+      relations: {
+             module: true,
+        },
+    });
 
-    const permissions =
-      await permissionRepo.find();
+    const permissions = rolePermissions.map((item) => ({
+      module: item.module.identifier,
 
-    const permissionNames =
-      permissions
-        .filter((p) =>
-          permissionIds.includes(p.id)
-        )
-        .map((p) => p.name);
+      operations: item.operations,
+    }));
 
     const token = generateToken({
       userId: user.id,
@@ -202,22 +193,28 @@ export const loginService = async (payload: any) => {
     return {
       token,
 
-      permissions: permissionNames,
+      permissions,
 
       user: {
         id: user.id,
+
         name: user.name,
+
         email: user.email,
+
         role_id: tenantRole.id,
+
         role: tenantRole.name,
+
         tenant_id: user.tenant_id,
+
         companyName: company?.name,
+
         db_name: user.db_name,
       },
     };
   }
 
- 
   const allTenants = await tenantRepo.find({
     where: {
       is_active: true,
@@ -225,11 +222,9 @@ export const loginService = async (payload: any) => {
   });
 
   for (const tenant of allTenants) {
-    const tenantConnection =
-      await getTenantConnection(tenant.db_name);
+    const tenantConnection = await getTenantConnection(tenant.db_name);
 
-    const staffRepo =
-      tenantConnection.getRepository(Staff);
+    const staffRepo = tenantConnection.getRepository(Staff);
 
     const staff = await staffRepo.findOne({
       where: {
@@ -242,14 +237,9 @@ export const loginService = async (payload: any) => {
         throw new Error("Invalid Password");
       }
 
-      const roleRepo =
-        tenantConnection.getRepository(Role);
+      const roleRepo = tenantConnection.getRepository(Role);
 
-      const permissionRepo =
-        tenantConnection.getRepository(Permission);
-
-      const rolePermissionRepo =
-        tenantConnection.getRepository(RolePermission);
+      const rolePermissionRepo = tenantConnection.getRepository(RolePermission);
 
       const role = staff.accessRoleId
         ? await roleRepo.findOne({
@@ -262,25 +252,22 @@ export const loginService = async (payload: any) => {
       const rolePermissions = staff.accessRoleId
         ? await rolePermissionRepo.find({
             where: {
-              roleId: staff.accessRoleId,
+              role: {
+                id: staff.accessRoleId,
+              },
+              isActive: true,
             },
+            relations: {
+             module: true,
+        },
           })
         : [];
 
-      const permissionIds =
-        rolePermissions.map(
-          (rp) => rp.permissionId
-        );
+      const permissions = rolePermissions.map((item) => ({
+        module: item.module.identifier,
 
-      const permissions =
-        await permissionRepo.find();
-
-      const permissionNames =
-        permissions
-          .filter((p) =>
-            permissionIds.includes(p.id)
-          )
-          .map((p) => p.name);
+        operations: item.operations,
+      }));
 
       const token = generateToken({
         userId: staff.id,
@@ -292,10 +279,9 @@ export const loginService = async (payload: any) => {
       return {
         token,
 
-        permissions: permissionNames,
+        permissions,
 
-        requiresPasswordSetup:
-          staff.status === "InActive",
+        requiresPasswordSetup: staff.status === "InActive",
 
         user: {
           id: staff.id,

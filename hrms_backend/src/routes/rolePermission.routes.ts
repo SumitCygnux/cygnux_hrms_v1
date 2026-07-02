@@ -5,12 +5,11 @@ import {
   saveRolePermissions,
   getRolePermissions,
 } from "../controllers/rolePermission.controller";
-import { checkPermission } from "../middleware/permission.middleware";
+
 
 const router = Router();
 
-router.put( "/", authMiddleware, checkPermission("role.update"),saveRolePermissions,);
-
-router.get( "/:roleId", authMiddleware, checkPermission("role.view"), getRolePermissions,);
+// router.put( "/", authMiddleware,saveRolePermissions,);
+// router.get( "/:roleId", authMiddleware, getRolePermissions,);
 
 export default router;
