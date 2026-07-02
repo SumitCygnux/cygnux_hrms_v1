@@ -147,3 +147,24 @@ export const getAllLeaveService = async (dbName: string) => {
 
   return leaves;
 };
+
+export const updateLeaveStatusService = async (
+  dbName: string,
+  leaveId: number,
+  status: string
+) => {
+  const dataSource = await getTenantConnection(dbName);
+  const leaveRepo = dataSource.getRepository(Leave);
+
+  const leave = await leaveRepo.findOne({
+    where: { id: leaveId },
+  });
+
+  if (!leave) {
+    throw new Error("Leave request not found");
+  }
+
+  leave.status = status.toUpperCase();
+  
+  return await leaveRepo.save(leave);
+};

@@ -31,7 +31,8 @@ export const clockIn = async (req: Request, res: Response) => {
 export const clockOut = async (req: Request, res: Response) => {
   try {
     const { userId: staffId, dbName } = getCtx(req);
-    const attendance = await clockOutService(dbName, Number(staffId));
+    const { workSummary } = req.body || {};
+    const attendance = await clockOutService(dbName, Number(staffId), workSummary);
     return res.status(200).json({ success: true, message: "Clocked out successfully", data: attendance });
   } catch (error: any) {
     return res.status(400).json({ success: false, message: error.message });

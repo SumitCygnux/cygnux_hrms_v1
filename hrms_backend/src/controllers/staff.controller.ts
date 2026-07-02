@@ -6,7 +6,8 @@ import {
   getStaffByIdService,
   updateStaffService,
   setupPasswordService,
-  getAllLeaveService
+  getAllLeaveService,
+  updateLeaveStatusService
 } from "../services/staff.service";
 import { number } from "zod";
 
@@ -185,6 +186,42 @@ export const getAllLeave = async (
       success: true,
       message: "All leaves fetched successfully",
       data: leaves,
+    });
+
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateLeaveStatus = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const dbName = (req as any).user.dbName;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    const leave = await updateLeaveStatusService(
+      dbName,
+      Number(id),
+      status
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Leave request status updated to ${status} successfully`,
+      data: leave,
     });
 
   } catch (error: any) {

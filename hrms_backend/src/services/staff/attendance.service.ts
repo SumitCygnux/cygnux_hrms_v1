@@ -139,7 +139,7 @@ export const endBreakService = async (
   return attendanceRepo.save(attendance);
 };
 
-export const clockOutService = async (dbName: string, staffId: number) => {
+export const clockOutService = async (dbName: string, staffId: number, workSummary?: string) => {
   const ds = await getTenantConnection(dbName);
   const attendanceRepo = ds.getRepository(StaffAttendance);
 
@@ -159,6 +159,9 @@ export const clockOutService = async (dbName: string, staffId: number) => {
   attendance.breakOut = now;
   attendance.breakIn = null;
   attendance.clockOut = now;
+  if (workSummary) {
+    attendance.notes = workSummary;
+  }
 
   const settings = await loadSettings(ds);
   const shift = attendance.shiftId
