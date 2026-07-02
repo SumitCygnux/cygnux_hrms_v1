@@ -55,6 +55,7 @@ const Departments = () => {
   const fetchDepartments = async () => {
     try {
       const response = await getDepartments();
+      console.log("department.jsx",response.data.data)
       setDepartments(response.data.data);
     } catch (error) {
       console.log(error);
@@ -208,11 +209,6 @@ const Departments = () => {
               className="p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-800 outline-none"
             />
           </div>
-
-    
-
-       
-
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-4">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
               Cancel

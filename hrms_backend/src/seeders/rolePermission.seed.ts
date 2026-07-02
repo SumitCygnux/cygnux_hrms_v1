@@ -1,140 +1,260 @@
 import { DataSource } from "typeorm";
 import { Role } from "../entity/tenant/roles.entity";
-import { Permission } from "../entity/tenant/permissions.entity";
+import { Module } from "../entity/tenant/module.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
 export const seedRolePermissions = async (
   tenantDataSource: DataSource
 ) => {
   const roleRepo = tenantDataSource.getRepository(Role);
-  const permissionRepo = tenantDataSource.getRepository(Permission);
-  const rolePermissionRepo = tenantDataSource.getRepository(RolePermission);
+  const moduleRepo = tenantDataSource.getRepository(Module);
+  const rolePermissionRepo =
+    tenantDataSource.getRepository(RolePermission);
 
   const roles = await roleRepo.find();
-  const permissions = await permissionRepo.find();
+  const modules = await moduleRepo.find();
 
   for (const role of roles) {
+    for (const module of modules) {
 
-    let assignedPermissions: Permission[] = [];
+      let operations: any = null;
 
-   switch (role.name) {
-    
-  case "SUPER_ADMIN":
-    assignedPermissions = permissions;
-    break;
+      switch (role.name) {
 
-  case "TENANT_ADMIN":
-    assignedPermissions = permissions.filter((p) =>
-      [
- 
-        "role.create",
-        "role.view",
-        "role.update",
-        "role.delete",
+        // ==========================
+        // SUPER ADMIN
+        // ==========================
 
-     
-        "staff.create",
-        "staff.view",
-        "staff.update",
-        "staff.delete",
+        case "SUPER_ADMIN":
 
-       
-        "department.create",
-        "department.view",
-        "department.update",
-        "department.delete",
+          operations = {
+            create: true,
+            view: true,
+            update: true,
+            delete: true,
+            approve: true,
+            export: true,
+          };
 
-        "designation.create",
-        "designation.view",
-        "designation.update",
-        "designation.delete",
+          break;
 
-     
-        "attendance.create",
-        "attendance.view",
-        "attendance.update",
-        "attendance.delete",
+        // ==========================
+        // TENANT ADMIN
+        // ==========================
 
-     
-        "leave.create",
-        "leave.view",
-        "leave.update",
-        "leave.delete",
-        "leave.approve",
+        case "TENANT_ADMIN":
 
-    
-        "profile.view",
-        "profile.update",
-      ].includes(p.name)
-    );
-    break;
+          if (
+            [
+              "dashboard",
+              "staff",
+              "department",
+              "designation",
+              "attendance",
+              "leave",
+              "payroll",
+              "performance",
+              "reports",
+              "calendar",
+              "settings",
+            ].includes(module.identifier)
+          ) {
 
-  case "HR":
-    assignedPermissions = permissions.filter((p) =>
-      [
-        "staff.create",
-        "staff.view",
-        "staff.update",
+            operations = {
+              create: true,
+              view: true,
+              update: true,
+              delete: true,
+              approve: true,
+              export: true,
+            };
+          }
 
-        "attendance.create",
-        "attendance.view",
+          break;
 
-        "leave.view",
-        "leave.approve",
+        // ==========================
+        // HR
+        // ==========================
 
-        "profile.view",
-        "profile.update",
-      ].includes(p.name)
-    );
-    break;
+        case "HR":
 
-  case "MANAGER":
-    assignedPermissions = permissions.filter((p) =>
-      [
-        "staff.view",
+          switch (module.identifier) {
 
-        "attendance.view",
+            case "dashboard":
+              operations = {
+                view: true,
+              };
+              break;
 
-        "leave.view",
-        "leave.approve",
+            case "staff":
+            case "department":
+            case "designation":
+            case "attendance":
+            case "recruitment":
 
-        "profile.view",
-      ].includes(p.name)
-    );
-    break;
+              operations = {
+                create: true,
+                view: true,
+                update: true,
+                delete: false,
+              };
 
-  case "EMPLOYEE":
-    assignedPermissions = permissions.filter((p) =>
-      [
-        "profile.view",
-        "profile.update",
+              break;
 
-        "attendance.view",
+            case "leave":
 
-        "leave.create",
-        "leave.view",
-      ].includes(p.name)
-    );
-    break;
-}
+              operations = {
+                create: true,
+                view: true,
+                update: true,
+                approve: true,
+              };
 
-    for (const permission of assignedPermissions) {
+              break;
+
+            case "payroll":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+          }
+
+          break;
+
+        // ==========================
+        // MANAGER
+        // ==========================
+
+        case "MANAGER":
+
+          switch (module.identifier) {
+
+            case "dashboard":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+
+            case "staff":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+
+            case "attendance":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+
+            case "leave":
+
+              operations = {
+                view: true,
+                approve: true,
+              };
+
+              break;
+
+            case "reports":
+
+              operations = {
+                view: true,
+                export: true,
+              };
+
+              break;
+
+          }
+
+          break;
+
+        // ==========================
+        // EMPLOYEE
+        // ==========================
+
+        case "EMPLOYEE":
+
+          switch (module.identifier) {
+
+            case "dashboard":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+
+            case "attendance":
+
+              operations = {
+                view: true,
+              };
+
+              break;
+
+            case "leave":
+
+              operations = {
+                create: true,
+                view: true,
+              };
+
+              break;
+
+            case "profile":
+
+              operations = {
+                view: true,
+                update: true,
+              };
+
+              break;
+
+          }
+
+          break;
+      }
+
+      if (!operations) continue;
 
       const exists = await rolePermissionRepo.findOne({
         where: {
-          roleId: role.id,
-          permissionId: permission.id,
+          role: {
+            id: role.id,
+          },
+          module: {
+            id: module.id,
+          },
         },
       });
 
       if (!exists) {
+
         await rolePermissionRepo.save({
-          roleId: role.id,
-          permissionId: permission.id,
+
+          role,
+
+          module,
+
+          operations,
+
+          isActive: true,
+
         });
+
       }
+
     }
   }
 
-  console.log("Role Permissions Seeded");
+  console.log("Role Permissions Seeded Successfully");
 };

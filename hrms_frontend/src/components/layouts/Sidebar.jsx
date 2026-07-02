@@ -1,6 +1,9 @@
 import { NavLink } from "react-router-dom";
 // import {logo} from '../../assets/hrms_logo.png'
 import logo from "../../assets/logowhite.png";
+
+import { sidebarMenu } from "../../data/sidebarMenu";
+import WithPermission from "../hoc/WithPermission";
 import {
   MdDashboard,
   MdPeople,

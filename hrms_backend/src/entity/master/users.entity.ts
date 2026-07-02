@@ -1,15 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-import { ManyToOne, JoinColumn } from "typeorm";
-import { Roles } from "./roles.entity";
+
 @Entity("users")
 export class Users {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-    @Column()
+  @Column()
   name!: string;
 
-  
   @Column({
     unique: true,
   })
@@ -35,7 +33,6 @@ export class Users {
     default: true,
   })
   is_verified!: boolean;
-
 
   @Column({
     default: false,

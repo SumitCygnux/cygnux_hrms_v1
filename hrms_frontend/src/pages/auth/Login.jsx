@@ -5,6 +5,7 @@ import logo from "../../assets/hrms_logo.png";
 import { toast } from "react-toastify";
 import { useHRMSData } from "../../context/HRMSDataContext";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { hasPermission } from "../../utils/hasPermission";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,11 +36,16 @@ const Login = () => {
       console.log(response);
       console.log(response.data);
 
-      const { token, user,permissions, requiresPasswordSetup } = response.data.data;
+      const { token, user, permissions, requiresPasswordSetup } =
+        response.data.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("permissions",JSON.stringify(permissions || []));
+      localStorage.setItem("permissions", JSON.stringify(permissions || []));
+
+      // setUser(response.user);
+      // setPermissions(response.permissions);
+      // setToken(response.token);
 
       console.log("USER =>", user);
       console.log("PERMISSIONS =>", permissions);
@@ -47,40 +53,32 @@ const Login = () => {
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
 
-      // if (requiresPasswordSetup) {
-      //   navigate("/setup-password");
-      // } else {
-      //   navigate(user.role === "EMPLOYEE" || user.isStaff === true ? "/staff/dashboard" : "/dashboard");
-      // }
-
       if (requiresPasswordSetup) {
-  navigate("/setup-password");
-} else {
-  switch (user.role) {
-    case "TENANT_ADMIN":
-      navigate("/dashboard");
-      break;
+        navigate("/setup-password");
+      } else {
+        switch (user.role) {
+          case "TENANT_ADMIN":
+            navigate("/dashboard");
+            break;
 
-    case "HR":
-      navigate("/hr/dashboard");
-      break;
+          case "HR":
+            navigate("/hr/dashboard");
+            break;
 
-    case "MANAGER":
-      navigate("/manager/dashboard");
-      break;
+          case "MANAGER":
+            navigate("/manager/dashboard");
+            break;
 
-    case "EMPLOYEE":
-      navigate("/staff/dashboard");
-      break;
+          case "EMPLOYEE":
+            navigate("/staff/dashboard");
+            break;
 
-    default:
-      navigate("/");
-      break;
-  }
-}
-      
+          default:
+            navigate("/");
+            break;
+        }
+      }
     } catch (error) {
-      // alert(error?.response?.data?.message || "Invalid Credentials");
       toast.error(error.response.data.message || "Invalid Credentials");
     } finally {
       setLoading(false);
@@ -97,7 +95,7 @@ const Login = () => {
           {/* LEFT SIDE */}
           <div className="hidden md:flex flex-col justify-center px-12 lg:px-16 bg-slate-50/40 border-r border-slate-100">
             <div className=" flex items-center">
-              <img 
+              <img
                 src={logo}
                 alt="HRMS Logo"
                 className="h-24 w-auto object-contain"

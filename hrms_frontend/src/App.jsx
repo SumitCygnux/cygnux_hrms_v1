@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { HRMSDataProvider } from "./context/HRMSDataContext";
-
+import { AuthProvider } from "./context/AuthContext";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -74,6 +74,7 @@ function App() {
   const isStaff = storedUser?.role === "EMPLOYEE" || storedUser?.isStaff === true;
 
   return (
+    <AuthProvider>
     <ThemeProvider>
       <HRMSDataProvider>
         <BrowserRouter>
@@ -151,6 +152,7 @@ function App() {
         </BrowserRouter>
       </HRMSDataProvider>
     </ThemeProvider>
+    </AuthProvider>
   );
 }
 
