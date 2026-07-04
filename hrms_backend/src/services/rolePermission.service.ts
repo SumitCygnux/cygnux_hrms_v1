@@ -30,25 +30,56 @@ export const saveRolePermissionsService = async (
     },
   });
 
-  for (const item of permissions) {
+  // for (const item of permissions) {
 
-    const module = await moduleRepo.findOne({
-      where: {
-        id: item.moduleId,
-      },
-    });
+  //   const module = await moduleRepo.findOne({
+  //     where: {
+  //       id: item.moduleId,
+  //     },
+  //   });
 
-    if (!module) continue;
+  //   if (!module) continue;
 
-    const permission = rolePermissionRepo.create({
-      role,
-      module,
-      operations: item.operations,
-      isActive: true,
-    });
+  //   const permission = rolePermissionRepo.create({
+  //     role,
+  //     module,
+  //     operations: item.operations,
+  //     isActive: true,
+  //   });
 
-    await rolePermissionRepo.save(permission);
+  //   await rolePermissionRepo.save(permission);
+  // }
+
+for (const item of permissions) {
+
+  const ops = item.operations;
+
+  const hasAnyPermission = Object.values(ops).some(
+    (value) => value === true
+  );
+
+  if (!hasAnyPermission) {
+    continue;
   }
+
+  const module = await moduleRepo.findOne({
+    where: {
+      id: item.moduleId,
+    },
+  });
+
+  if (!module) continue;
+
+  const permission = rolePermissionRepo.create({
+    role,
+    module,
+    operations: ops,
+    isActive: true,
+  });
+console.log("Incoming Permissions:",permission);
+
+  await rolePermissionRepo.save(permission);
+}
 
   return {
     message: "Permissions Assigned Successfully",

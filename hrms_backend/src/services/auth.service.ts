@@ -310,6 +310,6 @@ export const loginService = async (payload: any) => {
       };
     }
   }
-
+    
   throw new Error("Invalid Email");
 };
