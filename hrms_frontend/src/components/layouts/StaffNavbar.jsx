@@ -17,6 +17,7 @@ const StaffNavbar = ({ onMobileToggle }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  
   const [currentUser, setCurrentUser] = useState(null);
 
   const profileMenuRef = useRef(null);
@@ -28,11 +29,9 @@ const StaffNavbar = ({ onMobileToggle }) => {
   };
 
   useEffect(()=>{
-    getProfile(
-
-
-    )
+    getProfile()
   })
+  
   useEffect(() => {
     getProfile()
     const handleClickOutside = (event) => {

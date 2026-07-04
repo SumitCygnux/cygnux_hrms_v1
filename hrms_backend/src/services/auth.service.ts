@@ -178,9 +178,13 @@ export const loginService = async (payload: any) => {
     });
 
     const permissions = rolePermissions.map((item) => ({
-      module: item.module.identifier,
-
-      operations: item.operations,
+        id: item.module.id,
+  name: item.module.name,         
+  identifier: item.module.identifier, 
+  icon: item.module.icon,          
+  path: item.module.path,          
+  operations: item.operations,   
+  
     }));
 
     const token = generateToken({
@@ -259,14 +263,19 @@ export const loginService = async (payload: any) => {
             },
             relations: {
              module: true,
-        },
+           },
           })
         : [];
 
       const permissions = rolePermissions.map((item) => ({
-        module: item.module.identifier,
-
-        operations: item.operations,
+       
+  id: item.module.id,
+  name: item.module.name,         
+  identifier: item.module.identifier, 
+  icon: item.module.icon,          
+  path: item.module.path,          
+  operations: item.operations,   
+  
       }));
 
       const token = generateToken({

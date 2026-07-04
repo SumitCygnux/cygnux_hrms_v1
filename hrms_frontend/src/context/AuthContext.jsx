@@ -1,36 +1,27 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [permissions, setPermissions] = useState( JSON.parse(localStorage.getItem('permissions')) || [] );
 
-  const [user, setUser] = useState(null);
-  const [permissions, setPermissions] = useState([]);
-  const [token, setToken] = useState("");
+  const login = (data) => {
+      setToken(data.token);
+    setPermissions(data.permissions);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('permissions', JSON.stringify(data.permissions));
+    localStorage.setItem('user', JSON.stringify(data.user));
+  };
 
-  useEffect(() => {
-
-    const userData = JSON.parse(localStorage.getItem("user"));
-    const permissionData = JSON.parse(localStorage.getItem("permissions"));
-    const tokenData = localStorage.getItem("token");
-
-    if (userData) setUser(userData);
-    if (permissionData) setPermissions(permissionData);
-    if (tokenData) setToken(tokenData);
-
-  }, []);
+  const logout = () => {
+    setToken(null);
+    setPermissions([]);
+    localStorage.clear();
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        permissions,
-        token,
-        setUser,
-        setPermissions,
-        setToken
-      }}
-    >
+    <AuthContext.Provider value={{ token, permissions, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

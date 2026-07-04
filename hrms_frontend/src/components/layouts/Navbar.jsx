@@ -26,11 +26,15 @@ const Navbar = ({ onMobileToggle }) => {
   const notificationsRef = useRef(null);
   const navigate = useNavigate();
 
+const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+const currentUserRole = storedUser?.role || "STAFF"; 
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-   window.location.href = "/login";
-  };
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("permissions");
+  window.location.href = "/login";
+};
 
   // Close menus when clicking outside
   useEffect(() => {
