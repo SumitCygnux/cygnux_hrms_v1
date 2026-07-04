@@ -28,10 +28,10 @@ console.log("Industry:", industry);
           name: departmentName,
         },
       });
-
-    if (!existing) {
-
-      await departmentRepo.save({
+      
+    if (!existing) { 
+      
+       await departmentRepo.save({
         name: departmentName,
         openPositions: 0,
 

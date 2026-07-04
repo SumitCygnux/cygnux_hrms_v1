@@ -107,7 +107,7 @@ useEffect(() => {
 
   const fetchPermissions = async () => {
     const res = await getPermissions();
-    console.log("Permissions =>", res.data.data);
+    console.log("Permissions =>", res);
     setPermissions(res.data.data);
   };
 

@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logowhite.png";
 
 import { sidebarMenu } from "../../data/sidebarMenu";
-import WithPermission from "../hoc/WithPermission";
+
 import {
   MdDashboard,
   MdPeople,
@@ -28,7 +28,8 @@ const Sidebar = ({
   isMobileOpen,
   setIsMobileOpen,
 }) => {
-  const menuItems = [
+  
+  const menuItems = [ 
     { name: "Dashboard", path: "/dashboard", icon: <MdDashboard /> },
     { name: "Staff Management", path: "/employees", icon: <MdPeople /> },
     { name: "Attendance", path: "/attendance", icon: <MdAccessTime /> },
@@ -45,7 +46,7 @@ const Sidebar = ({
 
   return (
     <>
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile Drawer Overlay*/}
       {isMobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -101,6 +102,7 @@ const Sidebar = ({
           </button>
         </div>
       </aside>
+      
     </>
   );
 };

@@ -1,38 +1,101 @@
+import {
+  MdDashboard,
+  MdPeople,
+  MdAccessTime,
+  MdEventBusy,
+  MdPayments,
+  MdStarBorder,
+  MdWorkOutline,
+  MdBusiness,
+  MdBadge,
+  MdAssessment,
+  MdCalendarToday,
+  MdSettings,
+} from "react-icons/md";
+
 export const sidebarMenu = [
+
   {
-    label: "Dashboard",
+    title: "Dashboard",
+    module: "dashboard",
     path: "/dashboard",
-    permission: "dashboard.view",
-    icon: "🏠",
+    icon: MdDashboard,
   },
+
   {
-    label: "Staff",
-    path: "/staff",
-    permission: "staff.view",
-    icon: "👨‍💼",
+    title: "Employees",
+    module: "staff",
+    path: "/employees",
+    icon: MdPeople,
   },
+
   {
-    label: "Department",
-    path: "/department",
-    permission: "department.view",
-    icon: "🏢",
-  },
-  {
-    label: "Designation",
-    path: "/designation",
-    permission: "designation.view",
-    icon: "📋",
-  },
-  {
-    label: "Attendance",
+    title: "Attendance",
+    module: "attendance",
     path: "/attendance",
-    permission: "attendance.view",
-    icon: "🕒",
+    icon: MdAccessTime,
   },
+
   {
-    label: "Leave",
+    title: "Leave",
+    module: "leave",
     path: "/leave",
-    permission: "leave.view",
-    icon: "📅",
+    icon: MdEventBusy,
   },
+
+  {
+    title: "Payroll",
+    module: "payroll",
+    path: "/payroll",
+    icon: MdPayments,
+  },
+
+  {
+    title: "Performance",
+    module: "performance",
+    path: "/performance",
+    icon: MdStarBorder,
+  },
+
+  {
+    title: "Recruitment",
+    module: "recruitment",
+    path: "/recruitment",
+    icon: MdWorkOutline,
+  },
+
+  {
+    title: "Departments",
+    module: "department",
+    path: "/departments",
+    icon: MdBusiness,
+  },
+
+  {
+    title: "Designations",
+    module: "designation",
+    path: "/designations",
+    icon: MdBadge,
+  },
+
+  {
+    title: "Reports",
+    module: "reports",
+    path: "/reports",
+    icon: MdAccessTime  ,
+  },
+
+  {
+    title: "Calendar",
+    module: "calendar",
+    path: "/calendar",
+    icon: MdCalendarToday,
+  },
+
+  {
+    title: "Settings",
+    module: "settings",
+    path: "/settings",
+    icon: MdSettings,
+  }
 ];
