@@ -138,7 +138,6 @@ const StaffLeave = () => {
   useEffect(() => {
     fetchLeaveHistory();
   }, []);
-
   return (
     <div>
       <PageHeader
@@ -153,9 +152,11 @@ const StaffLeave = () => {
           >
             Apply Leave
           </Button>
+          
         }
+       
       />
-
+  
       {/* Leave Balance Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-7">
         {leaveBalance.map((lb, i) => {

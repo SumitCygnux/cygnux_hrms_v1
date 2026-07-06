@@ -478,7 +478,7 @@ const StaffDashboard = () => {
         </div>
         <div>
           <h3 className="text-lg font-bold text-slate-800 mb-1">Dashboard loading failed</h3>
-          <p className="text-sm text-slate-500">{error}</p>
+          <p className="text-sm text-slate-500">{error}</p> 
         </div>
         <Button variant="primary" onClick={fetchAllData} iconBefore={<MdRefresh />}>
           Retry Connection

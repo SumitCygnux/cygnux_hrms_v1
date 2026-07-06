@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useHRMSData } from "../../context/HRMSDataContext";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import {
   MdSearch,
   MdNotifications,
@@ -8,7 +9,9 @@ import {
   MdLogout,
   MdPerson,
   MdLockOpen,
-  MdMenu
+  MdMenu, 
+   MdWbSunny, 
+  MdNightsStay 
 } from "react-icons/md";
 import Avatar from "../common/Avatar";
 
@@ -18,7 +21,9 @@ const Navbar = ({ onMobileToggle }) => {
     notifications,
     markAllNotificationsAsRead,
   } = useHRMSData();
-
+   const [localTheme, setLocalTheme] = useState(
+    localStorage.getItem("hrms-theme") || "light"
+  ); 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -35,8 +40,7 @@ const currentUserRole = storedUser?.role || "STAFF";
   localStorage.removeItem("permissions");
   window.location.href = "/login";
 };
-
-  // Close menus when clicking outside
+ 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -56,7 +60,32 @@ const currentUserRole = storedUser?.role || "STAFF";
       markAllNotificationsAsRead();
     }
   };
+  const handleThemeToggle = () => {
+    const nextTheme = localTheme === "light" ? "dark" : "light";
+    setLocalTheme(nextTheme);
+    
+  
+    document.documentElement.setAttribute("data-theme", nextTheme);
+ 
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    
+  
+    localStorage.setItem("hrms-theme", nextTheme);
+  };
 
+ 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", localTheme);
+    if (localTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [localTheme]);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -84,6 +113,14 @@ const currentUserRole = storedUser?.role || "STAFF";
             year: "numeric"
           })}
         </div>
+
+     <button
+          onClick={handleThemeToggle}
+          className="bg-transparent border-none text-text-secondary text-xl cursor-pointer flex items-center justify-center p-2 rounded-full transition-all hover:bg-bg-primary hover:text-primary"
+          aria-label="Toggle Theme"
+        >
+          {localTheme === "light" ? <MdNightsStay /> : <MdWbSunny className="text-yellow-500" />}
+        </button>
 
         {/* Notifications */}
         <div className="relative" ref={notificationsRef}>
