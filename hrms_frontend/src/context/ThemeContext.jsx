@@ -1,9 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect } from "react";
 
 const ThemeContext = createContext();
 
-// Light-only theme — dark mode is permanently disabled
 export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", "light");

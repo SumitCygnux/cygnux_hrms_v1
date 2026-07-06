@@ -1,17 +1,20 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [permissions, setPermissions] = useState( JSON.parse(localStorage.getItem('permissions')) || [] );
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [permissions, setPermissions] = useState(
+    JSON.parse(localStorage.getItem("permissions")) || []
+  );
 
   const login = (data) => {
-      setToken(data.token);
+    setToken(data.token);
     setPermissions(data.permissions);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('permissions', JSON.stringify(data.permissions));
-    localStorage.setItem('user', JSON.stringify(data.user));
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("permissions", JSON.stringify(data.permissions));
+    localStorage.setItem("user", JSON.stringify(data.user));
   };
 
   const logout = () => {
