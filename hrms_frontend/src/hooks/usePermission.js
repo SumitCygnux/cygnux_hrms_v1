@@ -1,25 +1,14 @@
-import { useContext } from "react";
-import { PermissionContext } from "../context/PermissionContext";
-
-export default function usePermission() {
-  const { permissions } = useContext(PermissionContext);
-
-  const hasViewPermission = (moduleKey) => {
-
-    console.log("Checking Module =>", moduleKey);
-
-    console.log("Permissions =>", permissions);
-
-    const permission = permissions.find(
-      (p) => p.module === moduleKey
-    );
-
-    console.log("Matched Permission =>", permission);
-
-    return permission?.operations?.view === true;
-  };
+export function usePermission(moduleIdentifier) {
+ 
+  const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+  const modulePerm = permissions.find(p => p.identifier === moduleIdentifier);
 
   return {
-    hasViewPermission,
+    canView: modulePerm?.operations?.view || false,
+    canCreate: modulePerm?.operations?.create || false,
+    canUpdate: modulePerm?.operations?.update || false,
+    canDelete: modulePerm?.operations?.delete || false,
+    canApprove: modulePerm?.operations?.approve || false,
+    canExport: modulePerm?.operations?.export || false,
   };
 }

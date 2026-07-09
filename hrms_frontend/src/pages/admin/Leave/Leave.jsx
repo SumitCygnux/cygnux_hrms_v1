@@ -16,7 +16,6 @@ import {
   MdAdd,
 } from "react-icons/md";
 import { toast } from "react-hot-toast";
-
 import { getAllLeave ,getAllStaff, updateLeaveStatus} from "../../../services/api";
 
 const Leave = () => {
@@ -50,7 +49,6 @@ const Leave = () => {
       console.log(err);
     }
   };
-
   const handleStatusUpdate = async (id, status) => {
     try {
       const res = await updateLeaveStatus(id, status);
@@ -91,9 +89,6 @@ const stats = useMemo(() => {
   };
 }, [leaves]);
 
-  
-
- 
   const columns = [
     {
       header: "Employee",

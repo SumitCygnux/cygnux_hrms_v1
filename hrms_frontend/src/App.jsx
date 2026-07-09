@@ -65,8 +65,7 @@ function App() {
               <Route path="/setup-password" element={<SetupPassword />} />
 
             
-              <Route element={<ProtectedRoute />}>
-                
+                <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         
@@ -79,8 +78,9 @@ function App() {
                     <Dashboard /> 
                   } 
                 />
-
-          
+                <Route path="/hr/dashboard" element={<Hrdashboard />} />
+                <Route path="/manager/dashboard" element={<Managerdashboard />} />
+                <Route path="/staff/dashboard" element={<StaffDashboard />} />
                 <Route path="/employees" element={<EmployeeList />} />
                 <Route path="/addemployee" element={<Addemployee />} />
                 <Route path="/employees/:id" element={<EmployeeProfile />} />
@@ -110,8 +110,7 @@ function App() {
                   path="/profile" 
                   element={role === "EMPLOYEE" ? <StaffProfile /> : <Profileadmin />} 
                 />
-
-             
+                             
                 <Route path="/recruitment" element={<Recruitment />} />
                 <Route path="/departments" element={<Departments />} />
                 <Route path="/designations" element={<Designations />} />
@@ -125,7 +124,7 @@ function App() {
           </BrowserRouter>
         </HRMSDataProvider>
       </ThemeProvider>
-    </AuthProvider>
+    </AuthProvider> 
   );
 }
 
