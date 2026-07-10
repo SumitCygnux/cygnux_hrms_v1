@@ -19,11 +19,12 @@ import { toast } from "react-toastify";
 const Settings = () => {
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState(null);
+
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingRoleId, setEditingRoleId] = useState(null);
   const [modules, setModules] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
-const [rolePermissions, setRolePermissions] = useState([]);
+  const [rolePermissions, setRolePermissions] = useState([]);
   const [roleForm, setRoleForm] = useState({
     name: "",
     description: "",
@@ -77,19 +78,17 @@ const [rolePermissions, setRolePermissions] = useState([]);
     { id: "notifications", label: "Notification Settings" },
   ];
 
-const loadModules = async () => {
-  const res = await getModules();
-   console.log("module ",res.data);
+  const loadModules = async () => {
+    const res = await getModules();
+    console.log("module ", res.data);
 
-   
-  setModules(res.data.data);
-};
+    setModules(res.data.data);
+  };
 
-useEffect(() => {
-  loadRoles();
-  loadModules();
-}, []);
- 
+  useEffect(() => {
+    loadRoles();
+    loadModules();
+  }, []);
 
   const loadRoles = async () => {
     try {
@@ -119,72 +118,61 @@ useEffect(() => {
     );
   };
 
+  const handleRoleSelect = async (role) => {
+    setSelectedRole(role);
 
-const handleRoleSelect = async (role) => {
-  setSelectedRole(role);
+    const res = await getRolePermissions(role.id);
 
-  const res = await getRolePermissions(role.id);
+    setRolePermissions(res.data.data);
+  };
 
-  setRolePermissions(res.data.data);
-};
+  const handleOperationChange = (moduleId, operation, checked) => {
+    setRolePermissions((prev) => {
+      const index = prev.findIndex((p) => p.module.id === moduleId);
 
-const handleOperationChange = (
-  moduleId,
-  operation,
-  checked
-) => {
+      if (index >= 0) {
+        const copy = [...prev];
 
-  setRolePermissions((prev) => {
+        copy[index].operations[operation] = checked;
 
-    const index = prev.findIndex(
-      (p) => p.module.id === moduleId
-    );
+        return copy;
+      }
 
-    if (index >= 0) {
-
-      const copy = [...prev];
-
-      copy[index].operations[operation] = checked;
-
-      return copy;
+      return [
+        ...prev,
+        {
+          module: {
+            id: moduleId,
+          },
+          operations: {
+            create: false,
+            view: false,
+            update: false,
+            delete: false,
+            approve: false,
+            export: false,
+            [operation]: checked,
+          },
+        },
+      ];
+    });
+  };
+  const handleSavePermissions = async () => {
+    if (!selectedRole) {
+      toast.error("Select Role First");
+      return;
     }
 
-    return [
-      ...prev,
-      {
-        module: {
-          id: moduleId,
-        },
-        operations: {
-          create: false,
-          view: false,
-          update: false,
-          delete: false,
-          approve: false,
-          export: false,
-          [operation]: checked,
-        },
-      },
-    ];
-  });
-};
-const handleSavePermissions = async () => {
-  if (!selectedRole) {
-    toast.error("Select Role First");
-    return;
-  }
+    await saveRolePermissions({
+      roleId: selectedRole.id,
+      permissions: rolePermissions.map((item) => ({
+        moduleId: item.module.id,
+        operations: item.operations,
+      })),
+    });
 
-  await saveRolePermissions({
-    roleId: selectedRole.id,
-    permissions: rolePermissions.map((item) => ({
-      moduleId: item.module.id,
-      operations: item.operations,
-    })),
-  });
-
-  toast.success("Permissions Saved Successfully");
-};
-
+    toast.success("Permissions Saved Successfully");
+  };
 
   const handleCompanySubmit = (e) => {
     e.preventDefault();
@@ -308,7 +296,7 @@ const handleSavePermissions = async () => {
         )}
 
         {/* Roles & Permissions */}
-        {activeTab === "roles" && (
+        {/* {activeTab === "roles" && (
           <div>
             <div className="flex items-center justify-between mb-5 pb-2 border-b border-border-color">
               <h3 className="text-base font-bold text-text-primary">
@@ -332,8 +320,6 @@ const handleSavePermissions = async () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Roles List */}
-
               <div className="bg-bg-primary border border-border-color rounded-xl p-4 relative">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-text-primary text-sm">
@@ -368,87 +354,229 @@ const handleSavePermissions = async () => {
                 </div>
               </div>
 
-
-              {/* Permissions */}
               <div className="lg:col-span-2 bg-bg-primary border border-border-color rounded-xl p-4">
-  <h4 className="font-semibold text-text-primary mb-4">
-    Module Permissions
-  </h4>
+                <h4 className="font-semibold text-text-primary mb-4">
+                  Module Permissions
+                </h4>
 
-  <div className="overflow-x-auto">
-    <table className="min-w-full border border-border-color">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border p-2 text-left">Module</th>
-          <th className="border p-2">Create</th>
-          <th className="border p-2">View</th>
-          <th className="border p-2">Update</th>
-          <th className="border p-2">Delete</th>
-          <th className="border p-2">Approve</th>
-          <th className="border p-2">Export</th>
-        </tr>
-      </thead>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-border-color">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border p-2 text-left">Module</th>
+                        <th className="border p-2">Create</th>
+                        <th className="border p-2">View</th>
+                        <th className="border p-2">Update</th>
+                        <th className="border p-2">Delete</th>
+                        <th className="border p-2">Approve</th>
+                        <th className="border p-2">Export</th>
+                      </tr>
+                    </thead>
 
-      <tbody>
-        {modules.map((module) => {
-          const permission = rolePermissions.find(
-            (p) => p.module.id === module.id
-          );
+                    <tbody>
+                      {modules.map((module) => {
+                        const permission = rolePermissions.find(
+                          (p) => p.module.id === module.id,
+                        );
 
-          return (
-            <tr key={module.id}>
-              <td className="border p-2 font-medium">
-                {module.name}
-              </td>
+                        return (
+                          <tr key={module.id}>
+                            <td className="border p-2 font-medium">
+                              {module.name}
+                            </td>
 
-              {[
-                "create",
-                "view",
-                "update",
-                "delete",
-                "approve",
-                "export",
-              ].map((operation) => (
-                <td
-                  key={operation}
-                  className="border p-2 text-center"
-                >
-                  <input
-                    type="checkbox"
-                    disabled={
-                      selectedRole?.name === "SUPER_ADMIN" ||
-                      selectedRole?.name === "TENANT_ADMIN"
-                    }
-                    checked={
-                      permission?.operations?.[operation] || false
-                    }
-                    onChange={(e) =>
-                      handleOperationChange(
-                        module.id,
-                        operation,
-                        e.target.checked
-                      )
-                    }
-                  />
-                </td>
-              ))}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
+                            {[
+                              "create",
+                              "view",
+                              "update",
+                              "delete",
+                              "approve",
+                              "export",
+                            ].map((operation) => (
+                              <td
+                                key={operation}
+                                className="border p-2 text-center"
+                              >
+                                <input
+                                  type="checkbox"
+                                  disabled={
+                                    selectedRole?.name === "SUPER_ADMIN" ||
+                                    selectedRole?.name === "TENANT_ADMIN"
+                                  }
+                                  checked={
+                                    permission?.operations?.[operation] || false
+                                  }
+                                  onChange={(e) =>
+                                    handleOperationChange(
+                                      module.id,
+                                      operation,
+                                      e.target.checked,
+                                    )
+                                  }
+                                />
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
 
-  <div className="flex justify-end mt-6">
-    <Button
-      variant="primary"
-      onClick={handleSavePermissions}
-    >
-      Save Permissions
-    </Button>
-  </div>
-</div>
+                <div className="flex justify-end mt-6">
+                  <Button variant="primary" onClick={handleSavePermissions}>
+                    Save Permissions
+                  </Button>
+                </div>
+              </div>
             </div>
+          </div>
+        )} */}
+        {activeTab === "roles" && (
+          <div>
+            <div className="flex items-center justify-between mb-5 pb-2 border-b border-border-color">
+              <h3 className="text-base font-bold text-text-primary">
+                Roles & Permissions
+              </h3>
+
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setEditingRoleId(null);
+
+                  setRoleForm({
+                    name: "",
+                    description: "",
+                  });
+
+                  setShowRoleModal(true);
+                }}
+              >
+                + Add Role
+              </Button>
+            </div>
+
+            
+
+            <div className="bg-bg-primary border border-border-color rounded-xl p-4 mb-6">
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Select Role
+              </label>
+
+              <select
+                className="w-full border border-border-color rounded-lg p-2"
+                value={selectedRole?.id || ""}
+                onChange={(e) => {
+                  const role = roles.find((item) => item.id === e.target.value);
+
+                  setSelectedRole(role);
+
+                  if (role) {
+                    handleRoleSelect(role);
+                  }
+                }}
+              >
+                <option value="">Select Role</option>
+
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+        
+
+            {selectedRole ? (
+              <div className="bg-bg-primary border border-border-color rounded-xl p-4">
+                <h4 className="font-semibold text-text-primary mb-4">
+                  Module Permissions - {selectedRole.name}
+                </h4>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-border-color">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border p-2 text-left">Module</th>
+
+                        <th className="border p-2">Create</th>
+
+                        <th className="border p-2">View</th>
+
+                        <th className="border p-2">Update</th>
+
+                        <th className="border p-2">Delete</th>
+
+                        <th className="border p-2">Approve</th>
+
+                        <th className="border p-2">Export</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {modules.map((module) => {
+                        const permission = rolePermissions.find(
+                          (p) => p.module.id === module.id,
+                        );
+
+                        return (
+                          <tr key={module.id}>
+                            <td className="border p-2 font-medium">
+                              {module.name}
+                            </td>
+
+                            {[
+                              "create",
+                              "view",
+                              "update",
+                              "delete",
+                              "approve",
+                              "export",
+                            ].map((operation) => (
+                              <td
+                                key={operation}
+                                className="border p-2 text-center"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    permission?.operations?.[operation] || false
+                                  }
+                                  disabled={
+                                    selectedRole?.name === "SUPER_ADMIN" ||
+                                    selectedRole?.name === "TENANT_ADMIN"
+                                  }
+                                  onChange={(e) =>
+                                    handleOperationChange(
+                                      module.id,
+                                      operation,
+                                      e.target.checked,
+                                    )
+                                  }
+                                />
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex justify-end mt-6">
+                  <Button variant="primary" onClick={handleSavePermissions}>
+                    Save Permissions
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-bg-primary border border-border-color rounded-xl p-10 text-center">
+                <p className="text-gray-500">
+                  Please select a role to view permissions
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -461,7 +589,6 @@ const handleSavePermissions = async () => {
                   <label className="block text-sm font-medium mb-1">
                     Role Name{" "}
                   </label>
-
                   <input
                     type="text"
                     value={roleForm.name}
@@ -545,7 +672,7 @@ const handleSavePermissions = async () => {
             </div>
           </div>
         )}
-
+2
         {/* Payroll Rules */}
         {activeTab === "payroll" && (
           <div>

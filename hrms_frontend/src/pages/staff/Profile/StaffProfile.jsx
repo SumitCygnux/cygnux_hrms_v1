@@ -25,12 +25,11 @@ const StaffProfile = () => {
   }
 };
 
-  const handleCancel = () => {
+const handleCancel = () => {
     setDraft(profile);
     setEditMode(false);
   };
-
-
+ 
   const Field = ({ label, value, editable = false, field }) => (
     <div className="flex flex-col gap-1">
       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">

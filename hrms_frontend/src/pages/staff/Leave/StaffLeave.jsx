@@ -151,12 +151,10 @@ const StaffLeave = () => {
             id="apply-leave-btn"
           >
             Apply Leave
-          </Button>
-          
+          </Button> 
         }
-       
       />
-  
+
       {/* Leave Balance Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-7">
         {leaveBalance.map((lb, i) => {

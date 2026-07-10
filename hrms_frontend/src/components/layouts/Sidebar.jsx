@@ -16,7 +16,9 @@ import {
   MdSettings,
   MdMenuOpen,
   MdMenu,
+  MdAssignment,
 } from "react-icons/md";
+import { FiUser } from "react-icons/fi";
 
 
 const iconRegistry = {
@@ -32,6 +34,8 @@ const iconRegistry = {
   MdAssessment: <MdAssessment />,
   MdCalendarToday: <MdCalendarToday />,
   MdSettings: <MdSettings />,
+  MdAssignment: <MdAssignment />,
+  FiUser: <FiUser />,
 };
 
 const Sidebar = ({
