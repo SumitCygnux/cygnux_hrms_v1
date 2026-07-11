@@ -96,7 +96,7 @@ export const HRMSDataProvider = ({ children }) => {
       }
     };
     setEmployees((prev) => [formattedEmp, ...prev]);
-    // update department headcount
+    // update department headcount 
     setDepartments((prev) =>
       prev.map((d) => (d.name === newEmp.department ? { ...d, headcount: d.headcount + 1 } : d))
     );
@@ -280,7 +280,7 @@ export const HRMSDataProvider = ({ children }) => {
 export const useHRMSData = () => {
   const context = useContext(HRMSDataContext);
   if (!context) {
-    throw new Error("useHRMSData must be used within an HRMSDataProvider");
+    throw new Error("useHRMS Data must be used within an HRMSDataProvider");
   }
   return context;
 };

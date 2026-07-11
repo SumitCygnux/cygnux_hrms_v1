@@ -47,8 +47,8 @@ function ProtectedRoute() {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <DashboardLayout />;
 }
-
 function App() {
+
   const isAuthenticated = !!localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = storedUser?.role || "";
@@ -66,7 +66,7 @@ function App() {
 
             
                 <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
 
         
                 <Route 
@@ -75,7 +75,9 @@ function App() {
                     role === "EMPLOYEE" ? <StaffDashboard /> : 
                     role === "HR" ? <Hrdashboard /> : 
                     role === "MANAGER" ? <Managerdashboard /> : 
-                    <Dashboard /> 
+                    role === "ADMIN" ? <Dashboard /> : 
+                   <Dashboard />  
+                    
                   } 
                 />
                 <Route path="/hr/dashboard" element={<Hrdashboard />} />
@@ -85,18 +87,22 @@ function App() {
                 <Route path="/addemployee" element={<Addemployee />} />
                 <Route path="/employees/:id" element={<EmployeeProfile />} />
                 <Route path="/updateemployee/:id" element={<Addemployee />} />
-                
+              
                 <Route 
                   path="/attendance" 
                   element={role === "EMPLOYEE" ? <StaffAttendance /> : <Attendance />} 
                 />
-                <Route 
+                {/* <Route 
                   path="/leave" 
                   element={role === "EMPLOYEE" ? <StaffLeave /> : <Leave />} 
+                /> */}
+                 <Route 
+                  path="/leave" 
+                  element={<Leave />} 
                 />
                 <Route 
                   path="/payroll" 
-                  element={role === "EMPLOYEE" ? <StaffPayroll /> : <Payroll />} 
+                  element={role === "EMPLOYEE" ? <StaffPayroll /> : <Payroll />}
                 />
                 <Route 
                   path="/performance" 
@@ -129,3 +135,5 @@ function App() {
 }
 
 export default App;
+
+

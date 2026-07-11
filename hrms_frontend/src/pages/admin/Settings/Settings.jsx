@@ -672,7 +672,7 @@ const Settings = () => {
             </div>
           </div>
         )}
-2
+
         {/* Payroll Rules */}
         {activeTab === "payroll" && (
           <div>
@@ -748,9 +748,9 @@ const Settings = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
 };
-
 export default Settings;
