@@ -422,5 +422,4 @@ const StaffLeave = () => {
     </div>
   );
 };
-
 export default StaffLeave;

@@ -15,24 +15,25 @@ import {
   MdVisibility,
 } from "react-icons/md";
 
-
-
 import {
   getDepartments,
   getDesignations,
-      getAllStaff,
+  getAllStaff,
   createStaff,
   getDesignationByDepartment,
   getRoles,
-    updateStaff,
-   
+  updateStaff,
 } from "../../../services/api";
 
 import { toast } from "react-toastify";
+import { usePermission } from "../../../hooks/usePermission";
 
 const EmployeeList = () => {
-
-  const navigate=useNavigate()
+  const { canView, canCreate, canUpdate, canDelete } = usePermission("staff");
+  if (!canView) {
+    return <h2>You don't have permission</h2>;
+  }
+  const navigate = useNavigate();
   // STATE
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -68,15 +69,12 @@ const EmployeeList = () => {
     loadData();
   }, []);
 
-
   const loadData = async () => {
     try {
       const emp = await getAllStaff();
       const dept = await getDepartments();
       const desig = await getDesignations();
       const roleRes = await getRoles();
-
-
 
       const formattedEmployees = emp.data.data.map((e) => ({
         ...e,
@@ -89,12 +87,12 @@ const EmployeeList = () => {
         designation:
           desig.data.data.find((d) => d.id === e.designationId)?.title || "-",
 
-          accessRole:
-    roleRes.data.data.find((r) => r.id === e.accessRoleId)?.name || "-",
+        accessRole:
+          roleRes.data.data.find((r) => r.id === e.accessRoleId)?.name || "-",
       }));
 
       setEmployees(formattedEmployees);
-      
+
       setDepartments(dept.data.data);
       setRoles(roleRes.data.data);
 
@@ -147,12 +145,8 @@ const EmployeeList = () => {
       accessRoleId: "",
       salary: "8000",
     });
-
-   
   };
 
-
-  
   const handleDepartmentChange = async (e) => {
     const departmentId = e.target.value;
 
@@ -174,8 +168,6 @@ const EmployeeList = () => {
       console.log(error);
     }
   };
-
-  
 
   // CSV Exporter
   const exportToCSV = () => {
@@ -227,42 +219,62 @@ const EmployeeList = () => {
     },
 
     { header: "Role", accessor: "role", sortable: true },
-    {header: "Access Role",accessor: "accessRole",sortable: true},
+    { header: "Access Role", accessor: "accessRole", sortable: true },
     {
       header: "Status",
       accessor: "status",
       sortable: true,
       render: (row) => <Badge status={row.status}>{row.status}</Badge>,
     },
-    {
+
+     ...(canUpdate
+    ? [ { 
       header: "Actions",
       accessor: "actions",
       sortable: false,
       render: (row) => (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
           <Link to={`/employees/${row.id}`}>
-            <Button
+           {
+             canUpdate && (
+                <Button
               size="sm"
               variant="ghost"
-              iconBefore={<MdVisibility className="text-lg" />}
-              aria-label="View Profile"
-            />
+              className=" group flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-600 shadow-sm  hover:border-blue-400  hover:bg-blue-100  hover:shadow-md  transition-all  "
+              iconBefore={
+                <MdVisibility className="text-lg group-hover:scale-110 transition-transform" />
+              }
+            >
+              Profile
+            </Button>
+            )
+           }
           </Link>
+
+          { canUpdate &&(
+              
           <Button
             size="sm"
             variant="ghost"
-            className="hover:text-red-500!"
-            iconBefore={<MdUpdate className="text-lg text-green-500" />}
-              onClick={() =>
-             navigate(`/updateemployee/${row.id}`)
-          }
-      
-            aria-label="update Employee"
-          />
+            className="group flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-green-600 shadow-sm hover:border-green-400 hover:bg-green-100 hover:shadow-md transition-all "
+            iconBefore={
+              <MdUpdate className="text-lg group-hover:rotate-12 transition-transform" />
+            }
+            onClick={() => navigate(`/updateemployee/${row.id}`)}
+          >
+            Update
+          </Button>
+            )} 
         </div>
       ),
-    }, 
+    },
+  
+    ]
+    : [])
+  
   ];
+
+
 
   return (
     <div>
@@ -270,14 +282,16 @@ const EmployeeList = () => {
         title="Staff Management"
         subtitle="View and manage company staff directory"
         actions={
-          <Button
-            variant="primary"
-            iconBefore={<MdPersonAdd />}
-            // onClick={handleAdd}
-            onClick={() => navigate("/addemployee")}
-          >
-            Add Employee
-          </Button>
+          canCreate && (
+            <Button
+              variant="primary"
+              iconBefore={<MdPersonAdd />}
+              // onClick={handleAdd}
+              onClick={() => navigate("/addemployee")}
+            >
+              Add Employee
+            </Button>
+          )
         }
       />
 
@@ -294,7 +308,7 @@ const EmployeeList = () => {
               className="border-none bg-transparent outline-none w-full text-xs text-text-primary"
             />
           </div>
-          
+
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
@@ -329,12 +343,7 @@ const EmployeeList = () => {
           </Button>
         </div>
       </div>
-
-    
-
-      
-   <DataTable columns={columns} data={filteredEmployees} />
-
+      <DataTable columns={columns} data={filteredEmployees} />
     </div>
   );
 };
