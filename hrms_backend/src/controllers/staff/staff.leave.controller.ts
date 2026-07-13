@@ -9,6 +9,7 @@ export const applyLeave = async (
 
     const dbName = (req as any).user.dbName;
     const staffId = (req as any).user.userId;
+    const role = (req as any).user.role;
 
     if (isNaN(Number(staffId))) {
       return res.status(400).json({
@@ -22,6 +23,7 @@ export const applyLeave = async (
     const leave = await applyLeaveService(
       dbName,
       Number(staffId),
+      role,
       req.body
     );
 

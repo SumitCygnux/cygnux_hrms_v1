@@ -201,7 +201,10 @@ export const updateLeaveStatus = async (
   res: Response
 ) => {
   try {
+
     const dbName = (req as any).user.dbName;
+     const role = (req as any).user.role;
+
     const { id } = req.params;
     const { status } = req.body;
 
@@ -215,7 +218,8 @@ export const updateLeaveStatus = async (
     const leave = await updateLeaveStatusService(
       dbName,
       Number(id),
-      status
+      status,
+      role
     );
 
     return res.status(200).json({
