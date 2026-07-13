@@ -190,6 +190,7 @@ export const loginService = async (payload: any) => {
     const token = generateToken({
       userId: user.id,
       tenantId: user.tenant_id,
+      role: tenantRole.name,
       roleId: tenantRole.id,
       dbName: user.db_name,
     });
@@ -282,6 +283,7 @@ export const loginService = async (payload: any) => {
         userId: staff.id,
         tenantId: tenant.id,
         roleId: staff.accessRoleId,
+        role: role?.name,
         dbName: tenant.db_name,
       });
 

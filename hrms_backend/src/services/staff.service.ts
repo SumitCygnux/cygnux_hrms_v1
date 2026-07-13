@@ -151,7 +151,8 @@ export const getAllLeaveService = async (dbName: string) => {
 export const updateLeaveStatusService = async (
   dbName: string,
   leaveId: number,
-  status: string
+  status: string,
+  role: string
 ) => {
   const dataSource = await getTenantConnection(dbName);
   const leaveRepo = dataSource.getRepository(Leave);
@@ -162,6 +163,12 @@ export const updateLeaveStatusService = async (
 
   if (!leave) {
     throw new Error("Leave request not found");
+  }
+
+  if(leave.approverRole !== role){
+    throw new Error(
+      "You are not allowed to approve this leave"
+    );
   }
 
   leave.status = status.toUpperCase();

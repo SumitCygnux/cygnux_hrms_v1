@@ -123,6 +123,8 @@ export const clockIn = () => api.post("/attendance/clock-in");
 export const clockOut = (data) => api.post("/attendance/clock-out", data);
 export const breakIn = (data) => api.post("/attendance/break-in", data);
 export const breakOut = (data) => api.post("/attendance/break-out", data);
+
+
 export const getTodayAttendance = () => api.get("/attendance/today");
 export const getAttendanceHistory = (params) => api.get("/attendance/history", { params });
 export const getStaffAttendanceDashboard = () => api.get("/attendance/dashboard");

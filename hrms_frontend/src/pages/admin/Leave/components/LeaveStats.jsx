@@ -22,7 +22,6 @@ const LeaveStats = ({ leaves }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
-      {/* Total Requests */}
 
       <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
         <div className="flex flex-col gap-2">
@@ -40,7 +39,7 @@ const LeaveStats = ({ leaves }) => {
         </div>
       </div>
 
-      {/* Approved */}
+  
 
       <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
         <div className="flex flex-col gap-2">
@@ -58,7 +57,7 @@ const LeaveStats = ({ leaves }) => {
         </div>
       </div>
 
-      {/* Rejected */}
+
 
       <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
         <div className="flex flex-col gap-2">
@@ -76,7 +75,7 @@ const LeaveStats = ({ leaves }) => {
         </div>
       </div>
 
-      {/* Pending */}
+      
 
       <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm flex justify-between items-center">
         <div className="flex flex-col gap-2">

@@ -13,7 +13,6 @@ export class Leave {
   @PrimaryGeneratedColumn()
   id!: number;
 
-
   @Column()
   staffId!: number;
 
@@ -39,6 +38,11 @@ export class Leave {
     default: "PENDING",
   })
   status!: string;
+
+  @Column({
+    nullable: false,
+  })
+  approverRole!: string;
 
   @CreateDateColumn()
   createdAt!: Date;
