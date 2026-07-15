@@ -4,7 +4,7 @@ import PageHeader from "../../../components/layouts/PageHeader";
 import Tabs from "../../../components/common/Tabs";
 import Button from "../../../components/common/Button";
 import Badge from "../../../components/common/Badge";
-import { MdEdit } from "react-icons/md";
+import { MdChevronRight, MdEdit } from "react-icons/md";
 
 import {
   getRoles,
@@ -80,7 +80,6 @@ const Settings = () => {
 
   const loadModules = async () => {
     const res = await getModules();
-    console.log("module ", res.data);
 
     setModules(res.data.data);
   };
@@ -295,143 +294,6 @@ const Settings = () => {
           </form>
         )}
 
-        {/* Roles & Permissions */}
-        {/* {activeTab === "roles" && (
-          <div>
-            <div className="flex items-center justify-between mb-5 pb-2 border-b border-border-color">
-              <h3 className="text-base font-bold text-text-primary">
-                Roles & Permissions
-              </h3>
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setEditingRoleId(null);
-
-                  setRoleForm({
-                    name: "",
-                    description: "",
-                  });
-
-                  setShowRoleModal(true);
-                }}
-              >
-                + Add Role
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="bg-bg-primary border border-border-color rounded-xl p-4 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-text-primary text-sm">
-                    Roles
-                  </h4>
-                </div>
-
-                <div className="space-y-2">
-                  {roles.map((role) => (
-                    <div
-                      key={role.id}
-                      onClick={() => handleRoleSelect(role)}
-                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${
-                        selectedRole?.id === role.id
-                          ? "bg-blue-50 border-blue-500"
-                          : "border-border-color hover:bg-gray-50"
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{role.name}</span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditRole(role);
-                          }}
-                        >
-                          <MdEdit />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 bg-bg-primary border border-border-color rounded-xl p-4">
-                <h4 className="font-semibold text-text-primary mb-4">
-                  Module Permissions
-                </h4>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border border-border-color">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="border p-2 text-left">Module</th>
-                        <th className="border p-2">Create</th>
-                        <th className="border p-2">View</th>
-                        <th className="border p-2">Update</th>
-                        <th className="border p-2">Delete</th>
-                        <th className="border p-2">Approve</th>
-                        <th className="border p-2">Export</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {modules.map((module) => {
-                        const permission = rolePermissions.find(
-                          (p) => p.module.id === module.id,
-                        );
-
-                        return (
-                          <tr key={module.id}>
-                            <td className="border p-2 font-medium">
-                              {module.name}
-                            </td>
-
-                            {[
-                              "create",
-                              "view",
-                              "update",
-                              "delete",
-                              "approve",
-                              "export",
-                            ].map((operation) => (
-                              <td
-                                key={operation}
-                                className="border p-2 text-center"
-                              >
-                                <input
-                                  type="checkbox"
-                                  disabled={
-                                    selectedRole?.name === "SUPER_ADMIN" ||
-                                    selectedRole?.name === "TENANT_ADMIN"
-                                  }
-                                  checked={
-                                    permission?.operations?.[operation] || false
-                                  }
-                                  onChange={(e) =>
-                                    handleOperationChange(
-                                      module.id,
-                                      operation,
-                                      e.target.checked,
-                                    )
-                                  }
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <Button variant="primary" onClick={handleSavePermissions}>
-                    Save Permissions
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )} */}
         {activeTab === "roles" && (
           <div>
             <div className="flex items-center justify-between mb-5 pb-2 border-b border-border-color">
@@ -455,8 +317,6 @@ const Settings = () => {
                 + Add Role
               </Button>
             </div>
-
-            
 
             <div className="bg-bg-primary border border-border-color rounded-xl p-4 mb-6">
               <label className="block text-sm font-medium text-text-primary mb-2">
@@ -486,8 +346,6 @@ const Settings = () => {
               </select>
             </div>
 
-        
-
             {selectedRole ? (
               <div className="bg-bg-primary border border-border-color rounded-xl p-4">
                 <h4 className="font-semibold text-text-primary mb-4">
@@ -515,7 +373,7 @@ const Settings = () => {
                     </thead>
 
                     <tbody>
-                      {modules.map((module) => {
+                      {/* {modules.map((module) => {
                         const permission = rolePermissions.find(
                           (p) => p.module.id === module.id,
                         );
@@ -559,7 +417,82 @@ const Settings = () => {
                             ))}
                           </tr>
                         );
-                      })}
+                      })} */}
+
+                     {modules
+  .filter((module) => !module.parentId)
+  .map((module) => (
+                        <>
+                          <tr key={module.id}>
+                            <td className="border p-2 font-bold">
+                              {module.name}
+                            </td>
+
+                            {[
+                              "create",
+                              "view",
+                              "update",
+                              "delete",
+                              "approve",
+                              "export",
+                            ].map((operation) => (
+                              <td className="border p-2 text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    rolePermissions.find(
+                                      (p) => p.module.id === module.id,
+                                    )?.operations?.[operation] || false
+                                  }
+                                  onChange={(e) =>
+                                    handleOperationChange(
+                                      module.id,
+                                      operation,
+                                      e.target.checked,
+                                    )
+                                  }
+                                />
+                              </td>
+                            ))}
+                          </tr>
+
+                          {module.children?.map((child) => (
+                            <tr key={child.id}>
+                              <td className="border p-2 pl-10">
+                                
+                                {child.name}
+                              </td>
+
+                              {[
+                                "create",
+                                "view",
+                                "update",
+                                "delete",
+                                "approve",
+                                "export",
+                              ].map((operation) => (
+                                <td className="border p-2 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      rolePermissions.find(
+                                        (p) => p.module.id === child.id,
+                                      )?.operations?.[operation] || false
+                                    }
+                                    onChange={(e) =>
+                                      handleOperationChange(
+                                        child.id,
+                                        operation,
+                                        e.target.checked,
+                                      )
+                                    }
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -748,7 +681,6 @@ const Settings = () => {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

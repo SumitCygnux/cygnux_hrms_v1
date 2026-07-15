@@ -1,33 +1,28 @@
 import Button from "../../../../components/common/Button";
 
-import { MdCheck, MdClose } from "react-icons/md";
+import { MdCancel, MdCheck, MdCheckCircle, MdClose } from "react-icons/md";
 
 const LeaveActions = ({ id, handleStatusUpdate }) => {
   return (
-    <div className="flex gap-2">
-      <Button
-        size="sm"
-        variant="success"
+    <div className="flex items-center gap-2">
+    
+      <button
         onClick={() => handleStatusUpdate(id, "APPROVED")}
-        style={{
-          padding: "6px",
-        }}
-        aria-label="Approve Leave"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg  border border-green-500  bg-green-50  text-green-700  hover:bg-green-100 transition-all duration-200"
       >
-        <MdCheck />
-      </Button>
+        <MdCheckCircle className="text-lg" />
+        <span className="text-sm font-medium">Approve</span>
+      </button>
 
-      <Button
-        size="sm"
-        variant="danger"
+
+    
+      <button
         onClick={() => handleStatusUpdate(id, "REJECTED")}
-        style={{
-          padding: "6px",
-        }}
-        aria-label="Reject Leave"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg  border border-red-500  bg-red-50  text-red-700  hover:bg-red-100  transition-all duration-200"
       >
-        <MdClose />
-      </Button>
+        <MdCancel className="text-lg" />
+        <span className="text-sm font-medium">Reject</span>
+      </button>
     </div>
   );
 };

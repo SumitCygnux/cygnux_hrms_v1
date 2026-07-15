@@ -1,15 +1,10 @@
 import { DataSource } from "typeorm";
 import { Module } from "../entity/tenant/module.entity";
 
-export const seedModules = async (
-  tenantDataSource: DataSource
-) => {
-
-  const moduleRepo =
-    tenantDataSource.getRepository(Module);
+export const seedModules = async (tenantDataSource: DataSource) => {
+  const moduleRepo = tenantDataSource.getRepository(Module);
 
   const modules = [
-
     {
       name: "Dashboard",
       identifier: "dashboard",
@@ -56,7 +51,7 @@ export const seedModules = async (
     },
 
     {
-      name: "Leave",
+      name: "Leave Management",
       identifier: "leave",
       description: "Leave Module",
       icon: "MdEventBusy",
@@ -117,7 +112,7 @@ export const seedModules = async (
       path: "/settings",
       sortOrder: 12,
     },
-     {
+    {
       name: "profile",
       identifier: "profile",
       description: "profile Module",
@@ -125,11 +120,10 @@ export const seedModules = async (
       path: "/profile",
       sortOrder: 12,
     },
-
   ];
 
+  // Parent
   for (const module of modules) {
-
     const exists = await moduleRepo.findOne({
       where: {
         identifier: module.identifier,
@@ -139,8 +133,58 @@ export const seedModules = async (
     if (!exists) {
       await moduleRepo.save(module);
     }
-
   }
+  // child
+  const leaveParent = await moduleRepo.findOne({
+    where: {
+      identifier: "leave",
+    },
+  });
 
+  if (leaveParent) {
+    const leaveChildren = [
+      {
+        name: "My Leave",
+        identifier: "my_leave",
+        description: "Employee Own Leave",
+        icon: "MdAssignment",
+        path: "/leave",
+        sortOrder: 1,
+        parent: leaveParent,
+      },
+
+      {
+        name: "Employee Leave",
+        identifier: "employee_leave",
+        description: "HR Employee Leave",
+        icon: "MdPeople",
+        path: "/leave/employee-leave",
+        sortOrder: 2,
+        parent: leaveParent,
+      },
+
+      {
+        name: "Team Leave",
+        identifier: "team_leave",
+        description: "Manager Team Leave",
+        icon: "MdPeople",
+        path: "/leave/team-leave",
+        sortOrder: 3,
+        parent: leaveParent,
+      },
+    ];
+
+    for (const child of leaveChildren) {
+      const exists = await moduleRepo.findOne({
+        where: {
+          identifier: child.identifier,
+        },
+      });
+
+      if (!exists) {
+        await moduleRepo.save(child);
+      }
+    }
+  }
   console.log("Default Modules Seeded");
 };

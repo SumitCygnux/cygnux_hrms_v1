@@ -171,8 +171,6 @@ export const setupPassword = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const getAllLeave = async (
   req: Request,
   res: Response

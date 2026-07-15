@@ -165,11 +165,16 @@ export const updateLeaveStatusService = async (
     throw new Error("Leave request not found");
   }
 
-  if(leave.approverRole !== role){
-    throw new Error(
-      "You are not allowed to approve this leave"
-    );
-  }
+
+if (
+  role !== "SUPER_ADMIN" &&
+  role !== "TENANT_ADMIN" &&
+  leave.approverRole !== role
+) {
+  throw new Error(
+    "You are not allowed to approve this leave"
+  );
+}
 
   leave.status = status.toUpperCase();
   
