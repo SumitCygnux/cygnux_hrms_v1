@@ -4,6 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
+  JoinColumn,
+  ManyToOne,
 } from "typeorm";
 
 @Entity("modules")
@@ -48,6 +51,25 @@ export class Module {
   })
   isActive!: boolean;
 
+ @ManyToOne(
+    () => Module,
+    (module) => module.children,
+    {
+      nullable: true,
+      onDelete: "SET NULL",
+    }
+  )
+  @JoinColumn({
+    name: "parentId",
+  })
+  parent!: Module | null;
+
+  @OneToMany(
+    () => Module,
+    (module) => module.parent
+  )
+  children!: Module[];
+  
   @CreateDateColumn()
   createdAt!: Date;
 

@@ -35,19 +35,15 @@ export class Holiday {
   @Column({ type: "varchar", default: HolidayType.COMPANY })
   holidayType!: string;
 
-  // Optional branch scope (no Branch entity in the system — kept as a free label).
   @Column({ type: "varchar", nullable: true })
   branch!: string | null;
 
-  // Optional department scope. Null => applies to all departments.
   @Column({ type: "uuid", nullable: true })
   departmentId!: string | null;
 
-  // Repeats every year on the same month/day.
   @Column({ type: "boolean", default: false })
   isRecurring!: boolean;
 
-  // Paid holiday (counts toward payroll) vs unpaid.
   @Column({ type: "boolean", default: true })
   isPaid!: boolean;
 

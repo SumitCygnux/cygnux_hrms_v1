@@ -43,13 +43,6 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("permissions", JSON.stringify(permissions || []));
 
-      // setUser(response.user);
-      // setPermissions(response.permissions);
-      // setToken(response.token);
-
-      console.log("USER =>", user);
-      console.log("PERMISSIONS =>", permissions);
-
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
 
@@ -57,6 +50,10 @@ const Login = () => {
         navigate("/setup-password");
       } else {
         switch (user.role) {
+          case "SUPER_ADMIN":
+            navigate("/dashboard");
+            break;
+
           case "TENANT_ADMIN":
             navigate("/dashboard");
             break;

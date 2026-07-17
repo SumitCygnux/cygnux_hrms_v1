@@ -27,7 +27,6 @@ export const createRole = async (
 
   }
 };
-
 export const getRoles = async (
   req: any,
   res: Response

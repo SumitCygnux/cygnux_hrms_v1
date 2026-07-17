@@ -20,7 +20,7 @@ export const createStaffService = async (dbName: string, data: any) => {
     dob: data.dob,
     joiningDate: data.joiningDate,
     address: data.address,
-    accessRoleId: data.accessRoleId,
+    accessRoleId: data.accessRoleId, 
   });
 
   const savedStaff = await staffRepo.save(staff);
@@ -33,7 +33,7 @@ export const getAllStaffService = async (dbName: string) => {
   const staffRepo = dataSource.getRepository(Staff);
 
   return await staffRepo.find();
-};
+}; 
 
 export const updateStaffStatusService = async (
   dbName: string,
@@ -53,7 +53,7 @@ export const updateStaffStatusService = async (
   staff.status = status;
 
   return await staffRepo.save(staff);
-};
+}; 
 
 export const setupPasswordService = async (
   dbName: string,
@@ -73,7 +73,6 @@ export const setupPasswordService = async (
 
 export const getStaffByIdService = async (dbName: string, id: number) => {
   const dataSource = await getTenantConnection(dbName);
-
   const staffRepo = dataSource.getRepository(Staff);
   const departmentRepo = dataSource.getRepository(Department);
   const designationRepo = dataSource.getRepository(Designation);
@@ -100,13 +99,10 @@ export const getStaffByIdService = async (dbName: string, id: number) => {
 
   return {
     ...staff,
-
     departmentName: department?.name || "",
-
     designationName: designation?.title || "",
-
-   
   };
+
 };
 
 export const updateStaffService = async (
@@ -114,23 +110,22 @@ export const updateStaffService = async (
   id: Number,
   data: any,
 ) => {
-  const dataSource = await getTenantConnection(dbName);
 
+  const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
   const staff = await staffRepo.findOne({
     where: { id: Number(id) },
   });
 
-  if (!staff) {
+  if (!staff) { 
     throw new Error("Staff not found");
   }
 
   Object.assign(staff, {
     ...data,
-  });
+  }); 
 
   const updatedStaff = await staffRepo.save(staff);
-
   return updatedStaff;
 };
 
@@ -156,22 +151,22 @@ export const updateLeaveStatusService = async (
 ) => {
   const dataSource = await getTenantConnection(dbName);
   const leaveRepo = dataSource.getRepository(Leave);
-
   const leave = await leaveRepo.findOne({
     where: { id: leaveId },
   });
 
   if (!leave) {
     throw new Error("Leave request not found");
-  }
-
-  if(leave.approverRole !== role){
-    throw new Error(
-      "You are not allowed to approve this leave"
-    );
-  }
-
+  } 
+if (
+  role !== "SUPER_ADMIN" &&
+  role !== "TENANT_ADMIN" &&
+  leave.approverRole !== role
+) {
+  throw new Error(
+    "You are not allowed to approve this leave"
+  );
+}
   leave.status = status.toUpperCase();
-  
   return await leaveRepo.save(leave);
 };

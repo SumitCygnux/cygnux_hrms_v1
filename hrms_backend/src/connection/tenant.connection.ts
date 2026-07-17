@@ -14,7 +14,7 @@ import { Holiday } from "../entity/tenant/holiday.entity";
 import { AttendanceRequest } from "../entity/tenant/attendanceRequest.entity";
 import { Payroll } from "../entity/tenant/payroll.entity";
 import { Module } from "../entity/tenant/module.entity";
-
+import { LeavePolicy } from "../entity/tenant/leavePolicy.entity";
 
 const tenantConnections = new Map<string, DataSource>();
 
@@ -47,7 +47,8 @@ export const getTenantConnection = async (dbName: string) => {
       ShiftAssignment,
       AttendanceSettings,
       Holiday,
-      AttendanceRequest
+      AttendanceRequest,
+      LeavePolicy
     ],
   });
  await dataSource.initialize();

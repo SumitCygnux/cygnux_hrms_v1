@@ -4,9 +4,8 @@ dotenv.config();
 import app from "./app";
 
 import DatabaseConnection from "./connection/postgresql.connection";
-import { seedRoles } from "./seeders/roles.seeder";
 import { runMaintenanceAllTenants } from "./services/admin/attendanceMaintenance.service";
-
+ 
 const PORT = process.env.PORT || 5001;
 
 // Attendance maintenance sweeper: auto clock-out, missed-punch & absent marking.

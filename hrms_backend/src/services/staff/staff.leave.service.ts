@@ -12,8 +12,6 @@ export const applyLeaveService = async (
   const leaveRepo = dataSource.getRepository(Leave);
 
   let approverRole;
-
-
   if(role === "EMPLOYEE"){
     approverRole = "HR";
   }
@@ -50,6 +48,7 @@ export const getLeaveService = async (
     order: {
       createdAt: "DESC",
     },
+    
   });
 
   return leaves;

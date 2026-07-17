@@ -4,8 +4,9 @@ import Avatar from "../../../../components/common/Avatar";
 
 import LeaveActions from "./LeaveActions";
 
-const LeaveTable = ({ leaves, employees, canApprove, handleStatusUpdate }) => {
-    console.log("canApprove =>", canApprove);
+const LeaveTable = ({ leaves, employees,canApprove, handleStatusUpdate }) => {
+   
+   
   const columns = [
     {
       header: "Employee",
@@ -17,20 +18,30 @@ const LeaveTable = ({ leaves, employees, canApprove, handleStatusUpdate }) => {
 
         return (
           <div className="flex items-center gap-3">
-            <Avatar
-              name={row.employeeName}
-              color={emp?.avatarColor || "#2563EB"}
-              size={36}
-            />
+            <div className="flex items-center gap-3">
+      <Avatar
+        name={emp?.fullName || row.employeeName}
+        color={emp?.avatarColor || "#2563EB"}
+        size={38}
+      />
+
+      <div className="flex flex-col">
+        <span className="font-semibold text-gray-800">
+          {emp?.fullName || row.employeeName}
+        </span>
+
+        <span className="text-xs text-gray-500">
+          {emp?.role || emp?.accessRole}
+        </span>
+      </div>
+    </div>
 
             <div className="flex flex-col">
               <span className="font-semibold text-text-primary">
                 {row.employeeName}
               </span>
 
-              <span className="text-xs text-text-secondary">
-                ID: {row.staffId}
-              </span>
+            
             </div>
           </div>
         );
@@ -91,6 +102,7 @@ const LeaveTable = ({ leaves, employees, canApprove, handleStatusUpdate }) => {
       sortable: false,
 
       render: (row) => {
+         
         if (row.status !== "PENDING")
           return (
             <span className="text-gray-400 text-xs font-semibold">

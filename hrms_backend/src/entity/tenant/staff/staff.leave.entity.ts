@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
+import { Staff } from "../staff.entity";
 
 @Entity("leave")
 export class Leave {
@@ -15,6 +16,10 @@ export class Leave {
 
   @Column()
   staffId!: number;
+  
+@ManyToOne(() => Staff)
+@JoinColumn({ name: "staffId" })
+staff!: Staff;
 
   @Column()
   leaveType!: string;

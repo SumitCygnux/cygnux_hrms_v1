@@ -3,28 +3,20 @@ import { Role } from "../entity/tenant/roles.entity";
 import { Module } from "../entity/tenant/module.entity";
 import { RolePermission } from "../entity/tenant/rolePermission.entity";
 
-export const seedRolePermissions = async (
-  tenantDataSource: DataSource
-) => {
+export const seedRolePermissions = async (tenantDataSource: DataSource) => {
   const roleRepo = tenantDataSource.getRepository(Role);
   const moduleRepo = tenantDataSource.getRepository(Module);
-  const rolePermissionRepo =
-    tenantDataSource.getRepository(RolePermission);
+  const rolePermissionRepo = tenantDataSource.getRepository(RolePermission);
 
   const roles = await roleRepo.find();
   const modules = await moduleRepo.find();
 
   for (const role of roles) {
     for (const module of modules) {
-
       let operations: any = null;
 
       switch (role.name) {
-
-      
-
         case "SUPER_ADMIN":
-
           operations = {
             create: true,
             view: true,
@@ -36,9 +28,7 @@ export const seedRolePermissions = async (
 
           break;
 
-
         case "TENANT_ADMIN":
-
           if (
             [
               "dashboard",
@@ -46,7 +36,11 @@ export const seedRolePermissions = async (
               "department",
               "designation",
               "attendance",
-              "leave",
+                "leave",    
+              "my_leave",
+              "employee_leave",
+              "team_leave",
+             
               "payroll",
               "performance",
               "reports",
@@ -55,7 +49,6 @@ export const seedRolePermissions = async (
               "settings",
             ].includes(module.identifier)
           ) {
-
             operations = {
               create: true,
               view: true,
@@ -68,11 +61,8 @@ export const seedRolePermissions = async (
 
           break;
 
-
         case "HR":
-
           switch (module.identifier) {
-
             case "dashboard":
               operations = {
                 view: true,
@@ -84,7 +74,6 @@ export const seedRolePermissions = async (
             case "designation":
             case "attendance":
             case "recruitment":
-
               operations = {
                 create: true,
                 view: true,
@@ -94,19 +83,26 @@ export const seedRolePermissions = async (
 
               break;
 
-            case "leave":
-
+            case "my_leave":
               operations = {
                 create: true,
                 view: true,
-                update: true,
-                approve: true,
               };
 
               break;
 
-               case "profile":
+            case "employee_leave":
+              operations = {
+                view: true,
+                update: true,
+              };
 
+              break;
+
+           
+              break;
+
+            case "profile":
               operations = {
                 view: true,
                 update: true,
@@ -115,7 +111,6 @@ export const seedRolePermissions = async (
               break;
 
             case "payroll":
-
               operations = {
                 view: true,
               };
@@ -125,13 +120,9 @@ export const seedRolePermissions = async (
 
           break;
 
-      
         case "MANAGER":
-
           switch (module.identifier) {
-
             case "dashboard":
-
               operations = {
                 view: true,
               };
@@ -139,7 +130,6 @@ export const seedRolePermissions = async (
               break;
 
             case "staff":
-
               operations = {
                 view: true,
               };
@@ -147,24 +137,28 @@ export const seedRolePermissions = async (
               break;
 
             case "attendance":
-
               operations = {
                 view: true,
               };
 
               break;
 
-            case "leave":
+            case "my_leave":
+              operations = {
+                create: true,
+                view: true,
+              };
 
+              break;
+
+            case "team_leave":
               operations = {
                 view: true,
-                approve: true,
               };
 
               break;
 
             case "reports":
-
               operations = {
                 view: true,
                 export: true,
@@ -172,27 +166,20 @@ export const seedRolePermissions = async (
 
               break;
 
-               case "profile":
-
+            case "profile":
               operations = {
                 view: true,
                 update: true,
               };
 
               break;
-
           }
 
           break;
 
-     
-
         case "EMPLOYEE":
-
           switch (module.identifier) {
-
             case "dashboard":
-
               operations = {
                 view: true,
               };
@@ -200,15 +187,13 @@ export const seedRolePermissions = async (
               break;
 
             case "attendance":
-
               operations = {
                 view: true,
               };
 
               break;
 
-            case "leave":
-
+            case "my_leave":
               operations = {
                 create: true,
                 view: true,
@@ -217,14 +202,12 @@ export const seedRolePermissions = async (
               break;
 
             case "profile":
-
               operations = {
                 view: true,
                 update: true,
               };
 
               break;
-
           }
 
           break;
@@ -244,9 +227,7 @@ export const seedRolePermissions = async (
       });
 
       if (!exists) {
-
         await rolePermissionRepo.save({
-
           role,
 
           module,
@@ -254,11 +235,8 @@ export const seedRolePermissions = async (
           operations,
 
           isActive: true,
-
         });
-
       }
-
     }
   }
 

@@ -76,29 +76,40 @@ export const registerCompanyService = async (payload: any) => {
 
   await seedRoles(tenantDataSource);
   await seedModules(tenantDataSource);
-
   await seedRolePermissions(tenantDataSource);
   await seedDepartments(tenantDataSource, industry);
 
   await seedDesignations(tenantDataSource, industry);
   const roleRepo = DatabaseConnection.getRepository(Roles);
 
-  const tenantAdminRole = await roleRepo.findOne({
-    where: {
-      name: "TENANT_ADMIN",
-    },
-  });
+  // const tenantAdminRole = await roleRepo.findOne({
+  //   where: {
+  //     name: "TENANT_ADMIN",
+  //   },
+  // });
 
-  if (!tenantAdminRole) {
-    throw new Error("TENANT_ADMIN role not found");
-  }
+  // if (!tenantAdminRole) {
+  //   throw new Error("TENANT_ADMIN role not found");
+  // }
+
+
+  const superAdminRole = await roleRepo.findOne({
+  where: {
+    name: "SUPER_ADMIN",
+  },
+});
+
+if (!superAdminRole) {
+  throw new Error("SUPER_ADMIN role not found");
+}
+
 
   const user = await userRepo.save({
     email: adminEmail,
     name: adminName,
 
     password: hashedPassword,
-    role_id: tenantAdminRole.id,
+    role_id: superAdminRole.id,
     tenant_id: tenant.id,
     db_name: tenant.db_name,
   });
