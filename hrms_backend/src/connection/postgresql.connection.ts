@@ -6,6 +6,7 @@ import { Roles } from "../entity/master/roles.entity";
 import { Tenant_dbs } from "../entity/master/tenant_db.entity";
 import { Users } from "../entity/master/users.entity";
 
+
 const DatabaseConnection =
   new DataSource({
     type: "postgres",
@@ -19,7 +20,8 @@ const DatabaseConnection =
     entities: [
       Roles,
       Tenant_dbs,
-      Users,
+      Users
+      
     ],
   });
 

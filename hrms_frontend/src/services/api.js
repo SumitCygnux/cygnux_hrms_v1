@@ -197,4 +197,25 @@ export const  updateMyProfile = (data) => {
   return api.put("/myprofile", data);
 };
 
+// leave policies
+export const getLeavePolicies = () => {
+    return api.get("/leavepolicies");
+  }
+
+
+  export const createLeavePolicy = (data) => {
+    return api.post("/leavepolicies", data);
+  } 
+    
+export const updateLeavePolicy = (id, data) =>{
+
+  return api.put(`/leavepolicies/${id}`, data);  
+} 
+
+export const deleteLeavePolicy = (id) =>{
+
+  return api.delete(`/leavepolicies/${id}`);
+} 
+
+
 export default api;

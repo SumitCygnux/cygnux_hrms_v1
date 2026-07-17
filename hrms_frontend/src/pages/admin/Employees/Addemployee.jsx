@@ -72,17 +72,14 @@ function Addemployee() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       fullName: formData.fullName,
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
       gender: formData.gender,
-
       departmentId: formData.departmentId,
       designationId: formData.designationId,
-
       dob: formData.dob,
       joiningDate: formData.joiningDate,
       salary: Number(formData.salary),

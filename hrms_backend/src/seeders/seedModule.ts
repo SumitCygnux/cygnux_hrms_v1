@@ -13,7 +13,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/dashboard",
       sortOrder: 1,
     },
-
     {
       name: "Staff Management",
       identifier: "staff",
@@ -22,7 +21,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/employees",
       sortOrder: 2,
     },
-
     {
       name: "Department",
       identifier: "department",
@@ -31,7 +29,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/departments",
       sortOrder: 3,
     },
-
     {
       name: "Designation",
       identifier: "designation",
@@ -40,7 +37,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/designations",
       sortOrder: 4,
     },
-
     {
       name: "Attendance",
       identifier: "attendance",
@@ -49,7 +45,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/attendance",
       sortOrder: 5,
     },
-
     {
       name: "Leave Management",
       identifier: "leave",
@@ -58,7 +53,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/leave",
       sortOrder: 6,
     },
-
     {
       name: "Payroll",
       identifier: "payroll",
@@ -67,7 +61,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/payroll",
       sortOrder: 7,
     },
-
     {
       name: "project",
       identifier: "project",
@@ -76,7 +69,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/project",
       sortOrder: 8,
     },
-
     {
       name: "Recruitment",
       identifier: "recruitment",
@@ -85,7 +77,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/recruitment",
       sortOrder: 9,
     },
-
     {
       name: "Reports",
       identifier: "reports",
@@ -94,7 +85,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/reports",
       sortOrder: 10,
     },
-
     {
       name: "Calendar",
       identifier: "calendar",
@@ -103,7 +93,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       path: "/calendar",
       sortOrder: 11,
     },
-
     {
       name: "Settings",
       identifier: "settings",
@@ -122,7 +111,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
     },
   ];
 
-  // Parent
+  
   for (const module of modules) {
     const exists = await moduleRepo.findOne({
       where: {
@@ -134,7 +123,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       await moduleRepo.save(module);
     }
   }
-  // child
   const leaveParent = await moduleRepo.findOne({
     where: {
       identifier: "leave",
@@ -152,7 +140,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
         sortOrder: 1,
         parent: leaveParent,
       },
-
       {
         name: "Employee Leave",
         identifier: "employee_leave",
@@ -162,7 +149,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
         sortOrder: 2,
         parent: leaveParent,
       },
-
       {
         name: "Team Leave",
         identifier: "team_leave",
@@ -173,14 +159,12 @@ export const seedModules = async (tenantDataSource: DataSource) => {
         parent: leaveParent,
       },
     ];
-
     for (const child of leaveChildren) {
       const exists = await moduleRepo.findOne({
         where: {
           identifier: child.identifier,
         },
       });
-
       if (!exists) {
         await moduleRepo.save(child);
       }

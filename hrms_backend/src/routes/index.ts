@@ -9,10 +9,10 @@ import attendanceRoutes from "./staff/attendance.routes";
 import adminAttendanceRoutes from "./admin/attendance.routes";
 import attendanceReportRoutes from "./admin/report.routes";
 import roleRoutes from "./role.routes";
-
 import rolePermissionRoutes from "./rolePermission.routes";
 import Payroll from "./payroll.routes";
 import module from "./module.routes";
+import leavePolicyRoutes from "./admin/leavePolicy.routes";
 
 const router = Router();
 
@@ -21,6 +21,7 @@ router.use("/departments", departmentRoutes);
 router.use("/designations", designationRoutes);
 router.use("/staff", staffRoutes);
 router.use("/leave", leaveRoutes);
+router.use("/leavepolicies", leavePolicyRoutes);
 router.use("/myprofile", myprofile);
 router.use("/payroll", Payroll);
 router.use("/attendance", attendanceRoutes);
@@ -29,4 +30,5 @@ router.use("/attendance/reports", attendanceReportRoutes);
 router.use("/roles", roleRoutes);
 router.use("/role-permissions", rolePermissionRoutes);
 router.use("/module",module );
+
 export default router;

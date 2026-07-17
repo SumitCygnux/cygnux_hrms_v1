@@ -1,5 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState } from "react";
+
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   initialEmployees,
   initialDepartments,
@@ -9,13 +9,21 @@ import {
   initialRecruitmentJobs,
   initialCandidates,
   initialCompanySettings,
-  initialLeavePolicies,
   initialPayrollPolicies,
   initialRolesAndPermissions,
   mockNotifications
 } from "../data/mockData";
+import {
+  getLeavePolicies,
+  createLeavePolicy,
+  updateLeavePolicy,
+  deleteLeavePolicy
+} from "../services/api";
 
 const HRMSDataContext = createContext();
+
+
+
 
 export const HRMSDataProvider = ({ children }) => {
   const [employees, setEmployees] = useState(initialEmployees);
@@ -26,14 +34,13 @@ export const HRMSDataProvider = ({ children }) => {
   const [recruitmentJobs] = useState(initialRecruitmentJobs);
   const [candidates, setCandidates] = useState(initialCandidates);
   const [companySettings, setCompanySettings] = useState(initialCompanySettings);
-  const [leavePolicies, setLeavePolicies] = useState(initialLeavePolicies);
+  const [leavePolicies, setLeavePolicies] = useState([]);
   const [payrollPolicies, setPayrollPolicies] = useState(initialPayrollPolicies);
   const [rolesAndPermissions] = useState(initialRolesAndPermissions);
   const [notifications, setNotifications] = useState(mockNotifications);
-
-
   const [currentUser, setCurrentUser] = useState(() => {
   const user = localStorage.getItem("user");
+
 
   return user
     ? JSON.parse(user)
@@ -46,6 +53,11 @@ export const HRMSDataProvider = ({ children }) => {
         avatarColor: "#2563EB",
       };
 });
+
+
+
+
+
 
   // Notifications helper
   const addNotification = (text, type = "info") => {
@@ -103,7 +115,6 @@ export const HRMSDataProvider = ({ children }) => {
     addNotification(`New employee ${newEmp.name} added to ${newEmp.department}`, "staff");
   };
 
-  
   const updateEmployee = (id, updatedData) => {
     setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, ...updatedData } : emp)));
     addNotification(`Profile updated for ${updatedData.name || id}`, "staff");
@@ -195,10 +206,40 @@ export const HRMSDataProvider = ({ children }) => {
     addNotification("Company settings updated successfully", "settings");
   };
 
-  const updateLeavePolicies = (policies) => {
-    setLeavePolicies(policies);
-    addNotification("Leave policies updated", "settings");
-  };
+  const fetchLeavePolicies = async () => {
+  try {
+    const res = await getLeavePolicies();
+
+    console.log("leave policies",res.data.data);
+    setLeavePolicies(res.data.data  ); 
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+useEffect(() => {
+  fetchLeavePolicies();
+}, []);
+
+const createPolicy = async (data) => {
+  await createLeavePolicy(data);
+  await fetchLeavePolicies();
+  addNotification("Leave Policy Created", "settings");
+};
+
+const updatePolicy = async (id, data) => {
+  await updateLeavePolicy(id, data);
+  await fetchLeavePolicies();
+  addNotification("Leave Policy Updated", "settings");
+};
+
+const deletePolicy = async (id) => {
+  await deleteLeavePolicy(id);
+  await fetchLeavePolicies();
+  addNotification("Leave Policy Deleted", "settings");
+};
+
 
   const updatePayrollPolicies = (policies) => {
     setPayrollPolicies(policies);
@@ -252,6 +293,10 @@ export const HRMSDataProvider = ({ children }) => {
         candidates,
         companySettings,
         leavePolicies,
+        fetchLeavePolicies,
+        createPolicy,
+        updatePolicy,
+        deletePolicy,
         payrollPolicies,
         rolesAndPermissions,
         notifications,
@@ -265,7 +310,7 @@ export const HRMSDataProvider = ({ children }) => {
         addCandidate,
         updateCandidateStage,
         updateSettings,
-        updateLeavePolicies,
+     
         updatePayrollPolicies,
         handleClockInOut,
         addNotification,

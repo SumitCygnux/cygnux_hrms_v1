@@ -36,6 +36,7 @@ const EmployeeLeaveStats = ({ leaves }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-7">
+      
       {leaveBalance.map((lb, i) => {
      
          const remaining = Math.max(0, lb.total - lb.used);
@@ -87,13 +88,14 @@ const EmployeeLeaveStats = ({ leaves }) => {
               {pct}% of quota consumed
               {lb.used >= lb.total && (
                 <span className="text-red-500 font-bold block mt-1">
-                   No more {lb.leaveType} allowed!
+                   No more {lb.leaveType} allowed!!
                 </span>
               )}
             </p> 
           </motion.div>
         );
       })}
+
     </div>
   );
 };
