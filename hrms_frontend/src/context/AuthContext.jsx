@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [permissions, setPermissions] = useState(
     JSON.parse(localStorage.getItem("permissions")) || []
   );
-
+  
   const login = (data) => {
     setToken(data.token);
     setPermissions(data.permissions);

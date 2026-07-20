@@ -16,8 +16,7 @@ export const registerCompany = async (req: Request, res: Response) => {
             message: error.message || "Registration failed",
         });
     }
-};
-
+}; 
 export const login = async (req: Request, res: Response) => {
     try {
         const result = await loginService(req.body);
@@ -32,4 +31,5 @@ export const login = async (req: Request, res: Response) => {
         });
     }
 };
+
 

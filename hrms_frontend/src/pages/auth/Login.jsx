@@ -38,7 +38,8 @@ const Login = () => {
 
       const { token, user, permissions, requiresPasswordSetup } =
         response.data.data;
-
+console.log("User:", user);
+console.log("Role:", user.role);
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("permissions", JSON.stringify(permissions || []));

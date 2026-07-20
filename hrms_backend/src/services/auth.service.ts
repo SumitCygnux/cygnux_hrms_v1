@@ -29,7 +29,6 @@ export const registerCompanyService = async (payload: any) => {
     state,
     city,
     address,
-
     adminName,
     adminEmail,
     password,
@@ -91,7 +90,6 @@ export const registerCompanyService = async (payload: any) => {
   // if (!tenantAdminRole) {
   //   throw new Error("TENANT_ADMIN role not found");
   // }
-
 
   const superAdminRole = await roleRepo.findOne({
   where: {

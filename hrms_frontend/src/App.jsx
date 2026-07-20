@@ -50,10 +50,11 @@ function App() {
   const isAuthenticated = !!localStorage.getItem("token");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const role = storedUser?.role || "";
+  console.log("App Role:", role); 
 
   return (
     <AuthProvider>
-      <ThemeProvider>
+      <ThemeProvider> 
         <HRMSDataProvider>
           <BrowserRouter>
             <Routes>
