@@ -13,7 +13,7 @@ import rolePermissionRoutes from "./rolePermission.routes";
 import Payroll from "./payroll.routes";
 import module from "./module.routes";
 import leavePolicyRoutes from "./admin/leavePolicy.routes";
-
+import teamRoutes from "./team.route"
 const router = Router();
 
 router.use("/auth", authRoutes);
@@ -21,6 +21,7 @@ router.use("/departments", departmentRoutes);
 router.use("/designations", designationRoutes);
 router.use("/staff", staffRoutes);
 router.use("/leave", leaveRoutes);
+router.use("/team", teamRoutes);
 router.use("/leavepolicies", leavePolicyRoutes);
 router.use("/myprofile", myprofile);
 router.use("/payroll", Payroll);

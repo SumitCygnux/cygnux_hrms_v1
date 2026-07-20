@@ -111,7 +111,6 @@ export const seedModules = async (tenantDataSource: DataSource) => {
     },
   ];
 
-  
   for (const module of modules) {
     const exists = await moduleRepo.findOne({
       where: {

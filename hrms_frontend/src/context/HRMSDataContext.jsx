@@ -34,7 +34,7 @@ export const HRMSDataProvider = ({ children }) => {
   const [recruitmentJobs] = useState(initialRecruitmentJobs);
   const [candidates, setCandidates] = useState(initialCandidates);
   const [companySettings, setCompanySettings] = useState(initialCompanySettings);
-  const [leavePolicies, setLeavePolicies] = useState([]);
+  const [leavePolicies, setLeavePolicies] = useState([]); 
   const [payrollPolicies, setPayrollPolicies] = useState(initialPayrollPolicies);
   const [rolesAndPermissions] = useState(initialRolesAndPermissions);
   const [notifications, setNotifications] = useState(mockNotifications);

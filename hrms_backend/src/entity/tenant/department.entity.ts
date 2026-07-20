@@ -1,6 +1,7 @@
 import {Entity,PrimaryGeneratedColumn,Column, OneToMany} from "typeorm";
 import { Staff } from "./staff.entity";
 import { Designation } from "./designation.entity";
+import { Team } from "./team.entity";
 @Entity("departments")
 export class Department {
 
@@ -10,16 +11,17 @@ export class Department {
   @Column()
   name!: string;
 
-// total employee can work in this department
-
+  
   @Column({
     default: false
   })
   is_deleted!: boolean;
-
+  
   @OneToMany(() => Staff, (staff) => staff.department)
-staffs!: Staff[];
-
- @OneToMany(() => Designation, (designation) => designation.department)
+  staffs!: Staff[];
+  
+  @OneToMany(() => Designation, (designation) => designation.department)
   designations!: Designation[];
+ @OneToMany(() => Team, (team) => team.department)
+  teams!: Team[];
 }
