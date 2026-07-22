@@ -39,6 +39,8 @@ import Addemployee from "./pages/admin/Employees/Addemployee";
 import Hrdashboard from "./pages/HR/Hrdashboard";
 import Managerdashboard from "./pages/manager/Managerdashboard";
 import Profileadmin from "./pages/admin/profile/Profileadmin";
+import Team from "./pages/admin/team/Team";
+import Addteam from "./pages/admin/team/Addteam";
 
 function ProtectedRoute() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -170,6 +172,9 @@ function App() {
                   }
                 />
 
+                <Route path="/team" element={<Team />} />
+                <Route path="/addteam" element={<Addteam />} />
+                <Route path="/addteam/:id" element={<Addteam />} />
                 <Route path="/recruitment" element={<Recruitment />} />
                 <Route path="/departments" element={<Departments />} />
                 <Route path="/designations" element={<Designations />} />

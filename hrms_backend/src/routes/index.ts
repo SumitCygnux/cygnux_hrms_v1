@@ -14,6 +14,8 @@ import Payroll from "./payroll.routes";
 import module from "./module.routes";
 import leavePolicyRoutes from "./admin/leavePolicy.routes";
 import teamRoutes from "./team.route"
+import roleCreatePermissionRoutes from "./role-create-permission.routes"
+
 const router = Router();
 
 router.use("/auth", authRoutes);
@@ -31,5 +33,6 @@ router.use("/attendance/reports", attendanceReportRoutes);
 router.use("/roles", roleRoutes);
 router.use("/role-permissions", rolePermissionRoutes);
 router.use("/module",module );
+router.use("/role-create-permission",roleCreatePermissionRoutes );
 
 export default router;

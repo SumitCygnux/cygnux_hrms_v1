@@ -46,12 +46,20 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       sortOrder: 5,
     },
     {
+      name: "Team",
+      identifier: "team",
+      description: "Team Module",
+      icon: "MdAccessTime",
+      path: "/team",
+      sortOrder: 6,
+    },
+    {
       name: "Leave Management",
       identifier: "leave",
       description: "Leave Module",
       icon: "MdEventBusy",
       path: "/leave",
-      sortOrder: 6,
+      sortOrder: 7,
     },
     {
       name: "Payroll",
@@ -59,7 +67,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "Payroll Module",
       icon: "MdPayments",
       path: "/payroll",
-      sortOrder: 7,
+      sortOrder: 8,
     },
     {
       name: "project",
@@ -67,7 +75,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "project Module",
       icon: "MdAssignment",
       path: "/project",
-      sortOrder: 8,
+      sortOrder: 9,
     },
     {
       name: "Recruitment",
@@ -75,7 +83,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "Recruitment Module",
       icon: "MdWorkOutline",
       path: "/recruitment",
-      sortOrder: 9,
+      sortOrder: 10,
     },
     {
       name: "Reports",
@@ -83,7 +91,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "Reports Module",
       icon: "MdAssessment",
       path: "/reports",
-      sortOrder: 10,
+      sortOrder: 11,
     },
     {
       name: "Calendar",
@@ -91,7 +99,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "Calendar Module",
       icon: "MdCalendarToday",
       path: "/calendar",
-      sortOrder: 11,
+      sortOrder: 12,
     },
     {
       name: "Settings",
@@ -99,7 +107,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "Settings Module",
       icon: "MdSettings",
       path: "/settings",
-      sortOrder: 12,
+      sortOrder: 13,
     },
     {
       name: "profile",
@@ -107,7 +115,7 @@ export const seedModules = async (tenantDataSource: DataSource) => {
       description: "profile Module",
       icon: "FiUser",
       path: "/profile",
-      sortOrder: 12,
+      sortOrder: 14,
     },
   ];
 

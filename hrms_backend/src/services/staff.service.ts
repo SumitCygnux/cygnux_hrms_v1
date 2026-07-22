@@ -3,6 +3,8 @@ import { Staff } from "../entity/tenant/staff.entity";
 import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation } from "../entity/tenant/designation.entity";
+
+
 export const createStaffService = async (dbName: string, data: any) => {
   const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
@@ -11,18 +13,17 @@ export const createStaffService = async (dbName: string, data: any) => {
     fullName: data.fullName,
     email: data.email,
     role: data.role,
-    phone: data.phone,
+    phone: data.phone,  
     password: data.password,
     gender: data.gender,
     departmentId: data.departmentId,
-    designationId: data.designationId,
+    designationId: data.designationId, 
     salary: data.salary,
     dob: data.dob,
     joiningDate: data.joiningDate,
     address: data.address,
     accessRoleId: data.accessRoleId, 
   });
-
   const savedStaff = await staffRepo.save(staff);
   return savedStaff;
 };
@@ -170,3 +171,4 @@ if (
   leave.status = status.toUpperCase();
   return await leaveRepo.save(leave);
 };
+

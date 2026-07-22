@@ -18,7 +18,6 @@ export const applyLeave = async (
       });
     }
 
-    console.log("applyLeave DEBUG - dbName:", dbName, "staffId:", staffId, "user:", (req as any).user, "body:", req.body);
    
     const leave = await applyLeaveService(
       dbName,

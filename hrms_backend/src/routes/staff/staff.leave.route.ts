@@ -6,4 +6,4 @@ const router = Router();
 
 router.post("/apply", authMiddleware, applyLeave);
 router.get("/", authMiddleware, getLeave);
-export default router;
+export default router; 
