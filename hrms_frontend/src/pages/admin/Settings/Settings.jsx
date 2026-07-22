@@ -13,6 +13,9 @@ import {
   getModules,
   getRolePermissions,
   saveRolePermissions,
+  getRoleCreatePermissionByRole,
+  getAllowedRoles,
+  updateRoleCreatePermission
 } from "../../../services/api";
 import { toast } from "react-toastify";
 
@@ -23,6 +26,7 @@ const Settings = () => {
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingRoleId, setEditingRoleId] = useState(null);
   const [modules, setModules] = useState([]);
+  const [allowedRoles, setAllowedRoles] = useState([]);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [rolePermissions, setRolePermissions] = useState([]);
   const [roleForm, setRoleForm] = useState({
@@ -226,6 +230,15 @@ const Settings = () => {
     const res = await getRolePermissions(role.id);
 
     setRolePermissions(res.data.data);
+
+   
+  const res2 = await getAllowedRoles(role.id);
+
+  console.log(res2.data);
+
+  setAllowedRoles(
+    res2.data.data.map((item) => item.id)
+  );
   };
 
   const handleOperationChange = (moduleId, operation, checked) => {
@@ -259,6 +272,7 @@ const Settings = () => {
       ];
     });
   };
+
   const handleSavePermissions = async () => {
     if (!selectedRole) {
       toast.error("Select Role First");
@@ -273,6 +287,12 @@ const Settings = () => {
       })),
     });
 
+    await updateRoleCreatePermission({
+      roleId: selectedRole.id,
+      allowedRoles,
+    });
+
+    // toast.success("Permissions & create role Saved Successfully");
     toast.success("Permissions Saved Successfully");
   };
 
@@ -289,8 +309,7 @@ const Settings = () => {
       />
 
       <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm min-h-[480px]">
-        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-
+        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} /> 
         {/* Company Settings */}
         {activeTab === "company" && (
           <form onSubmit={handleCompanySubmit}>
@@ -476,51 +495,7 @@ const Settings = () => {
                     </thead>
 
                     <tbody>
-                      {/* {modules.map((module) => {
-                        const permission = rolePermissions.find(
-                          (p) => p.module.id === module.id,
-                        );
-
-                        return (
-                          <tr key={module.id}>
-                            <td className="border p-2 font-medium">
-                              {module.name}
-                            </td>
-
-                            {[
-                              "create",
-                              "view",
-                              "update",
-                              "delete",
-                              "approve",
-                              "export",
-                            ].map((operation) => (
-                              <td
-                                key={operation}
-                                className="border p-2 text-center"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    permission?.operations?.[operation] || false
-                                  }
-                                  disabled={
-                                    selectedRole?.name === "SUPER_ADMIN" ||
-                                    selectedRole?.name === "TENANT_ADMIN"
-                                  }
-                                  onChange={(e) =>
-                                    handleOperationChange(
-                                      module.id,
-                                      operation,
-                                      e.target.checked,
-                                    )
-                                  }
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })} */}
+                     
 
                       {modules
                         .filter((module) => !module.parentId)
@@ -598,6 +573,46 @@ const Settings = () => {
                     </tbody>
                   </table>
                 </div>
+{/* Allowed Roles To Create */}
+
+<div className="mt-6 border rounded-lg p-4">
+  <h4 className="font-semibold text-text-primary mb-4">
+    Allowed Roles To Create
+  </h4>
+
+  <div className="grid grid-cols-2 gap-3">
+    {roles
+      .filter((role) => role.id !== selectedRole.id)
+      .map((role) => (
+        <label
+          key={role.id}
+          className="flex items-center gap-2"
+        >
+          <input
+            type="checkbox"
+            checked={allowedRoles.includes(role.id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setAllowedRoles([
+                  ...allowedRoles,
+                  role.id,
+                ]);
+              } else {
+                setAllowedRoles(
+                  allowedRoles.filter(
+                    (id) => id !== role.id
+                  )
+                );
+              }
+            }}
+          />
+
+          <span>{role.name}</span>
+        </label>
+      ))}
+  </div>
+</div>
+
 
                 <div className="flex justify-end mt-6">
                   <Button variant="primary" onClick={handleSavePermissions}>
@@ -1006,7 +1021,7 @@ const Settings = () => {
               </div>
             </div>
           </div>
-        )}
+        )} 
 
         {/* Notification Settings */}
         {activeTab === "notifications" && (
@@ -1037,6 +1052,7 @@ const Settings = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

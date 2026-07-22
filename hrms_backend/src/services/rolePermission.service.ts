@@ -76,7 +76,7 @@ for (const item of permissions) {
     operations: ops,
     isActive: true,
   });
-console.log("Incoming Permissions:",permission);
+
 
   await rolePermissionRepo.save(permission);
 }

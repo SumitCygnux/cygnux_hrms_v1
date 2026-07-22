@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useHRMSData } from "../../../../context/HRMSDataContext";
 
 const EmployeeLeaveStats = ({ leaves }) => {
-  const { leavePolicies } = useHRMSData();
+  const { leavePolicies } = useHRMSData(); 
 
   const leaveBalance = useMemo(() => {
     return leavePolicies
@@ -36,7 +36,8 @@ const EmployeeLeaveStats = ({ leaves }) => {
   }, [leaves, leavePolicies]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-7">
+    
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-7">
       {leaveBalance.map((lb, i) => {
         const remaining = lb.unlimited
           ? "Unlimited"
@@ -110,9 +111,10 @@ const EmployeeLeaveStats = ({ leaves }) => {
             </p>
           </motion.div>
         );
-      })}
+      })} 
+
     </div>
-  );
+  ); 
 };
 
 export default EmployeeLeaveStats;

@@ -18,6 +18,7 @@ import { seedDepartments } from "../seeders/department.seed";
 import { seedDesignations } from "../seeders/designation.seed";
 import { seedRolePermissions } from "../seeders/rolePermission.seed";
 import { seedModules } from "../seeders/seedModule";
+import { seedRoleCreatePermission } from "../seeders/seedRoleCreatePermission";
 export const registerCompanyService = async (payload: any) => {
   const {
     companyName,
@@ -77,7 +78,7 @@ export const registerCompanyService = async (payload: any) => {
   await seedModules(tenantDataSource);
   await seedRolePermissions(tenantDataSource);
   await seedDepartments(tenantDataSource, industry);
-
+await seedRoleCreatePermission(tenantDataSource)
   await seedDesignations(tenantDataSource, industry);
   const roleRepo = DatabaseConnection.getRepository(Roles);
 

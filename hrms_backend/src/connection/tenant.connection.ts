@@ -16,6 +16,7 @@ import { Payroll } from "../entity/tenant/payroll.entity";
 import { Module } from "../entity/tenant/module.entity";
 import { LeavePolicy } from "../entity/tenant/leavePolicy.entity";
 import { Team } from "../entity/tenant/team.entity";
+import { RoleCreatePermission } from "../entity/tenant/role-create-permission.entity.ts";
 
 const tenantConnections = new Map<string, DataSource>();
 
@@ -43,6 +44,7 @@ export const getTenantConnection = async (dbName: string) => {
        Module,
       RolePermission,
       Leave,
+      RoleCreatePermission,
       Team,
       StaffAttendance,
       Shift,

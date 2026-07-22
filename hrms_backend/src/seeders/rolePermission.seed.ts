@@ -40,11 +40,13 @@ export const seedRolePermissions = async (tenantDataSource: DataSource) => {
               "my_leave",
               "employee_leave",
               "team_leave",
-             
+              "team",
               "payroll",
               "performance",
               "reports",
               "profile",
+              "project",
+              "Recruitment",
               "calendar",
               "settings",
             ].includes(module.identifier)
