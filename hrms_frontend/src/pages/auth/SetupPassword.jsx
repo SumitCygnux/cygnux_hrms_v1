@@ -60,10 +60,33 @@ const SetupPassword = () => {
       await setupStaffPassword(form.newPassword);
 
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      localStorage.setItem("user", JSON.stringify({ ...user, status: "Active" }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...user, status: "Active" }),
+      );
 
       toast.success("Password updated successfully! Welcome aboard.");
-      navigate("/staff/dashboard");
+      switch (user.role) {
+        case "SUPER_ADMIN":
+        case "TENANT_ADMIN":
+          navigate("/dashboard");
+          break;
+
+        case "HR":
+          navigate("/hr/dashboard");
+          break;
+
+        case "MANAGER":
+          navigate("/manager/dashboard");
+          break;
+
+        case "EMPLOYEE":
+          navigate("/staff/dashboard");
+          break;
+
+        default:
+          navigate("/login");
+      }
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -74,17 +97,17 @@ const SetupPassword = () => {
   return (
     <div className="min-h-screen md:h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 flex items-center justify-center p-4 sm:p-6 font-sans md:overflow-hidden">
       <div className="relative w-full max-w-5xl h-auto md:h-[600px] bg-white rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-slate-100 overflow-hidden">
-
-    
         <div className="absolute top-0 left-0 w-[450px] h-[150px] bg-gradient-to-r from-blue-200/40 to-blue-100/20 rounded-br-[200px] pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-[200px] h-[200px] bg-gradient-to-t from-blue-200/30 to-blue-100/10 rounded-tl-full pointer-events-none" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 h-full relative z-10">
-
-  
           <div className="hidden md:flex flex-col justify-center px-12 lg:px-16 bg-slate-50/40 border-r border-slate-100">
             <div className="flex items-center mb-6">
-              <img src={logo} alt="HRMS Logo" className="h-20 w-auto object-contain" />
+              <img
+                src={logo}
+                alt="HRMS Logo"
+                className="h-20 w-auto object-contain"
+              />
             </div>
 
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight mb-3">
@@ -110,13 +133,14 @@ const SetupPassword = () => {
             </div>
           </div>
 
-          
           <div className="flex items-center justify-center p-6 sm:p-10">
             <div className="w-full max-w-[360px]">
-
-             
               <div className="flex justify-center mb-4 md:hidden">
-                <img src={logo} alt="HRMS Logo" className="h-12 w-auto object-contain" />
+                <img
+                  src={logo}
+                  alt="HRMS Logo"
+                  className="h-12 w-auto object-contain"
+                />
               </div>
 
               <div className="flex items-center gap-2 justify-center mb-1">
@@ -130,8 +154,6 @@ const SetupPassword = () => {
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-
-            
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
                     New Password
@@ -144,10 +166,11 @@ const SetupPassword = () => {
                     required
                   />
 
-                  <p className="text-[10px] text-slate-400 mt-1.5">Minimum 8 characters </p>
+                  <p className="text-[10px] text-slate-400 mt-1.5">
+                    Minimum 8 characters{" "}
+                  </p>
                 </div>
 
-           
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
                     Confirm Password
@@ -160,11 +183,13 @@ const SetupPassword = () => {
                     required
                   />
                   {form.confirmPassword && (
-                    <p className={`text-[10px] font-semibold mt-1.5 ${
-                      form.newPassword === form.confirmPassword
-                        ? "text-emerald-600"
-                        : "text-rose-500"
-                    }`}>
+                    <p
+                      className={`text-[10px] font-semibold mt-1.5 ${
+                        form.newPassword === form.confirmPassword
+                          ? "text-emerald-600"
+                          : "text-rose-500"
+                      }`}
+                    >
                       {form.newPassword === form.confirmPassword
                         ? "✓ Passwords match"
                         : "✗ Passwords do not match"}
@@ -179,19 +204,19 @@ const SetupPassword = () => {
                     disabled={loading}
                     className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:shadow-blue-200/30 transition-all duration-300 active:scale-[0.98] disabled:opacity-50 text-sm tracking-wide"
                   >
-                    {loading ? "Updating Password..." : "SET PASSWORD & CONTINUE"}
+                    {loading
+                      ? "Updating Password..."
+                      : "SET PASSWORD & CONTINUE"}
                   </button>
                 </div>
-
               </form>
 
               <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed">
                 Having trouble?{" "}
                 <span className="text-blue-600 font-semibold cursor-pointer hover:text-blue-800 transition">
-                  Contact your HR 
+                  Contact your HR
                 </span>
               </p>
-
             </div>
           </div>
         </div>

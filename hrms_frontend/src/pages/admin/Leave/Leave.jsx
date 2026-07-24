@@ -1,9 +1,6 @@
 
-
 import { useEffect, useState } from "react";
-
 import PageHeader from "../../../components/layouts/PageHeader";
-
 import ApplyLeave from "./components/ApplyLeave";
 import EmployeeLeaveStats from "./components/EmployeeLeaveStats";
 import MyLeaveHistory from "./components/MyLeaveHistory";
@@ -42,7 +39,6 @@ const MyLeave = () => {
       />
 
       {canView && <EmployeeLeaveStats leaves={myLeaves}/>}
-
       {myLeaves.length > 0 && <MyLeaveHistory leaves={myLeaves} />}
     </div>
   );
