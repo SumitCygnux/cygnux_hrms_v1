@@ -13,14 +13,17 @@ import { number } from "zod";
 
 export const createStaff = async (
   req: Request,
-  res: Response 
+  res: Response
 ) => {
   try {
     const dbName = (req as any).user.dbName;
 
+    const user = (req as any).user;
+
     const staff = await createStaffService(
       dbName,
-      req.body
+      req.body,
+      user
     );
 
     return res.status(201).json({
@@ -28,14 +31,43 @@ export const createStaff = async (
       message: "Staff created successfully",
       data: staff,
     });
+
   } catch (error: any) {
-    console.log("ERROR =>", error);
-    return res.status(500).json({
+      console.log("CREATE STAFF ERROR:", error.message);
+    return res.status(400).json({
       success: false,
-      message: error.message,
+      message: error.message 
     });
+
   }
 };
+
+
+// export const createStaff = async (
+//   req: Request,
+//   res: Response 
+// ) => {
+//   try {
+//     const dbName = (req as any).user.dbName;
+
+//     const staff = await createStaffService(
+//       dbName,
+//       req.body
+//     );
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Staff created successfully",
+//       data: staff,
+//     });
+//   } catch (error: any) {
+//     console.log("ERROR =>", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 export const getAllStaff = async (
   req: Request,

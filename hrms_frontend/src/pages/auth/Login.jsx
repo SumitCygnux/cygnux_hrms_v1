@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../../services/api";
+import { login as loginApi } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/hrms_logo.png";
 import { toast } from "react-toastify";
 import { useHRMSData } from "../../context/HRMSDataContext";
@@ -10,7 +11,7 @@ import { hasPermission } from "../../utils/hasPermission";
 const Login = () => {
   const navigate = useNavigate();
   const { setCurrentUser } = useHRMSData();
-
+const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -32,24 +33,30 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await login(formData);
+      const response = await loginApi(formData);
       console.log(response);
       console.log(response.data);
 
       const { token, user, permissions, requiresPasswordSetup } =
         response.data.data;
-console.log("User:", user);
-console.log("Role:", user.role);
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("permissions", JSON.stringify(permissions || []));
+
+        
+// console.log("User:", user);
+// console.log("Role:", user.role);
+//       localStorage.setItem("token", token);
+//       localStorage.setItem("user", JSON.stringify(user));
+//       localStorage.setItem("permissions", JSON.stringify(permissions || []));
+
+  login({ token, user, permissions,});
 
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
 
       if (requiresPasswordSetup) {
         navigate("/setup-password");
-      } else {
+      } 
+
+
         switch (user.role) {
           case "SUPER_ADMIN":
             navigate("/dashboard");
@@ -72,12 +79,13 @@ console.log("Role:", user.role);
             break;
 
           default:
-            navigate("/");
+            navigate("/login");
             break;
-        }
+       
       }
+
     } catch (error) {
-      toast.error(error.response.data.message || "Invalid Credentials");
+      toast.error(error.response?.data?.message || "Invalid Credentials");
     } finally {
       setLoading(false);
     }

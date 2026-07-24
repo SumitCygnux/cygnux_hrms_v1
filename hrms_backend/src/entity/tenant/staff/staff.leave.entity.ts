@@ -17,7 +17,10 @@ export class Leave {
   @Column()
   staffId!: number;
   
-@ManyToOne(() => Staff)
+
+@ManyToOne(() => Staff, { 
+  onDelete: 'CASCADE' 
+})
 @JoinColumn({ name: "staffId" })
 staff!: Staff;
 
