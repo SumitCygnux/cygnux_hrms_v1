@@ -21,8 +21,7 @@ const EmployeeLeaveStats = ({ leaves }) => {
               Math.ceil(
                 (new Date(l.toDate) - new Date(l.fromDate)) /
                   (1000 * 60 * 60 * 24),
-              ) + 1;
-
+              ) + 1; 
             return sum + days;
           }, 0);
 
@@ -36,7 +35,6 @@ const EmployeeLeaveStats = ({ leaves }) => {
   }, [leaves, leavePolicies]);
 
   return (
-    
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-7">
       {leaveBalance.map((lb, i) => {
         const remaining = lb.unlimited

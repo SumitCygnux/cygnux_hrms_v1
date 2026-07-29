@@ -33,6 +33,8 @@ const loadSettings = async (ds: DataSource): Promise<AttendanceSettings> => {
  *   - auto clock-out (shift end + buffer) when the shift/company allows it,
  *   - otherwise flag as Missed Punch.
  */
+
+
 const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings) => {
   const today = dayjs().format("YYYY-MM-DD");
   const attRepo = ds.getRepository(StaffAttendance);

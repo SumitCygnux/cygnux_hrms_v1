@@ -227,5 +227,4 @@ const { login } = useAuth();
     </div>
   );
 };
-
 export default Login;

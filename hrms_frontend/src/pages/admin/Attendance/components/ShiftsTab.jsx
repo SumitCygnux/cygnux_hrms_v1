@@ -6,6 +6,7 @@ import Badge from "../../../../components/common/Badge";
 import DetailModal from "../../../../components/modals/DetailModal";
 import { MdAdd, MdEdit, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
+import Swal  from "sweetalert2";
 
 const SATURDAY_POLICIES = [
   { value: "none", label: "No Saturday Off" },
@@ -60,7 +61,7 @@ const ShiftsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
-  const [deletingShift, setDeletingShift] = useState(null);
+  const [deletingShift, setDeletingShift] = useState(null); 
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
@@ -79,6 +80,7 @@ const ShiftsTab = () => {
       setLoading(false);
     }
   };
+
 
   const openCreate = () => {
     setEditingShift(null);
@@ -167,22 +169,39 @@ const ShiftsTab = () => {
     }
   };
 
-  const confirmDelete = (shift) => {
-    setDeletingShift(shift);
-    setIsDeleteModalOpen(true);
-  };
+const confirmDelete = async (shift) => {
+  console.log("shift list",shift)
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: `Do you want to delete ${shift.shiftName}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, Delete",
+    cancelButtonText: "Cancel",
+  });
 
-  const handleDelete = async () => {
-    if (!deletingShift) return;
+  if (result.isConfirmed) {
     try {
-      await deleteShift(deletingShift.id);
-      toast.success("Shift deleted successfully");
-      setIsDeleteModalOpen(false);
+      await deleteShift(shift.id);
+
+      Swal.fire({
+        title: "Deleted!",
+        text: "Shift deleted successfully.",
+        icon: "success",
+      });
+
       fetchShifts();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to delete shift");
+      Swal.fire({
+        title: "Error!",
+        text: err.response?.data?.message || "Failed to delete shift",
+        icon: "error",
+      });
     }
-  };
+  }
+};
 
   const saturdayLabel = (policy) =>
     SATURDAY_POLICIES.find((p) => p.value === policy)?.label || policy;
@@ -316,7 +335,7 @@ const ShiftsTab = () => {
         />
       )}
 
-      {/* Create / Edit Modal */}
+      
       <DetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -324,7 +343,7 @@ const ShiftsTab = () => {
         maxWidth="600px"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Basic Info */}
+    
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-text-secondary">Shift Name *</label>
@@ -594,29 +613,6 @@ const ShiftsTab = () => {
         </form>
       </DetailModal>
 
-      {/* Delete Confirm Modal */}
-      <DetailModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Delete Shift"
-        maxWidth="400px"
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-primary">
-            Are you sure you want to delete{" "}
-            <span className="font-bold">{deletingShift?.shiftName}</span>? This action cannot be
-            undone.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Delete
-            </Button>
-          </div>
-        </div>
-      </DetailModal>
     </div>
   );
 };

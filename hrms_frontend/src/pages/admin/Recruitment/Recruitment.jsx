@@ -37,11 +37,11 @@ const Recruitment = () => {
     const offers = candidates.filter((c) => c.stage === "Offer").length;
     const hired = candidates.filter((c) => c.stage === "Hired").length;
     return { openPos, totalApps, interviews, offers, hired };
-  }, [candidates, recruitmentJobs]);
+  }, [candidates, recruitmentJobs]); 
 
-  const handleMove = (candId, currentStage, direction) => {
+  const handleMove = (candId, currentStage, directiorn) => {
     const currentIndex = columns.indexOf(currentStage);
-    let nextIndex = currentIndex;
+    let nextIndex = currentIndex; 
     if (direction === "next" && currentIndex < columns.length - 1) {
       nextIndex = currentIndex + 1;
     } else if (direction === "prev" && currentIndex > 0) {
@@ -129,7 +129,7 @@ const Recruitment = () => {
                   <div className="flex justify-between mt-1 border-t border-dashed border-border-color pt-2">
                     <button
                       className="bg-transparent border-none text-base text-text-secondary cursor-pointer transition-colors duration-150 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
-                      disabled={colName === "Applied"}
+                      disabled={colName === "Applied"} 
                       onClick={() => handleMove(cand.id, colName, "prev")}
                       aria-label="Move back"
                     >
@@ -137,20 +137,20 @@ const Recruitment = () => {
                     </button>
                     <button
                       className="bg-transparent border-none text-base text-text-secondary cursor-pointer transition-colors duration-150 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
-                      disabled={colName === "Hired"}
+                      disabled={colName === "Hired"} 
                       onClick={() => handleMove(cand.id, colName, "next")}
                       aria-label="Move forward"
-                    >
+                    > 
                       <MdArrowForward />
                     </button>
                   </div>
                 </div>
-              ))}
+              ))} 
             </div>
           );
         })}
-      </div>
-
+      </div> 
+      
       {/* Add Candidate Modal */}
       <DetailModal
         isOpen={isModalOpen}

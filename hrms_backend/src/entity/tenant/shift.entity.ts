@@ -45,7 +45,6 @@ export class Shift {
   @Column({ type: "decimal", precision: 4, scale: 2, default: 8.0 })
   requiredHours!: number;
 
-  // Minimum working hours below which the day is treated as not a full day.
   @Column({ type: "decimal", precision: 4, scale: 2, default: 8.0 })
   minWorkingHours!: number;
 
@@ -55,36 +54,33 @@ export class Shift {
   @Column({ type: "varchar", nullable: true })
   absentAfter!: string;
 
-  // ----- Late / Early-exit / Overtime rules -----
-  // Leaving this many minutes (or more) before shift end flags an early exit.
+
   @Column({ type: "integer", default: 0 })
   earlyExitMinutes!: number;
 
-  // Per-shift overtime threshold (hours). Falls back to global settings when null.
+ 
   @Column({ type: "decimal", precision: 4, scale: 2, nullable: true })
-  overtimeAfterHours!: number | null;
+  overtimeAfterHours!: number | null; 
 
-  // ----- Auto clock-out -----
+
   @Column({ type: "boolean", default: false })
   autoClockOut!: boolean;
 
-  // Minutes after shift end at which an open record is auto clocked out.
+
   @Column({ type: "integer", default: 0 })
   autoClockOutAfterMinutes!: number;
 
-  // Shift spans midnight (e.g. night shift 22:00 -> 06:00).
+  
   @Column({ type: "boolean", default: false })
   crossMidnight!: boolean;
 
   @Column({ type: "varchar", default: "Sunday" })
   weeklyOff!: string;
 
-  // Multiple / custom weekly offs as day-of-week numbers (0 = Sunday ... 6 = Saturday).
-  // Takes precedence over `weeklyOff` when non-empty.
+ 
   @Column({ type: "jsonb", default: [] })
   weeklyOffDays!: number[];
 
-  // none | all | 1st | 2nd | 3rd | 4th | 1st_3rd | 2nd_4th | 1st_4th
   @Column({ type: "varchar", default: "none" })
   saturdayPolicy!: string;
 

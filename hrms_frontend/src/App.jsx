@@ -229,23 +229,13 @@ import Profileadmin from "./pages/admin/profile/Profileadmin";
 import Team from "./pages/admin/team/Team";
 import Addteam from "./pages/admin/team/Addteam";
 
-
-// function ProtectedRoute() {
-//   const isAuthenticated = !!localStorage.getItem("token");
-//   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-//   if (!isAuthenticated) return <Navigate to="/login" replace />;
-//   return <DashboardLayout />;
-// }
-
-
 function ProtectedRoute() {
   const { token } = useAuth();
   if (!token) return <Navigate to="/login" replace />;
   return <DashboardLayout />;
 }
 
-
-function App() {
+function App() { 
    const { token, user } = useAuth();
   const isAuthenticated = !!token;
   const role = user?.role || "";

@@ -56,6 +56,7 @@ const Settings = () => {
     accrualCycle: "Yearly",
     status: true,
   });
+  
   const getError = (field) => {
     return errors[field] ? (
       <p className="text-red-500 text-xs mt-1">{errors[field]}</p>
@@ -107,12 +108,9 @@ const Settings = () => {
         apiErrors.forEach((err) => {
           formattedErrors[err.path[0]] = err.message;
         });
-
         setErrors(formattedErrors);
-
         return;
       }
-
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
