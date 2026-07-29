@@ -78,7 +78,7 @@ export const registerCompanyService = async (payload: any) => {
   await seedModules(tenantDataSource);
   await seedRolePermissions(tenantDataSource);
   await seedDepartments(tenantDataSource, industry);
-await seedRoleCreatePermission(tenantDataSource)
+  await seedRoleCreatePermission(tenantDataSource);
   await seedDesignations(tenantDataSource, industry);
   const roleRepo = DatabaseConnection.getRepository(Roles);
 
@@ -93,15 +93,14 @@ await seedRoleCreatePermission(tenantDataSource)
   // }
 
   const superAdminRole = await roleRepo.findOne({
-  where: {
-    name: "SUPER_ADMIN",
-  },
-});
+    where: {
+      name: "SUPER_ADMIN",
+    },
+  });
 
-if (!superAdminRole) {
-  throw new Error("SUPER_ADMIN role not found");
-}
-
+  if (!superAdminRole) {
+    throw new Error("SUPER_ADMIN role not found");
+  }
 
   const user = await userRepo.save({
     email: adminEmail,
@@ -183,18 +182,17 @@ export const loginService = async (payload: any) => {
       },
 
       relations: {
-             module: true,
-        },
+        module: true,
+      },
     });
 
     const permissions = rolePermissions.map((item) => ({
-        id: item.module.id,
-  name: item.module.name,         
-  identifier: item.module.identifier, 
-  icon: item.module.icon,          
-  path: item.module.path,          
-  operations: item.operations,   
-  
+      id: item.module.id,
+      name: item.module.name,
+      identifier: item.module.identifier,
+      icon: item.module.icon,
+      path: item.module.path,
+      operations: item.operations,
     }));
 
     const token = generateToken({
@@ -210,23 +208,37 @@ export const loginService = async (payload: any) => {
 
       permissions,
 
-      user: {
-        id: user.id,
+      // user: {
+      //   id: user.id,
 
-        name: user.name,
+      //   name: user.name,
 
-        email: user.email,
+      //   email: user.email,
 
-        role_id: tenantRole.id,
+      //   role_id: tenantRole.id,
 
-        role: tenantRole.name,
+      //   role: tenantRole.name,
 
-        tenant_id: user.tenant_id,
+      //   tenant_id: user.tenant_id,
 
-        companyName: company?.name,
+      //   companyName: company?.name,
 
-        db_name: user.db_name,
-      },
+      //   db_name: user.db_name,
+      // },
+
+       user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role_id: tenantRole.id,
+          role: role?.name,
+          accessRoleId: tenantRole.id,
+          accessRole: role?.name,
+          isStaff: true,
+          tenant_id: user.id,
+          companyName: user?.name,
+          db_name: user.db_name,
+        },
     };
   }
 
@@ -273,20 +285,18 @@ export const loginService = async (payload: any) => {
               isActive: true,
             },
             relations: {
-             module: true,
-           },
+              module: true,
+            },
           })
         : [];
 
       const permissions = rolePermissions.map((item) => ({
-       
-  id: item.module.id,
-  name: item.module.name,         
-  identifier: item.module.identifier, 
-  icon: item.module.icon,          
-  path: item.module.path,          
-  operations: item.operations,   
-  
+        id: item.module.id,
+        name: item.module.name,
+        identifier: item.module.identifier,
+        icon: item.module.icon,
+        path: item.module.path,
+        operations: item.operations,
       }));
 
       const token = generateToken({
@@ -304,17 +314,30 @@ export const loginService = async (payload: any) => {
 
         requiresPasswordSetup: staff.status === "InActive",
 
+        // user: {
+        //   id: staff.id,
+        //   name: staff.fullName,
+        //   email: staff.email,
+        //   role: role?.name,
+        //   accessRole: role?.name,
+        //    isStaff: true,
+        //   status: staff.status,
+        //   tenant_id: tenant.id,
+        //   companyName: tenant.name,
+        //   db_name: tenant.db_name,
+
+        // },
+
         user: {
           id: staff.id,
           name: staff.fullName,
           email: staff.email,
-
+          role_id: staff.accessRoleId,
           role: role?.name,
+          accessRoleId: staff.accessRoleId,
           accessRole: role?.name,
-
           isStaff: true,
           status: staff.status,
-
           tenant_id: tenant.id,
           companyName: tenant.name,
           db_name: tenant.db_name,
@@ -322,6 +345,6 @@ export const loginService = async (payload: any) => {
       };
     }
   }
-    
+
   throw new Error("Invalid Email");
 };

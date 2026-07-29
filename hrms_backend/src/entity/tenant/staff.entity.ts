@@ -21,6 +21,9 @@ export class Staff {
   @Column()
   fullName!: string;
 
+  @Column({nullable: true })
+  lastName!:string;
+  
   @Column({ unique: true })
   email!: string;
 
@@ -95,7 +98,7 @@ export class Staff {
 
   @Column({
     unique: true,
-      nullable: true,
+    nullable: true,
   })
   employeeCode!: string;
 

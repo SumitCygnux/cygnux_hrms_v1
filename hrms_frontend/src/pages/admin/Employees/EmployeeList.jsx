@@ -96,7 +96,6 @@ const EmployeeList = () => {
       setDepartments(dept.data.data);
       setRoles(roleRes.data.data);
 
-      console.log("Employees =>", formattedEmployees);
     } catch (err) {
       console.log(err);
     }
@@ -107,7 +106,7 @@ const EmployeeList = () => {
       const name = String(emp?.name ?? "");
       const id = String(emp?.id ?? "");
       const email = String(emp?.email ?? "");
-
+ const empCode = String(emp?.employeeCode ?? ""); 
       const search = searchQuery.toLowerCase();
 
       const matchesSearch =
@@ -125,7 +124,7 @@ const EmployeeList = () => {
     });
   }, [employees, searchQuery, selectedDept, selectedStatus]);
 
-  console.log("filteredEmployees =>", filteredEmployees);
+
 
   const handleAdd = () => {
     setEditId(null);
@@ -202,7 +201,7 @@ const EmployeeList = () => {
           <Avatar name={row.name} color={row.avatarColor} size={36} />
           <div className="flex flex-col">
             <span className="font-semibold text-text-primary">{row.name}</span>
-            <span className="text-xs text-text-secondary">{row.id}</span>
+            <span className="text-xs text-text-secondary">{row.employeeCode}</span>
           </div>
         </div>
       ),

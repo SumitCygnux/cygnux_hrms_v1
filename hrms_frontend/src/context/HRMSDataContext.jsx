@@ -210,7 +210,7 @@ export const HRMSDataProvider = ({ children }) => {
   try {
     const res = await getLeavePolicies();
 
-    console.log("leave policies",res.data.data);
+   
     setLeavePolicies(res.data.data  ); 
 
   } catch (err) {

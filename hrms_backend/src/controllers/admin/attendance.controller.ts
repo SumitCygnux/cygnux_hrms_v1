@@ -1,36 +1,47 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */  
 import { Request, Response } from "express";
 import {
+  // shift
   getShiftsService,
   createShiftService,
   getShiftByIdService,
-  updateShiftService,
+  updateshiftservice,
   deleteShiftService,
+
+  // shif assignment
   getShiftAssignmentsService,
   createShiftAssignmentService,
   updateShiftAssignmentService,
   getAttendanceSettingsService,
   updateAttendanceSettingsService,
+
+  // holiday
+
   getHolidaysService,
   createHolidayService,
   updateHolidayService,
   deleteHolidayService,
+   
   getAttendanceRecordsService,
   updateAttendanceRecordService,
   createManualAttendanceService,
   getAttendanceMetricsService,
   getAttendanceChartsService,
+
+  // attendance request
+
   getAttendanceRequestsService,
   getAttendanceRequestByIdService,
   approveAttendanceRequestService,
   rejectAttendanceRequestService,
+  
 } from "../../services/admin/attendance.service";
 import { runMaintenanceForTenant } from "../../services/admin/attendanceMaintenance.service";
 
 const getUser = (req: Request) => (req as any).user as { userId: string; dbName: string };
 
-// ===== SHIFTS =====
 
+// (req as  any )user.dbname
 export const getShifts = async (req: Request, res: Response) => {
   try {
     const { dbName } = getUser(req);
@@ -64,7 +75,7 @@ export const getShiftById = async (req: Request, res: Response) => {
 export const updateShift = async (req: Request, res: Response) => {
   try {
     const { dbName } = getUser(req);
-    const data = await updateShiftService(dbName, String(req.params.id), req.body);
+    const data = await updateshiftservice(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
   } catch (e: any) {
     return res.status(400).json({ success: false, message: e.message });
@@ -191,7 +202,7 @@ export const getAttendanceRecords = async (req: Request, res: Response) => {
 };
 
 export const updateAttendanceRecord = async (req: Request, res: Response) => {
-  try {
+  try { 
     const { dbName } = getUser(req);
     const data = await updateAttendanceRecordService(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
@@ -199,7 +210,7 @@ export const updateAttendanceRecord = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
+ 
 export const createManualAttendance = async (req: Request, res: Response) => {
   try {
     const { dbName } = getUser(req);

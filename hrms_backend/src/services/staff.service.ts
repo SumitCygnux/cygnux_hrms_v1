@@ -3,30 +3,46 @@ import { Staff } from "../entity/tenant/staff.entity";
 import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 import { Department } from "../entity/tenant/department.entity";
 import { Designation } from "../entity/tenant/designation.entity";
+import { RoleCreatePermission } from "../entity/tenant/role-create-permission.entity.ts";
 
+export const createStaffService = async (
+  dbName: string,
+  data: any,
+  user: any
+) => {
 
-export const createStaffService = async (dbName: string, data: any) => {
   const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
 
+  const totalStaff = await staffRepo.count();
+console.log(totalStaff)
+  const autoEmployeeCode = `EMP${String(totalStaff + 1).padStart(4, '0')}`;
+
+  // Create Staff
   const staff = staffRepo.create({
+    employeeCode:autoEmployeeCode,
     fullName: data.fullName,
+    lastName:data.lastName,
     email: data.email,
-    role: data.role,
-    phone: data.phone,  
+    phone: data.phone,
     password: data.password,
     gender: data.gender,
     departmentId: data.departmentId,
-    designationId: data.designationId, 
+    designationId: data.designationId,
     salary: data.salary,
     dob: data.dob,
     joiningDate: data.joiningDate,
     address: data.address,
-    accessRoleId: data.accessRoleId, 
+    role: data.role,
+    accessRoleId: data.accessRoleId,
+    teamId: data.teamId,
+    employmentType: data.employmentType,
+    reportingManagerId: data.reportingManagerId,
   });
-  const savedStaff = await staffRepo.save(staff);
-  return savedStaff;
+
+  return await staffRepo.save(staff);
 };
+
 
 export const getAllStaffService = async (dbName: string) => {
   const dataSource = await getTenantConnection(dbName);

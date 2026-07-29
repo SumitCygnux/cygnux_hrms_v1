@@ -17,12 +17,10 @@ const Badge = ({ children, status = "neutral", className = "" }) => {
     info: "bg-info-light text-info",
     neutral: "bg-bg-primary text-text-secondary border border-border-color"
   };
-
   return (
     <span className={`inline-flex items-center justify-center font-semibold text-xs px-2.5 py-1 rounded-full whitespace-nowrap ${variantClasses[variant]} ${className}`}>
       {children}
     </span>
   );
 };
-
 export default Badge;

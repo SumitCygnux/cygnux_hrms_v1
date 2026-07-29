@@ -14,7 +14,6 @@ export class RoleCreatePermission {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  
   @Column({
     type: "uuid",
   })
@@ -23,6 +22,7 @@ export class RoleCreatePermission {
   @ManyToOne(() => Role, {
     onDelete: "CASCADE",
   })
+  
   @JoinColumn({
     name: "roleId",
   })

@@ -5,10 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-} from "typeorm";
+} from "typeorm"; 
 
 export enum AttendanceStatus {
-  PRESENT = "Present",
+  PRESENT = "Present", 
   ABSENT = "Absent",
   LATE = "Late",
   HALF_DAY = "Half Day",
@@ -28,7 +28,7 @@ export enum ClockOutApproval {
   APPROVED = "Approved",
   REJECTED = "Rejected",
 }
-
+ 
 // One break session. `start` = break begins, `end` = break ends (null while ongoing).
 export interface BreakSession {
   start: Date;
@@ -47,8 +47,8 @@ export class StaffAttendance {
   staffId!: number;
 
   @Column({ type: "date", nullable: false })
-  date!: string; 
-
+  date!: string;  
+  
   @Column({ type: "timestamp", nullable: true })
   clockIn!: Date | null;
 

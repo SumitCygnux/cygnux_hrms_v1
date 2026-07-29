@@ -8,7 +8,7 @@ import { Shift } from "../../entity/tenant/shift.entity";
 import { ShiftAssignment } from "../../entity/tenant/shiftAssignment.entity";
 import { AttendanceSettings } from "../../entity/tenant/attendanceSettings.entity";
 import { Holiday } from "../../entity/tenant/holiday.entity";
-import {
+import { 
   AttendanceRequest,
   AttendanceRequestType,
 } from "../../entity/tenant/attendanceRequest.entity";
@@ -38,7 +38,7 @@ export const getShiftByIdService = async (dbName: string, id: string) => {
   return shift;
 };
 
-export const updateShiftService = async (dbName: string, id: string, data: any) => {
+export const updateshiftservice = async (dbName: string, id: string, data: any) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(Shift);
   const shift = await repo.findOne({ where: { id } });
