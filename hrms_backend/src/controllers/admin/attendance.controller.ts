@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */  
 import { Request, Response } from "express";
 import {
+
   // shift
   getShiftsService,
   createShiftService,
@@ -37,14 +38,12 @@ import {
   
 } from "../../services/admin/attendance.service";
 import { runMaintenanceForTenant } from "../../services/admin/attendanceMaintenance.service";
-
+ 
 const getUser = (req: Request) => (req as any).user as { userId: string; dbName: string };
 
-
-// (req as  any )user.dbname
 export const getShifts = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+     const dbName = (req as any).user.dbName;
     const data = await getShiftsService(dbName);
     return res.json({ success: true, data });
   } catch (e: any) {
@@ -53,8 +52,8 @@ export const getShifts = async (req: Request, res: Response) => {
 };
 
 export const createShift = async (req: Request, res: Response) => {
-  try {
-    const { dbName } = getUser(req);
+  try { 
+      const dbName = (req as any).user.dbName;
     const data = await createShiftService(dbName, req.body);
     return res.status(201).json({ success: true, data });
   } catch (e: any) {
@@ -64,7 +63,7 @@ export const createShift = async (req: Request, res: Response) => {
 
 export const getShiftById = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+     const dbName = (req as any).user.dbName;
     const data = await getShiftByIdService(dbName, String(req.params.id));
     return res.json({ success: true, data });
   } catch (e: any) {
@@ -74,7 +73,7 @@ export const getShiftById = async (req: Request, res: Response) => {
 
 export const updateShift = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+  const dbName = (req as any).user.dbName;
     const data = await updateshiftservice(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
   } catch (e: any) {
@@ -84,7 +83,7 @@ export const updateShift = async (req: Request, res: Response) => {
 
 export const deleteShift = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+      const dbName = (req as any).user.dbName;
     await deleteShiftService(dbName, String(req.params.id));
     return res.json({ success: true, message: "Shift deleted successfully" });
   } catch (e: any) {
@@ -146,11 +145,11 @@ export const updateAttendanceSettings = async (req: Request, res: Response) => {
   }
 };
 
-// ===== HOLIDAYS =====
+// ===== HOLIDAYS ===== 
 
 export const getHolidays = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+    const dbName = (req as any).user.dbName;
     const data = await getHolidaysService(dbName);
     return res.json({ success: true, data });
   } catch (e: any) {
@@ -160,7 +159,7 @@ export const getHolidays = async (req: Request, res: Response) => {
 
 export const createHoliday = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+      const dbName = (req as any).user.dbName;
     const data = await createHolidayService(dbName, req.body);
     return res.status(201).json({ success: true, data });
   } catch (e: any) {
@@ -170,17 +169,17 @@ export const createHoliday = async (req: Request, res: Response) => {
 
 export const updateHoliday = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+   const dbName = (req as any).user.dbName;
     const data = await updateHolidayService(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
   } catch (e: any) {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
+  
 export const deleteHoliday = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+     const dbName = (req as any).user.dbName;
     await deleteHolidayService(dbName, String(req.params.id));
     return res.json({ success: true, message: "Holiday deleted successfully" });
   } catch (e: any) {

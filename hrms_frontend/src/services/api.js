@@ -169,11 +169,16 @@ export const getAttendanceSettings = () => api.get("/attendance/settings");
 export const updateAttendanceSettings = (data) =>
   api.put("/attendance/settings", data);
 
-export const createHoliday = (data) => api.post("/attendance/holidays", data);
-export const getHolidays = () => api.get("/attendance/holidays");
+
+export const createHoliday = (data) =>
+   api.post("/attendance/holidays", data);
+export const getHolidays = () =>
+   api.get("/attendance/holidays");
 export const updateHoliday = (id, data) =>
   api.put(`/attendance/holidays/${id}`, data);
-export const deleteHoliday = (id) => api.delete(`/attendance/holidays/${id}`);
+export const deleteHoliday = (id) =>
+   api.delete(`/attendance/holidays/${id}`);
+
 
 export const getAttendanceRequests = () => api.get("/attendance/requests");
 export const getAttendanceRequestById = (id) =>

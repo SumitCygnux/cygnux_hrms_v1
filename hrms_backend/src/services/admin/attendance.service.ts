@@ -160,7 +160,6 @@ export const updateAttendanceSettingsService = async (dbName: string, data: any)
 };
 
 
-
 export const getHolidaysService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
   return await ds.getRepository(Holiday).find({ order: { holidayDate: "ASC" } });
@@ -189,7 +188,6 @@ export const deleteHolidayService = async (dbName: string, id: string) => {
   if (!holiday) throw new Error("Holiday not found");
   await repo.delete(id);
 };
-
 
 
 export const getAttendanceRecordsService = async (dbName: string, filters: any) => {

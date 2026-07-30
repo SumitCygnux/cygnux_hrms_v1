@@ -339,7 +339,7 @@ export const createAttendanceRequestService = async (
 };
 
 export const getMyRequestsService = async (dbName: string, staffId: number) => {
-  const ds = await getTenantConnection(dbName);
+  const ds = await getTenantConnection(dbName); 
   return ds.getRepository(AttendanceRequest).find({
     where: { employeeId: staffId },
     order: { createdAt: "DESC" },
