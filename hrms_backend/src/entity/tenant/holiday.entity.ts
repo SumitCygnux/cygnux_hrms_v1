@@ -7,8 +7,8 @@ import {
   Index,
 } from "typeorm";
 
-// National | State | Company | Branch | Festival
-export enum HolidayType {
+// National | State | Company | Branch | Festival 
+export enum HolidayType { 
   NATIONAL = "National",
   STATE = "State",
   COMPANY = "Company",
@@ -17,30 +17,29 @@ export enum HolidayType {
 }
 
 @Entity("holidays")
-@Index(["holidayDate"])
+@Index(["holidayDate"]) 
 export class Holiday {
   @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  id!: string; 
 
   @Column({ type: "varchar", nullable: false })
   holidayName!: string;
 
-  // Not unique: multiple branch/department-scoped holidays may share a date.
   @Column({ type: "date", nullable: false })
   holidayDate!: string;
 
   @Column({ type: "text", nullable: true })
   description!: string | null;
 
-  @Column({ type: "varchar", default: HolidayType.COMPANY })
+  @Column({ type: "varchar", default: HolidayType.COMPANY }) 
   holidayType!: string;
 
   @Column({ type: "varchar", nullable: true })
-  branch!: string | null;
-
+  branch!: string | null; 
+ 
   @Column({ type: "uuid", nullable: true })
   departmentId!: string | null;
-
+ 
   @Column({ type: "boolean", default: false })
   isRecurring!: boolean;
 

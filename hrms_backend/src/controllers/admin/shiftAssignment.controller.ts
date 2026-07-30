@@ -7,9 +7,9 @@ import {
 
 const getUser = (req: Request) => (req as any).user as { userId: string; dbName: string };
 
-export const getShiftAssignments = async (req: Request, res: Response) => {
+export const getShiftAssignments =async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+    const { dbName } = getUser(req); 
     const data = await getShiftAssignmentsService(dbName);
     return res.json({ success: true, data });
   } catch (e: any) {

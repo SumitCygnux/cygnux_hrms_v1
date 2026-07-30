@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
-import { getShifts, createShift, updateShift, deleteShift } from "../../../../services/api";
+import {
+  getShifts,
+  createShift,
+  updateShift,
+  deleteShift,
+} from "../../../../services/api";
 import DataTable from "../../../../components/tables/DataTable";
 import Button from "../../../../components/common/Button";
 import Badge from "../../../../components/common/Badge";
 import DetailModal from "../../../../components/modals/DetailModal";
 import { MdAdd, MdEdit, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
-import Swal  from "sweetalert2";
+import Swal from "sweetalert2";
 
-const SATURDAY_POLICIES = [
+const SATURDAY_POLICIES = [ 
+  
   { value: "none", label: "No Saturday Off" },
   { value: "all", label: "All Saturdays Off" },
   { value: "1st", label: "1st Saturday Off" },
@@ -20,7 +26,14 @@ const SATURDAY_POLICIES = [
   { value: "1st_4th", label: "1st & 4th Saturdays Off" },
 ];
 
-const SHIFT_TYPES = ["General", "Morning", "Evening", "Night", "Flexible", "Rotational"];
+const SHIFT_TYPES = [
+  "General",
+  "Morning",
+  "Evening",
+  "Night",
+  "Flexible",
+  "Rotational",
+];
 
 const DAYS = [
   { n: 0, label: "Sun" },
@@ -61,7 +74,7 @@ const ShiftsTab = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
-  const [deletingShift, setDeletingShift] = useState(null); 
+  const [deletingShift, setDeletingShift] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
@@ -80,7 +93,6 @@ const ShiftsTab = () => {
       setLoading(false);
     }
   };
-
 
   const openCreate = () => {
     setEditingShift(null);
@@ -139,11 +151,14 @@ const ShiftsTab = () => {
         earlyExitMinutes: Number(form.earlyExitMinutes),
         autoClockOutAfterMinutes: Number(form.autoClockOutAfterMinutes),
         overtimeAfterHours:
-          form.overtimeAfterHours === "" ? null : Number(form.overtimeAfterHours),
+          form.overtimeAfterHours === ""
+            ? null
+            : Number(form.overtimeAfterHours),
         weeklyOffDays: (form.weeklyOffDays || []).map(Number),
         weeklyOff:
           form.weeklyOffDays && form.weeklyOffDays.length
-            ? DAYS.find((d) => d.n === form.weeklyOffDays[0])?.label || form.weeklyOff
+            ? DAYS.find((d) => d.n === form.weeklyOffDays[0])?.label ||
+              form.weeklyOff
             : form.weeklyOff,
         halfDayAfter: form.halfDayAfter || null,
         absentAfter: form.absentAfter || null,
@@ -169,39 +184,39 @@ const ShiftsTab = () => {
     }
   };
 
-const confirmDelete = async (shift) => {
-  console.log("shift list",shift)
-  const result = await Swal.fire({
-    title: "Are you sure?",
-    text: `Do you want to delete ${shift.shiftName}?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, Delete",
-    cancelButtonText: "Cancel",
-  });
+  const confirmDelete = async (shift) => {
+    console.log("shift list", shift);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to delete ${shift.shiftName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
+    });
 
-  if (result.isConfirmed) {
-    try {
-      await deleteShift(shift.id);
+    if (result.isConfirmed) {
+      try {
+        await deleteShift(shift.id);
 
-      Swal.fire({
-        title: "Deleted!",
-        text: "Shift deleted successfully.",
-        icon: "success",
-      });
+        Swal.fire({
+          title: "Deleted!",
+          text: "Shift deleted successfully.",
+          icon: "success",
+        });
 
-      fetchShifts();
-    } catch (err) {
-      Swal.fire({
-        title: "Error!",
-        text: err.response?.data?.message || "Failed to delete shift",
-        icon: "error",
-      });
+        fetchShifts();
+      } catch (err) {
+        Swal.fire({
+          title: "Error!",
+          text: err.response?.data?.message || "Failed to delete shift",
+          icon: "error",
+        });
+      }
     }
-  }
-};
+  };
 
   const saturdayLabel = (policy) =>
     SATURDAY_POLICIES.find((p) => p.value === policy)?.label || policy;
@@ -223,8 +238,12 @@ const confirmDelete = async (shift) => {
       sortable: true,
       render: (row) => (
         <div className="flex flex-col">
-          <span className="font-semibold text-text-primary">{row.shiftName}</span>
-          <span className="text-xs text-text-secondary font-mono">{row.shiftCode}</span>
+          <span className="font-semibold text-text-primary">
+            {row.shiftName}
+          </span>
+          <span className="text-xs text-text-secondary font-mono">
+            {row.shiftCode}
+          </span>
         </div>
       ),
     },
@@ -233,7 +252,9 @@ const confirmDelete = async (shift) => {
       accessor: "shiftType",
       sortable: true,
       render: (row) => (
-        <span className="text-xs font-semibold text-text-primary">{row.shiftType || "General"}</span>
+        <span className="text-xs font-semibold text-text-primary">
+          {row.shiftType || "General"}
+        </span>
       ),
     },
     {
@@ -242,7 +263,9 @@ const confirmDelete = async (shift) => {
       render: (row) => (
         <span className="text-sm text-text-primary">
           {row.startTime} – {row.endTime}
-          {row.crossMidnight && <span className="text-[10px] text-amber-600 ml-1">+1d</span>}
+          {row.crossMidnight && (
+            <span className="text-[10px] text-amber-600 ml-1">+1d</span>
+          )}
         </span>
       ),
     },
@@ -272,7 +295,9 @@ const confirmDelete = async (shift) => {
       header: "Saturday Policy",
       accessor: "saturdayPolicy",
       render: (row) => (
-        <span className="text-xs text-text-primary">{saturdayLabel(row.saturdayPolicy)}</span>
+        <span className="text-xs text-text-primary">
+          {saturdayLabel(row.saturdayPolicy)}
+        </span>
       ),
     },
     {
@@ -287,21 +312,24 @@ const confirmDelete = async (shift) => {
     {
       header: "Actions",
       accessor: "id",
-      render: (row) => (
-        <div className="flex items-center gap-2">
+      render: (row) => ( 
+        <div className="flex items-center gap-2"> 
           <button
             onClick={() => openEdit(row)}
-            className="text-primary hover:text-blue-700 text-lg"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 text-sm font-medium"
             title="Edit shift"
           >
-            <MdEdit />
+            <MdEdit className="text-base" />
+            Edit
           </button>
+
           <button
             onClick={() => confirmDelete(row)}
-            className="text-rose-500 hover:text-rose-700 text-lg"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-red-100 text-red-700 hover:bg-red-200 text-sm font-medium"
             title="Delete shift"
           >
-            <MdDelete />
+            <MdDelete className="text-base" />
+            Delete
           </button>
         </div>
       ),
@@ -313,9 +341,12 @@ const confirmDelete = async (shift) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm font-bold text-text-primary">Shift Management</p>
+          <p className="text-sm font-bold text-text-primary">
+            Shift Management
+          </p>
           <p className="text-xs text-text-secondary">
-            Define working schedules including timings, breaks, and weekend policies.
+            Define working schedules including timings, breaks, and weekend
+            policies.
           </p>
         </div>
         <Button variant="primary" onClick={openCreate}>
@@ -325,7 +356,9 @@ const confirmDelete = async (shift) => {
 
       {/* Table */}
       {loading ? (
-        <div className="py-12 text-center text-text-secondary">Loading shifts...</div>
+        <div className="py-12 text-center text-text-secondary">
+          Loading shifts...
+        </div>
       ) : (
         <DataTable
           columns={columns}
@@ -335,7 +368,6 @@ const confirmDelete = async (shift) => {
         />
       )}
 
-      
       <DetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -343,27 +375,34 @@ const confirmDelete = async (shift) => {
         maxWidth="600px"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-    
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Shift Name *</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Shift Name *
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Morning Shift"
                 value={form.shiftName}
-                onChange={(e) => setForm({ ...form, shiftName: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, shiftName: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Shift Code *</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Shift Code *
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. MORN"
                 value={form.shiftCode}
-                onChange={(e) => setForm({ ...form, shiftCode: e.target.value.toUpperCase() })}
+                onChange={(e) =>
+                  setForm({ ...form, shiftCode: e.target.value.toUpperCase() })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary font-mono outline-none focus:border-primary"
               />
             </div>
@@ -371,14 +410,18 @@ const confirmDelete = async (shift) => {
 
           {/* Shift Type */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-text-secondary">Shift Type</label>
+            <label className="text-xs font-bold text-text-secondary">
+              Shift Type
+            </label>
             <select
               value={form.shiftType}
               onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
               className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
             >
               {SHIFT_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           </div>
@@ -386,17 +429,23 @@ const confirmDelete = async (shift) => {
           {/* Timing */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Start Time *</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Start Time *
+              </label>
               <input
                 type="time"
                 required
                 value={form.startTime}
-                onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, startTime: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">End Time *</label>
+              <label className="text-xs font-bold text-text-secondary">
+                End Time *
+              </label>
               <input
                 type="time"
                 required
@@ -410,34 +459,46 @@ const confirmDelete = async (shift) => {
           {/* Hours & Minutes */}
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Required Hours</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Required Hours
+              </label>
               <input
                 type="number"
                 min="1"
                 max="24"
                 step="0.5"
                 value={form.requiredHours}
-                onChange={(e) => setForm({ ...form, requiredHours: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, requiredHours: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Break (mins)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Break (mins)
+              </label>
               <input
                 type="number"
                 min="0"
                 value={form.breakMinutes}
-                onChange={(e) => setForm({ ...form, breakMinutes: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, breakMinutes: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Grace (mins)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Grace (mins)
+              </label>
               <input
                 type="number"
                 min="0"
                 value={form.graceMinutes}
-                onChange={(e) => setForm({ ...form, graceMinutes: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, graceMinutes: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
             </div>
@@ -446,31 +507,45 @@ const confirmDelete = async (shift) => {
           {/* Rules: min hours / early exit / overtime */}
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Min Working Hrs</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Min Working Hrs
+              </label>
               <input
                 type="number"
                 min="0"
                 max="24"
                 step="0.5"
                 value={form.minWorkingHours}
-                onChange={(e) => setForm({ ...form, minWorkingHours: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, minWorkingHours: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
-              <span className="text-[10px] text-text-secondary">Below → Half Day</span>
+              <span className="text-[10px] text-text-secondary">
+                Below → Half Day
+              </span>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Early Exit (mins)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Early Exit (mins)
+              </label>
               <input
                 type="number"
                 min="0"
                 value={form.earlyExitMinutes}
-                onChange={(e) => setForm({ ...form, earlyExitMinutes: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, earlyExitMinutes: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
-              <span className="text-[10px] text-text-secondary">Flag if left this early</span>
+              <span className="text-[10px] text-text-secondary">
+                Flag if left this early
+              </span>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Overtime After (hrs)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Overtime After (hrs)
+              </label>
               <input
                 type="number"
                 min="0"
@@ -478,10 +553,14 @@ const confirmDelete = async (shift) => {
                 step="0.5"
                 placeholder="Use global"
                 value={form.overtimeAfterHours}
-                onChange={(e) => setForm({ ...form, overtimeAfterHours: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, overtimeAfterHours: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
-              <span className="text-[10px] text-text-secondary">Blank = global setting</span>
+              <span className="text-[10px] text-text-secondary">
+                Blank = global setting
+              </span>
             </div>
           </div>
 
@@ -492,7 +571,9 @@ const confirmDelete = async (shift) => {
                 <input
                   type="checkbox"
                   checked={form.autoClockOut}
-                  onChange={(e) => setForm({ ...form, autoClockOut: e.target.checked })}
+                  onChange={(e) =>
+                    setForm({ ...form, autoClockOut: e.target.checked })
+                  }
                 />
                 Auto Clock-Out
               </label>
@@ -502,7 +583,12 @@ const confirmDelete = async (shift) => {
                   min="0"
                   placeholder="Minutes after shift end"
                   value={form.autoClockOutAfterMinutes}
-                  onChange={(e) => setForm({ ...form, autoClockOutAfterMinutes: e.target.value })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      autoClockOutAfterMinutes: e.target.value,
+                    })
+                  }
                   className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
                 />
               )}
@@ -512,22 +598,30 @@ const confirmDelete = async (shift) => {
                 <input
                   type="checkbox"
                   checked={form.crossMidnight}
-                  onChange={(e) => setForm({ ...form, crossMidnight: e.target.checked })}
+                  onChange={(e) =>
+                    setForm({ ...form, crossMidnight: e.target.checked })
+                  }
                 />
                 Crosses Midnight (Night Shift)
               </label>
-              <span className="text-[10px] text-text-secondary">End time falls on the next day</span>
+              <span className="text-[10px] text-text-secondary">
+                End time falls on the next day
+              </span>
             </div>
           </div>
 
           {/* Optional thresholds */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Half Day After (time)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Half Day After (time)
+              </label>
               <input
                 type="time"
                 value={form.halfDayAfter}
-                onChange={(e) => setForm({ ...form, halfDayAfter: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, halfDayAfter: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
               <span className="text-[10px] text-text-secondary">
@@ -535,11 +629,15 @@ const confirmDelete = async (shift) => {
               </span>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Absent After (time)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Absent After (time)
+              </label>
               <input
                 type="time"
                 value={form.absentAfter}
-                onChange={(e) => setForm({ ...form, absentAfter: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, absentAfter: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
               <span className="text-[10px] text-text-secondary">
@@ -550,9 +648,13 @@ const confirmDelete = async (shift) => {
 
           {/* Weekend Policy */}
           <div className="flex flex-col gap-3 border-t border-border-color pt-4">
-            <p className="text-xs font-bold text-text-primary">Weekly Off / Off-Day Policy</p>
+            <p className="text-xs font-bold text-text-primary">
+              Weekly Off / Off-Day Policy
+            </p>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Weekly Off Days (select one or more)</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Weekly Off Days (select one or more)
+              </label>
               <div className="flex flex-wrap gap-2">
                 {DAYS.map((d) => {
                   const active = form.weeklyOffDays.includes(d.n);
@@ -577,10 +679,14 @@ const confirmDelete = async (shift) => {
               </span>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-text-secondary">Alternate Saturday Policy</label>
+              <label className="text-xs font-bold text-text-secondary">
+                Alternate Saturday Policy
+              </label>
               <select
                 value={form.saturdayPolicy}
-                onChange={(e) => setForm({ ...form, saturdayPolicy: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, saturdayPolicy: e.target.value })
+                }
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               >
                 {SATURDAY_POLICIES.map((p) => (
@@ -603,16 +709,23 @@ const confirmDelete = async (shift) => {
           </label>
 
           <div className="flex justify-end gap-3 pt-3 border-t border-border-color">
-            <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={saving}>
-              {saving ? "Saving..." : editingShift ? "Update Shift" : "Create Shift"}
+              {saving
+                ? "Saving..."
+                : editingShift
+                  ? "Update Shift"
+                  : "Create Shift"}
             </Button>
           </div>
         </form>
       </DetailModal>
-
     </div>
   );
 };
