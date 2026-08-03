@@ -380,7 +380,7 @@ const StaffDashboard = () => {
         text: `Tomorrow is a Holiday: ${tomorrowHoliday.holidayName} (${tomorrowHoliday.holidayType} Holiday).`
       });
     }
-
+    
     // 5. Leave Approved alert
     const recentApprovedLeave = leaves.find((l) => l.status?.toLowerCase() === "approved" && dayjs(l.updatedAt).isAfter(dayjs().subtract(2, "day")));
     if (recentApprovedLeave) {

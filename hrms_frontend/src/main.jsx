@@ -6,9 +6,11 @@ import App from "./App";
 import "./index.css";
 import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "./context/AuthContext";
+import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+        <BrowserRouter>
       <AuthProvider>
     <App />
     <ToastContainer
@@ -21,5 +23,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       theme="colored"
     />
     </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 );

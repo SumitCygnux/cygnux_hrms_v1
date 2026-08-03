@@ -46,7 +46,7 @@ export const updateshiftservice = async (dbName: string, id: string, data: any) 
   Object.assign(shift, data);
   return await repo.save(shift);
 };
-
+ 
 export const deleteShiftService = async (dbName: string, id: string) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(Shift);
@@ -56,11 +56,10 @@ export const deleteShiftService = async (dbName: string, id: string) => {
 };
 
 
-
 export const getShiftAssignmentsService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
 
-  const results = await ds
+  const results = await ds 
     .getRepository(ShiftAssignment)
     .createQueryBuilder("sa")
     .leftJoin(Staff, "s", "s.id = sa.employeeId")
@@ -78,8 +77,7 @@ export const getShiftAssignmentsService = async (dbName: string) => {
     .addSelect("shift.shiftName", "shiftName")
     .orderBy("sa.createdAt", "DESC")
     .getRawMany();
-
-  return results;
+    return results; 
 };
 
 export const createShiftAssignmentService = async (dbName: string, data: any) => {
@@ -135,19 +133,20 @@ export const updateShiftAssignmentService = async (dbName: string, id: string, d
   return await repo.save(assignment);
 };
 
+// setting 
 
-export const getAttendanceSettingsService = async (dbName: string) => {
+export const getAttendanceSettingsService = async(dbName: string) => { 
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(AttendanceSettings);
   let settings = await repo.findOne({ where: { id: 1 } });
-  if (!settings) {
+  if (!settings) { 
     settings = repo.create({ id: 1 });
     return await repo.save(settings);
-  }
-  return settings;
+  }     
+  return settings; 
 };
 
-export const updateAttendanceSettingsService = async (dbName: string, data: any) => {
+export const updateAttendanceSettingsService = async(dbName: string, data: any) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(AttendanceSettings);
   const existing = await repo.findOne({ where: { id: 1 } });
@@ -159,11 +158,10 @@ export const updateAttendanceSettingsService = async (dbName: string, data: any)
   return await repo.save(existing);
 };
 
-
 export const getHolidaysService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
   return await ds.getRepository(Holiday).find({ order: { holidayDate: "ASC" } });
-};
+}; 
 
 export const createHolidayService = async (dbName: string, data: any) => {
   const ds = await getTenantConnection(dbName);
@@ -188,7 +186,6 @@ export const deleteHolidayService = async (dbName: string, id: string) => {
   if (!holiday) throw new Error("Holiday not found");
   await repo.delete(id);
 };
-
 
 export const getAttendanceRecordsService = async (dbName: string, filters: any) => {
   const ds = await getTenantConnection(dbName);
@@ -236,6 +233,7 @@ export const getAttendanceRecordsService = async (dbName: string, filters: any) 
   }));
 };
 
+
 export const updateAttendanceRecordService = async (dbName: string, id: string, data: any) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(StaffAttendance);
@@ -243,17 +241,18 @@ export const updateAttendanceRecordService = async (dbName: string, id: string, 
   if (!record) throw new Error("Attendance record not found");
 
   // Normalise date-time strings coming from the admin edit form.
-  if (data.clockIn) data.clockIn = new Date(data.clockIn);
+  if (data.clockIn) data.clockIn = new Date(data.clockIn); 
   if (data.clockOut) data.clockOut = new Date(data.clockOut);
 
   Object.assign(record, data);
   record.isManual = true; // admin correction
-  return await repo.save(record);
+  return await repo.save(record); 
 };
 
 /**
  * Manually create an attendance record (admin manual entry) for a given date.
  */
+
 export const createManualAttendanceService = async (dbName: string, data: any) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(StaffAttendance);
@@ -278,7 +277,7 @@ export const createManualAttendanceService = async (dbName: string, data: any) =
 
   const settings =
     (await settingsRepo.findOne({ where: { id: 1 } })) || settingsRepo.create({ id: 1 });
-
+ 
   if (record.clockIn && record.clockOut) {
     const result = finalizeWorkingTime(record, shift, settings);
     record.workingHours = result.workingHours;
@@ -293,9 +292,7 @@ export const createManualAttendanceService = async (dbName: string, data: any) =
   return repo.save(record);
 };
 
-
-
-export const getAttendanceMetricsService = async (dbName: string) => {
+export const getAttendanceMetricsService = async (dbName: string) => { 
   const ds = await getTenantConnection(dbName);
   const today = dayjs().format("YYYY-MM-DD");
 
@@ -366,13 +363,10 @@ export const getAttendanceChartsService = async (dbName: string) => {
 
     monthlyTrend.push({ name: month.format("MMM"), present: count });
   }
-
-
   const weeklyTrend: any[] = [];
   for (let i = 6; i >= 0; i--) {
     const day = today.subtract(i, "day");
     const dateStr = day.format("YYYY-MM-DD");
-
     const count = await ds
       .getRepository(StaffAttendance)
       .createQueryBuilder("att")
@@ -386,11 +380,8 @@ export const getAttendanceChartsService = async (dbName: string) => {
         ],
       })
       .getCount();
-
     weeklyTrend.push({ name: day.format("ddd"), value: count });
-  }
-
-
+  } 
   const deptRows = await ds
     .getRepository(Staff)
     .createQueryBuilder("s")
@@ -429,13 +420,12 @@ export const getAttendanceChartsService = async (dbName: string) => {
     .groupBy("shift.shiftName")
     .getRawMany();
 
-  const shiftUtilization = shiftRows
+  const shiftUtilization = shiftRows 
     .filter((r) => r.name)
     .map((r) => ({ name: r.name, value: Number(r.value) }));
 
-  return { monthlyTrend, weeklyTrend, departmentAttendance, shiftUtilization };
+  return { monthlyTrend, weeklyTrend, departmentAttendance, shiftUtilization }; 
 };
-
 
 
 export const getAttendanceRequestsService = async (dbName: string) => {

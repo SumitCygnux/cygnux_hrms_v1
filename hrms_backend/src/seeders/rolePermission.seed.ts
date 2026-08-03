@@ -25,7 +25,6 @@ export const seedRolePermissions = async (tenantDataSource: DataSource) => {
             approve: true,
             export: true,
           };
-
           break;
 
         case "TENANT_ADMIN":
@@ -48,7 +47,7 @@ export const seedRolePermissions = async (tenantDataSource: DataSource) => {
               "project",
               "Recruitment",
               "calendar",
-              "settings",
+              "settings", 
             ].includes(module.identifier)
           ) {
             operations = {
@@ -58,11 +57,11 @@ export const seedRolePermissions = async (tenantDataSource: DataSource) => {
               delete: true,
               approve: true,
               export: true,
-            };
+            }; 
           }
 
           break;
-
+       
         case "HR":
           switch (module.identifier) {
             case "dashboard":
@@ -215,7 +214,7 @@ export const seedRolePermissions = async (tenantDataSource: DataSource) => {
           break;
       }
 
-      if (!operations) continue;
+      if (!operations) continue; 
 
       const exists = await rolePermissionRepo.findOne({
         where: {

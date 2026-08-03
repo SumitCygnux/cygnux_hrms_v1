@@ -19,7 +19,7 @@ import {
   getShiftEnd,
   findHoliday,
   isWeeklyOff,
-} from "../../utils/attendance.util";
+} from "../../utils/attendance.util"; 
 
 const loadSettings = async (ds: DataSource): Promise<AttendanceSettings> => {
   const repo = ds.getRepository(AttendanceSettings);
@@ -32,8 +32,7 @@ const loadSettings = async (ds: DataSource): Promise<AttendanceSettings> => {
  * Finalize records from past days that were clocked-in but never clocked-out:
  *   - auto clock-out (shift end + buffer) when the shift/company allows it,
  *   - otherwise flag as Missed Punch.
- */
-
+ */ 
 
 const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings) => {
   const today = dayjs().format("YYYY-MM-DD");
@@ -42,7 +41,7 @@ const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings)
   const open = await attRepo.find({
     where: { date: LessThan(today), clockOut: IsNull() },
   });
-
+ 
   for (const rec of open) {
     if (!rec.clockIn) continue;
     const shift = rec.shiftId
@@ -70,7 +69,8 @@ const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings)
 /**
  * For yesterday, create marker rows for staff with no punch:
  *   Holiday / Weekly Off / On Leave / Absent (when auto-mark-absent is on).
- */
+ */ 
+
 const markYesterday = async (ds: DataSource, settings: AttendanceSettings) => {
   const date = dayjs().subtract(1, "day").format("YYYY-MM-DD");
   const attRepo = ds.getRepository(StaffAttendance);

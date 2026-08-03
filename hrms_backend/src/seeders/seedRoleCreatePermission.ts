@@ -18,6 +18,9 @@ export const seedRoleCreatePermission = async (dataSource: DataSource) => {
 
   const employee = roles.find((r) => r.name === "EMPLOYEE");
 
+
+  // leave role create permisssion kon kone create kari sake 
+  // like staff management module can create in admin ,hr,manager
   const data = [
     {
       roleId: superAdmin?.id,

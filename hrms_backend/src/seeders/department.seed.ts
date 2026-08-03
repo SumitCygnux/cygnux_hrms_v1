@@ -29,12 +29,11 @@ console.log("Industry:", industry);
         },
       });
       
-    if (!existing) { 
+    if (!existing) {
       
        await departmentRepo.save({
         name: departmentName,
         openPositions: 0,
-
         is_deleted: false,
       });
 

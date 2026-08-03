@@ -51,8 +51,7 @@ export const registerCompanyService = async (payload: any) => {
   const subdomain = companyName.toLowerCase().replace(/\s+/g, "_");
   const dbName = `hrms_${subdomain}`;
 
-  const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs);
-
+  const tenantRepo = DatabaseConnection.getRepository(Tenant_dbs); 
   const tenant = await tenantRepo.save({
     name: companyName,
     company_email: companyEmail,
@@ -78,19 +77,9 @@ export const registerCompanyService = async (payload: any) => {
   await seedModules(tenantDataSource);
   await seedRolePermissions(tenantDataSource);
   await seedDepartments(tenantDataSource, industry);
-  await seedRoleCreatePermission(tenantDataSource);
+  await seedRoleCreatePermission(tenantDataSource);//staff module mate kon kone create kare sake
   await seedDesignations(tenantDataSource, industry);
   const roleRepo = DatabaseConnection.getRepository(Roles);
-
-  // const tenantAdminRole = await roleRepo.findOne({
-  //   where: {
-  //     name: "TENANT_ADMIN",
-  //   },
-  // });
-
-  // if (!tenantAdminRole) {
-  //   throw new Error("TENANT_ADMIN role not found");
-  // }
 
   const superAdminRole = await roleRepo.findOne({
     where: {
@@ -111,7 +100,7 @@ export const registerCompanyService = async (payload: any) => {
     tenant_id: tenant.id,
     db_name: tenant.db_name,
   });
-
+  
   return {
     tenantId: tenant.id,
     companyName,
@@ -154,7 +143,7 @@ export const loginService = async (payload: any) => {
       },
     });
 
-    // Tenant DB Connection
+    // Tenant DB Connection 
     const tenantConnection = await getTenantConnection(user.db_name);
 
     const tenantRoleRepo = tenantConnection.getRepository(Role);
@@ -208,24 +197,7 @@ export const loginService = async (payload: any) => {
 
       permissions,
 
-      // user: {
-      //   id: user.id,
-
-      //   name: user.name,
-
-      //   email: user.email,
-
-      //   role_id: tenantRole.id,
-
-      //   role: tenantRole.name,
-
-      //   tenant_id: user.tenant_id,
-
-      //   companyName: company?.name,
-
-      //   db_name: user.db_name,
-      // },
-
+ 
        user: {
           id: user.id,
           name: user.name,
@@ -313,20 +285,6 @@ export const loginService = async (payload: any) => {
         permissions,
 
         requiresPasswordSetup: staff.status === "InActive",
-
-        // user: {
-        //   id: staff.id,
-        //   name: staff.fullName,
-        //   email: staff.email,
-        //   role: role?.name,
-        //   accessRole: role?.name,
-        //    isStaff: true,
-        //   status: staff.status,
-        //   tenant_id: tenant.id,
-        //   companyName: tenant.name,
-        //   db_name: tenant.db_name,
-
-        // },
 
         user: {
           id: staff.id,

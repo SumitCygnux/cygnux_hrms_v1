@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req: Request,res: Response,next: NextFunction): any => {
-  try {
-    const authHeader =req.headers.authorization;
 
+  try {
+    const authHeader=req.headers.authorization;
     if (!authHeader) {
       return res.status(401).json({
         success: false,

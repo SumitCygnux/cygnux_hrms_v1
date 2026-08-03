@@ -63,7 +63,6 @@ export const clockInService = async (
 
   const arrival = computeArrival(shift, settings, now, today);
 
-  // Re-use an existing (e.g. system-marked Weekly Off / Holiday / Absent) row if present.
   const record = existing || attendanceRepo.create({ staffId, date: today, breaks: [] });
   record.clockIn = now;
   record.clockOut = null;
@@ -79,15 +78,16 @@ export const clockInService = async (
 
   return attendanceRepo.save(record);
 };
-
+ 
 export const startBreakService = async (
   dbName: string,
   staffId: number,
   body: { type?: string; remarks?: string } = {}
 ) => {
+
   const ds = await getTenantConnection(dbName);
   const attendanceRepo = ds.getRepository(StaffAttendance);
-
+ 
   const today = getTodayDate();
   const attendance = await attendanceRepo.findOne({ where: { staffId, date: today } });
 
@@ -197,10 +197,9 @@ export const clockOutService = async (dbName: string, staffId: number, workSumma
     );
     return attendance;
   }
-
   attendance.clockOutApproval = ClockOutApproval.AUTO;
   return attendanceRepo.save(attendance);
-};
+}; 
 
 export const getTodayAttendanceService = async (dbName: string, staffId: number) => {
   const ds = await getTenantConnection(dbName);
@@ -218,7 +217,7 @@ export const getAttendanceHistoryService = async (
   staffId: number,
   startDate?: string,
   endDate?: string
-) => {
+) => { 
   const ds = await getTenantConnection(dbName);
   const filter: any = { staffId };
   if (startDate && endDate) filter.date = Between(startDate, endDate);
@@ -254,7 +253,7 @@ export const getStaffDashboardService = async (dbName: string, staffId: number) 
     weekly.push({ name: d.format("ddd"), value: rec ? Number(rec.workingHours) : 0 });
   }
 
-  // Monthly summary
+  // Monthly summary 
   const monthStart = dayjs().startOf("month").format("YYYY-MM-DD");
   const monthEnd = dayjs().endOf("month").format("YYYY-MM-DD");
   const monthRecords = await attRepo.find({
@@ -307,6 +306,7 @@ export const getStaffDashboardService = async (dbName: string, staffId: number) 
   };
 };
 
+
 export const createAttendanceRequestService = async (
   dbName: string,
   staffId: number,
@@ -345,7 +345,7 @@ export const getMyRequestsService = async (dbName: string, staffId: number) => {
     order: { createdAt: "DESC" },
   });
 };
-
+ 
 export const resetAttendanceService = async (dbName: string, staffId: number) => {
   const ds = await getTenantConnection(dbName);
   const today = getTodayDate();

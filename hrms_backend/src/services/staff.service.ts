@@ -2,7 +2,8 @@ import { getTenantConnection } from "../connection/tenant.connection";
 import { Staff } from "../entity/tenant/staff.entity";
 import { Leave } from "../entity/tenant/staff/staff.leave.entity";
 import { Department } from "../entity/tenant/department.entity";
-import { Designation } from "../entity/tenant/designation.entity";
+import { Designation } from "../entity/tenant/designation.entity"; 
+
 import { RoleCreatePermission } from "../entity/tenant/role-create-permission.entity.ts";
 
 export const createStaffService = async (
@@ -14,9 +15,26 @@ export const createStaffService = async (
   const dataSource = await getTenantConnection(dbName);
   const staffRepo = dataSource.getRepository(Staff);
 
-  const totalStaff = await staffRepo.count();
-console.log(totalStaff)
-  const autoEmployeeCode = `EMP${String(totalStaff + 1).padStart(4, '0')}`;
+ 
+  const staffs = await staffRepo.find({
+    order: {
+      id: "DESC",
+    },
+    take: 1,
+  });
+ 
+  const lastStaff = staffs[0];
+
+  let autoEmployeeCode = "EMP0001";
+
+  if (lastStaff?.employeeCode) {
+    const lastNumber = parseInt(
+      lastStaff.employeeCode.replace("EMP", ""),
+      10
+    );
+
+    autoEmployeeCode = `EMP${String(lastNumber + 1).padStart(4, "0")}`;
+  }
 
   // Create Staff
   const staff = staffRepo.create({
@@ -43,14 +61,14 @@ console.log(totalStaff)
   return await staffRepo.save(staff);
 };
 
-
-export const getAllStaffService = async (dbName: string) => {
+export const getAllStaffService = async (dbName: string) => { 
   const dataSource = await getTenantConnection(dbName);
 
   const staffRepo = dataSource.getRepository(Staff);
 
   return await staffRepo.find();
 }; 
+
 
 export const updateStaffStatusService = async (
   dbName: string,

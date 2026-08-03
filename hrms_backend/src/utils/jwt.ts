@@ -5,7 +5,7 @@ export const generateToken = (payload: any) => {
     payload,
     process.env.JWT_SECRET as string,
     {
-      expiresIn: "1d",
+      expiresIn: "1d", 
     }
   );
 };

@@ -21,7 +21,6 @@ export const seedDesignations = async (
     console.log("Designation template not found");
     return;
   }
-
   const departments =
     await departmentRepo.find();
 

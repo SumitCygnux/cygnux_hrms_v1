@@ -10,7 +10,7 @@ const PasswordInput = ({ name, placeholder, value, onChange, required }) => {
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <input
+      <input 
         type={show ? "text" : "password"}
         name={name}
         placeholder={placeholder}
@@ -18,20 +18,24 @@ const PasswordInput = ({ name, placeholder, value, onChange, required }) => {
         onChange={onChange}
         required={required}
         className="w-full h-12 px-4 pr-11 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 text-slate-700 placeholder-slate-400 text-sm"
-      />
-      <button
-        type="button"
+      />  
+
+      <button 
+        type="button" 
         tabIndex={-1}
         onClick={() => setShow((p) => !p)}
         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
       >
-        {show ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+        {show ? <FiEyeOff size={18} /> : <FiEye size={18} />} 
+         
       </button>
     </div>
   );
 };
 
 const SetupPassword = () => {
+ 
+  console.log("SetupPassword Rendered");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 

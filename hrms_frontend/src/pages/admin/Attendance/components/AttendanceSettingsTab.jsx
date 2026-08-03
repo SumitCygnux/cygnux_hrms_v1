@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getAttendanceSettings, updateAttendanceSettings } from "../../../../services/api";
 import Button from "../../../../components/common/Button";
 import { toast } from "react-toastify";
-
+import Swal from "sweetalert2"; 
 const AttendanceSettingsTab = () => {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -45,29 +45,44 @@ const AttendanceSettingsTab = () => {
       setLoading(false);
     }
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await updateAttendanceSettings(formData);
-      if (res.data?.success) {
-        toast.success("Attendance settings saved successfully!");
-        fetchSettings();
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save settings");
+  try {
+    const res = await updateAttendanceSettings(formData);
+
+    if (res.data?.success) {
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Attendance settings saved successfully!",
+        confirmButtonText: "OK",
+      });
+
+      fetchSettings();
     }
-  };
-
-  if (loading) {
-    return <div className="py-12 text-center text-text-secondary">Loading Settings...</div>;
+  } catch (err) {
+    console.log(err.message)
+    console.log(err)
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.response?.data?.message || "Failed to save settings",
+      confirmButtonText: "OK",
+      
+    });
   }
+};
+
+if (loading) {
+   return <div className="py-12 text-center text-text-secondary">Loading Settings...</div>;
+}
 
   return (
     <div className="bg-bg-secondary border border-border-color rounded-2xl p-6 shadow-sm max-w-xl">
       <h3 className="text-base font-bold text-text-primary mb-6">Attendance Policy Configuration</h3>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {/* Late Policy */}
+   
         <div className="flex flex-col gap-2 border-b border-border-color pb-4">
           <h4 className="text-sm font-bold text-text-primary">Late Policy Rules</h4>
           <p className="text-xs text-text-secondary mb-1">
@@ -86,7 +101,6 @@ const AttendanceSettingsTab = () => {
           </div>
         </div>
 
-        {/* Half Day & Absent Policy */}
         <div className="flex flex-col gap-4 border-b border-border-color pb-4">
           <h4 className="text-sm font-bold text-text-primary">Half Day & Absent Thresholds</h4>
           <div className="grid grid-cols-2 gap-4">
@@ -106,12 +120,13 @@ const AttendanceSettingsTab = () => {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-text-secondary">Absent Threshold (Hours)</label>
+
               <input
                 type="number"
                 step="0.1"
                 min="0"
-                required
-                value={formData.absentAfterHours}
+                required 
+                value={formData.absentAfterHours} 
                 onChange={(e) => setFormData({ ...formData, absentAfterHours: Number(e.target.value) })}
                 className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary"
               />
@@ -119,8 +134,7 @@ const AttendanceSettingsTab = () => {
             </div>
           </div>
         </div>
-
-        {/* Overtime Policy */}
+ 
         <div className="flex flex-col gap-2 border-b border-border-color pb-4">
           <h4 className="text-sm font-bold text-text-primary">Overtime Parameter</h4>
           <p className="text-xs text-text-secondary mb-1">
@@ -128,19 +142,18 @@ const AttendanceSettingsTab = () => {
           </p>
           <div className="flex items-center gap-3">
             <input
-              type="number"
-              step="0.1"
-              min="0"
+              type="number" 
+              step="0.1" 
+              min="0" 
               required
               value={formData.overtimeAfterHours}
               onChange={(e) => setFormData({ ...formData, overtimeAfterHours: Number(e.target.value) })}
-              className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary w-32"
+              className="p-2.5 border border-border-color rounded-md bg-bg-primary  text-sm text-text-primary outline-none focus:border-primary w-32"
             />
             <span className="text-sm text-text-primary">hours in a single day</span>
           </div>
         </div>
 
-        {/* Regularization & Shift Change Rules */}
         <div className="flex flex-col gap-4">
           <h4 className="text-sm font-bold text-text-primary">Request Policy Authorization</h4>
           <div className="flex flex-col gap-3">
@@ -164,7 +177,7 @@ const AttendanceSettingsTab = () => {
           </div>
         </div>
 
-        {/* Automation & Approval */}
+  
         <div className="flex flex-col gap-4 border-t border-border-color pt-4">
           <h4 className="text-sm font-bold text-text-primary">Automation & Approval</h4>
           <div className="flex flex-col gap-3">

@@ -12,7 +12,8 @@ import {
   createDepartment,
   updateDepartment,
   deleteDepartment,
-  getDepartmentHeadOptions,
+
+  
 } from "../../../services/api";
 
 const Departments = () => {
@@ -61,20 +62,13 @@ const Departments = () => {
       console.log(error);
     }
   };
-  const fetchDepartmentHeads = async () => {
-    try {
-      const response = await getDepartmentHeadOptions();
+ 
+  
 
-      console.log("HEAD OPTIONS =>", response.data);
-
-      setHeadOptions(response.data.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
     fetchDepartments();
-    fetchDepartmentHeads();
+    
+    
   }, []);
 
   const handleSubmit = async (e) => {
