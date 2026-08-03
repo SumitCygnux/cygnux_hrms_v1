@@ -11,25 +11,24 @@ import { hasPermission } from "../../utils/hasPermission";
 const Login = () => {
   const navigate = useNavigate();
   const { setCurrentUser } = useHRMSData();
-const { login } = useAuth();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
+   
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
+   
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     try {
       setLoading(true);
 
@@ -39,49 +38,42 @@ const { login } = useAuth();
 
       const { token, user, permissions, requiresPasswordSetup } =
         response.data.data;
-
-        
-// console.log("User:", user);
-// console.log("Role:", user.role);
-//       localStorage.setItem("token", token);
-//       localStorage.setItem("user", JSON.stringify(user));
-//       localStorage.setItem("permissions", JSON.stringify(permissions || []));
-
-  login({ token, user, permissions,});
+      login({ token, user, permissions });
 
       setCurrentUser({ ...user, avatarColor: "#2563EB" });
       toast.success("Login Successfully!");
 
-      if (requiresPasswordSetup) {
+      if (requiresPasswordSetup) {  
+         console.log("Navigating to setup password 2 ...");
         navigate("/setup-password");
+          console.log("After Navigate");
+        return;
       } 
-
-
-        switch (user.role) {
-          case "SUPER_ADMIN":
-            navigate("/dashboard");
-            break;
-
-          case "TENANT_ADMIN":
-            navigate("/dashboard");
-            break;
-
-          case "HR":
-            navigate("/hr/dashboard");
-            break;
-
-          case "MANAGER":
-            navigate("/manager/dashboard");
-            break;
-
-          case "EMPLOYEE":
-            navigate("/staff/dashboard");
-            break;
-
-          default:
-            navigate("/login");
-            break;
        
+      switch (user.role) {
+        case "SUPER_ADMIN":
+          navigate("/dashboard");
+          break; 
+
+        case "TENANT_ADMIN":
+          navigate("/dashboard");
+          break;
+
+        case "HR":
+          navigate("/hr/dashboard");
+          break;
+
+        case "MANAGER":
+          navigate("/manager/dashboard");
+          break;
+
+        case "EMPLOYEE":
+          navigate("/staff/dashboard");
+          break;
+
+        default:
+          navigate("/login");
+          break;
       }
 
     } catch (error) {

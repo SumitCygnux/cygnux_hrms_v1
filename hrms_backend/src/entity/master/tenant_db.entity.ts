@@ -11,7 +11,7 @@ export class Tenant_dbs {
 
   @Column()
   company_email!: string;
-
+  
   @Column()
   phone!: string;
 

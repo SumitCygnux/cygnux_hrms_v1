@@ -30,9 +30,6 @@ export const updateDepartment = (id, data) =>
 
 export const deleteDepartment = (id) => api.delete(`/departments/${id}`);
 
-export const getDepartmentHeadOptions = () =>
-  api.get("/departments/head-options");
-
 export const getDesignations = () => api.get("/designations");
 
 export const createDesignation = (data) => api.post("/designations", data);
@@ -107,7 +104,7 @@ export const getStaffAttendanceDashboard = () =>
   api.get("/attendance/dashboard");
 export const getMyAttendanceRequests = () => api.get("/attendance/my-requests");
 export const createMyAttendanceRequest = (data) =>
-  api.post("/attendance/requests", data);
+  api.post("/attendance/requests", data); 
 export const resetTodayAttendance = () => api.delete("/attendance/reset");
 
 export const getAttendanceMetrics = () =>
@@ -165,7 +162,11 @@ export const deleteShiftAssignment = async (id) => {
   return await axios.delete(`/api/shift-assignments/${id}`);
 };
 
-export const getAttendanceSettings = () => api.get("/attendance/settings");
+
+// setting analysis 
+export const getAttendanceSettings = () =>
+   api.get("/attendance/settings");
+
 export const updateAttendanceSettings = (data) =>
   api.put("/attendance/settings", data);
 

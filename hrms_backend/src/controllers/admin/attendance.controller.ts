@@ -10,9 +10,12 @@ import {
   deleteShiftService,
 
   // shif assignment
+
   getShiftAssignmentsService,
   createShiftAssignmentService,
   updateShiftAssignmentService,
+
+  //setting configuration
   getAttendanceSettingsService,
   updateAttendanceSettingsService,
 
@@ -123,11 +126,9 @@ export const updateShiftAssignment = async (req: Request, res: Response) => {
   }
 };
 
-// ===== SETTINGS =====
-
 export const getAttendanceSettings = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+    const dbName = (req as any).user.dbName;
     const data = await getAttendanceSettingsService(dbName);
     return res.json({ success: true, data });
   } catch (e: any) {
@@ -137,7 +138,7 @@ export const getAttendanceSettings = async (req: Request, res: Response) => {
 
 export const updateAttendanceSettings = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+    const dbName = (req as any).user.dbName;
     const data = await updateAttendanceSettingsService(dbName, req.body);
     return res.json({ success: true, data });
   } catch (e: any) {
