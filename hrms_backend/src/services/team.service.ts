@@ -7,7 +7,6 @@ export const createTeamService = async (
   payload: any
 ) => {
   const dataSource = await getTenantConnection(dbName);
-
   const teamRepo = dataSource.getRepository(Team);
   const departmentRepo = dataSource.getRepository(Department);
 

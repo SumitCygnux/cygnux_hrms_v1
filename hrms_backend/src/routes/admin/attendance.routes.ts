@@ -17,7 +17,7 @@ import {
   deleteHoliday,
   getAttendanceRecords,
   updateAttendanceRecord,
-  createManualAttendance,
+  // createManualAttendance,
   runMaintenance,
   getAttendanceMetrics,
   getAttendanceCharts,
@@ -34,9 +34,8 @@ router.use(authMiddleware);
 router.get("/dashboard/metrics", getAttendanceMetrics);
 router.get("/dashboard/charts", getAttendanceCharts);
 
-
 router.get("/records", getAttendanceRecords);
-router.post("/records", createManualAttendance);
+// router.post("/records", createManualAttendance);
 router.put("/records/:id", updateAttendanceRecord);
 router.post("/maintenance/run", runMaintenance);
 
@@ -68,4 +67,4 @@ router.get("/requests/:id", getAttendanceRequestById);
 router.put("/requests/:id/approve", approveAttendanceRequest);
 router.put("/requests/:id/reject", rejectAttendanceRequest);
 
-export default router;
+export default router; 

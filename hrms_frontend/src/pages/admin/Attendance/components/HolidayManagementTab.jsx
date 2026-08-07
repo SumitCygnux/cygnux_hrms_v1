@@ -307,8 +307,8 @@ const HolidayManagementTab = () => {
           Add Holiday
         </Button>
       </div>
-
-    
+      
+      
       {viewMode === "List" ? (
         <DataTable
           columns={columns}
@@ -384,7 +384,6 @@ const HolidayManagementTab = () => {
           </div>
         </div>
       )}
-
     
       <DetailModal
         isOpen={isModalOpen}
@@ -395,7 +394,7 @@ const HolidayManagementTab = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-text-secondary">
-              Holiday Name *
+              Holiday Name 
             </label>
             <input
               type="text"
@@ -428,7 +427,7 @@ const HolidayManagementTab = () => {
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-text-secondary">
                 Holiday Type
-              </label>
+              </label> 
               <select
                 value={formData.holidayType}
                 onChange={(e) =>
@@ -489,7 +488,8 @@ const HolidayManagementTab = () => {
                 }
               />
               Recurring (every year)
-            </label>
+            </label> 
+
             <label className="flex items-center gap-2.5 text-sm text-text-primary cursor-pointer">
               <input
                 type="checkbox"
@@ -500,7 +500,7 @@ const HolidayManagementTab = () => {
               />
               Paid Holiday
             </label>
-          </div>
+          </div> 
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-text-secondary">
@@ -514,9 +514,9 @@ const HolidayManagementTab = () => {
                 setFormData({ ...formData, description: e.target.value })
               }
               className="p-2.5 border border-border-color rounded-md bg-bg-primary text-sm text-text-primary outline-none focus:border-primary resize-none"
-            />
+            /> 
           </div>
-
+          
           <div className="flex justify-end gap-3 pt-4 border-t border-border-color mt-4">
             <Button
               type="button"
@@ -534,5 +534,4 @@ const HolidayManagementTab = () => {
     </div>
   );
 };
-
 export default HolidayManagementTab;

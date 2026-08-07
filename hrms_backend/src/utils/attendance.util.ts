@@ -8,8 +8,15 @@ import {
   BreakSession,
   StaffAttendance,
 } from "../entity/tenant/staff/staff.attandance.entity";
-import { AttendanceSettings } from "../entity/tenant/attendanceSettings.entity";
+// import { Shift } from "../entity/tenant/Shift.entity";
 import { Staff } from "../entity/tenant/staff.entity";
+
+// change kara Shift  mathi shift adding karu
+
+
+
+
+
 
 // number ma convert kare na hoy to default value return
 // const num = (v: any, fallback = 0): number => {
@@ -288,10 +295,10 @@ export const isWeeklyOff = (
 // =======================================================
 export const findHoliday = (
   holidays: Holiday[],
-  dateStr: string,
+  dateStr: string, 
   departmentId?: string | null
-): Holiday | null => {
-
+): Holiday | null => { 
+ 
   const currentDate = dayjs(dateStr);
 
   for (const holiday of holidays) {
@@ -327,9 +334,11 @@ export const findHoliday = (
   return null;
 };
 
+
 // =======================================================
 // Find active shift assigned to employee.
-// =======================================================
+// ======================================================= 
+
 export const resolveActiveShift = async (
   ds: DataSource,
   staffId: number,
@@ -362,7 +371,7 @@ export const resolveActiveShift = async (
   }
 
   const shiftRepository = ds.getRepository(Shift);
-
+  
   const shift = await shiftRepository.findOne({
     where: {
       id: assignment.shiftId,
@@ -374,7 +383,8 @@ export const resolveActiveShift = async (
 
 // =======================================================
 // Calculate total break duration in minutes.
-// =======================================================
+// ======================================================= 
+
 export const calcBreakMinutes = (
   breaks: BreakSession[] = []
 ): number => {
@@ -410,7 +420,7 @@ export const calcBreakMinutes = (
 // =======================================================
 export const computeArrival = (
   shift: Shift | null,
-  settings: AttendanceSettings,
+  settings: Shift,
   clockIn: Date,
   dateStr: string
 ): {
@@ -425,7 +435,6 @@ export const computeArrival = (
       lateMinutes: 0,
     };
   }
-
   // Shift start time
   const shiftStart =
     getShiftStart(dateStr, shift);
@@ -433,7 +442,7 @@ export const computeArrival = (
   // Grace period
   const graceMinutes =
     num(shift.graceMinutes) ||
-    num(settings.lateAfterMinutes);
+    num(settings.graceMinutes);
 
   // Last allowed time
   const cutoffTime = dayjs(shiftStart)
@@ -479,13 +488,14 @@ export interface FinalizeResult {
 // Calculate working hours, overtime,
 // early exit and final attendance status.
 // =======================================================
+
 export const finalizeWorkingTime = (
   record: Pick<
     StaffAttendance,
     "clockIn" | "clockOut" | "breaks" | "lateMinutes" | "status"
   >,
   shift: Shift | null,
-  settings: AttendanceSettings
+  settings: Shift
 ): FinalizeResult => {
 
   // Convert clock in/out to Date object
@@ -518,8 +528,8 @@ export const finalizeWorkingTime = (
   // ===========================
 
   const totalMilliseconds =
-    clockOut.getTime() - clockIn.getTime();
 
+  clockOut.getTime() - clockIn.getTime();
   const totalTime = Math.max(0, totalMilliseconds);
 
   const workedMilliseconds =
@@ -612,7 +622,7 @@ export const finalizeWorkingTime = (
   }
 
   const halfDayHours = num(
-    settings.halfDayAfterHours,
+    settings.halfDayAfter,
     4
   );
 
@@ -849,7 +859,7 @@ export const classifyNonWorkingDay = (
 // // employee samai sar avyo che ke nai te find kare like late:
 // export const computeArrival = (
 //   shift: Shift | null,
-//   settings: AttendanceSettings,
+//   settings: Shift,
 //   clockIn: Date,
 //   dateStr: string
 // ): { status: AttendanceStatus;lateMinutes: number} => {
@@ -857,7 +867,7 @@ export const classifyNonWorkingDay = (
 //     return { status: AttendanceStatus.PRESENT, lateMinutes: 0 };
 //   }
 //   const start = getShiftStart(dateStr, shift);
-//   const grace = num(shift.graceMinutes) || num(settings.lateAfterMinutes);
+//   const grace = num(shift.graceMinutes) || num(settings.graceMinutes);
 //   const cutoff = dayjs(start).add(grace, "minute").toDate();
 
 //   if (clockIn.getTime() <= cutoff.getTime()) {
@@ -886,7 +896,7 @@ export const classifyNonWorkingDay = (
 // export const finalizeWorkingTime = (
 //   record: Pick<StaffAttendance, "clockIn" | "clockOut" | "breaks" | "lateMinutes" | "status">,
 //   shift: Shift | null,
-//   settings: AttendanceSettings
+//   settings: Shift
 // ): FinalizeResult => {
 //   const clockIn = record.clockIn ? new Date(record.clockIn) : null;
 //   const clockOut = record.clockOut ? new Date(record.clockOut) : null;
@@ -927,7 +937,7 @@ export const classifyNonWorkingDay = (
 
 //   // Status
 //   const full = shift ? num(shift.minWorkingHours, 8) : num(settings.overtimeAfterHours, 8);
-//   const halfFloor = num(settings.halfDayAfterHours, 4);
+//   const halfFloor = num(settings.halfDayAfter, 4);
 //   const wasLate =
 //     record.status === AttendanceStatus.LATE || num(record.lateMinutes) > 0;
 

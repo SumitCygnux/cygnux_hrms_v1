@@ -21,14 +21,14 @@ export enum AttendanceStatus {
   BUSINESS_TRIP = "Business Trip",
 }
 
-// Clock-out approval lifecycle (used only when company requires clock-out approval).
+
 export enum ClockOutApproval {
-  AUTO = "Auto", // no approval needed; finalized immediately
+  AUTO = "Auto", 
   PENDING = "Pending",
   APPROVED = "Approved",
   REJECTED = "Rejected",
 }
- 
+
 // One break session. `start` = break begins, `end` = break ends (null while ongoing).
 export interface BreakSession {
   start: Date;
@@ -115,8 +115,20 @@ export class StaffAttendance {
   @Column({ type: "boolean", default: false })
   payrollProcessed!: boolean;
 
+  @Column({ type: "uuid", nullable: true })
+shiftAssignmentId!: string | null;
+
+@Column({ type: "varchar", nullable: true })
+shiftName!: string | null;
+
+@Column({ type: "varchar", nullable: true })
+manualBy!: string | null;
+
+@Column({ type: "varchar", nullable: true })
+location!: string | null;
+
   @CreateDateColumn()
-  createdAt!: Date;
+  createdAt!: Date; 
 
   @UpdateDateColumn()
   updatedAt!: Date;

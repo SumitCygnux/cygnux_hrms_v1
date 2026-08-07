@@ -6,7 +6,7 @@ import logo from "../../assets/hrms_logo.png";
 import { toast } from "react-toastify";
 import { useHRMSData } from "../../context/HRMSDataContext";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { hasPermission } from "../../utils/hasPermission";
+
 
 const Login = () => {
   const navigate = useNavigate();

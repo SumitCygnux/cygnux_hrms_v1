@@ -1,64 +1,275 @@
+// import { Request, Response } from "express";
+// import {
+//   clockInService,
+//   clockOutService,
+//   startBreakService,
+//   endBreakService,
+//   getTodayAttendanceService,
+//   getAttendanceHistoryService,
+//   getStaffDashboardService,
+//   createAttendanceRequestService,
+//   getMyRequestsService,
+//   resetAttendanceService,
+// } from "../../services/staff/attendance.service";
+// import { getClientIp } from "../../utils/attendance.util";
+
+// const getCtx = (req: Request) => (req as any).user as { userId: number; dbName: string };
+
+// export const clockIn = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const attendance = await clockInService(dbName, Number(staffId), {
+//       ip: getClientIp(req),
+//       userAgent: req.headers["user-agent"] || null,
+//     });
+//     return res.status(200).json({ success: true, message: "Clocked in successfully", data: attendance });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const clockOut = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const { workSummary } = req.body || {};
+//     const attendance = await clockOutService(dbName, Number(staffId), workSummary);
+//     return res.status(200).json({ success: true, message: "Clocked out successfully", data: attendance });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const startBreak = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const attendance = await startBreakService(dbName, Number(staffId), req.body || {});
+//     return res.status(200).json({ success: true, message: "Break started successfully", data: attendance });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const endBreak = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const attendance = await endBreakService(dbName, Number(staffId), req.body || {});
+//     return res.status(200).json({ success: true, message: "Break ended successfully", data: attendance });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const getTodayAttendance = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const data = await getTodayAttendanceService(dbName, Number(staffId));
+//     return res.status(200).json({ success: true, data });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const getAttendanceHistory = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const { startDate, endDate } = req.query;
+//     const history = await getAttendanceHistoryService(
+//       dbName,
+//       Number(staffId),
+//       startDate as string,
+//       endDate as string
+//     );
+//     return res.status(200).json({ success: true, data: history });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const getStaffDashboard = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const data = await getStaffDashboardService(dbName, Number(staffId));
+//     return res.status(200).json({ success: true, data });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const createMyRequest = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const data = await createAttendanceRequestService(dbName, Number(staffId), req.body);
+//     return res.status(201).json({ success: true, message: "Request submitted", data });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const getMyRequests = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     const data = await getMyRequestsService(dbName, Number(staffId));
+//     return res.status(200).json({ success: true, data });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
+// export const resetAttendance = async (req: Request, res: Response) => {
+//   try {
+//     const { userId: staffId, dbName } = getCtx(req);
+//     await resetAttendanceService(dbName, Number(staffId));
+//     return res.status(200).json({ success: true, message: "Today's attendance reset successfully" });
+//   } catch (error: any) {
+//     return res.status(400).json({ success: false, message: error.message });
+//   }
+// };
+
 import { Request, Response } from "express";
 import {
-  clockInService,
-  clockOutService,
-  startBreakService,
-  endBreakService,
   getTodayAttendanceService,
   getAttendanceHistoryService,
   getStaffDashboardService,
   createAttendanceRequestService,
   getMyRequestsService,
   resetAttendanceService,
+  clockInService,
+  clockOutService,
+  endBreakService,
+  startBreakService,
+  getStaffShiftService,
+  checkHolidayService
 } from "../../services/staff/attendance.service";
-import { getClientIp } from "../../utils/attendance.util";
 
-const getCtx = (req: Request) => (req as any).user as { userId: number; dbName: string };
+const getCtx = (req: Request) =>
+  (req as any).user as { userId: number; dbName: string };
 
-export const clockIn = async (req: Request, res: Response) => {
+// Clock In
+export const clockInController = async (req: Request, res: Response) => {
   try {
-    const { userId: staffId, dbName } = getCtx(req);
-    const attendance = await clockInService(dbName, Number(staffId), {
-      ip: getClientIp(req),
-      userAgent: req.headers["user-agent"] || null,
+   
+    const dbName = (req as any).user.dbName;
+
+    console.log("DB :", dbName);
+    const attendance = await clockInService(dbName, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Clock In successfully",
+      data: attendance,
     });
-    return res.status(200).json({ success: true, message: "Clocked in successfully", data: attendance });
   } catch (error: any) {
-    return res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-export const clockOut = async (req: Request, res: Response) => {
+// Clock Out
+export const clockOutController = async (req: Request, res: Response) => {
   try {
-    const { userId: staffId, dbName } = getCtx(req);
-    const { workSummary } = req.body || {};
-    const attendance = await clockOutService(dbName, Number(staffId), workSummary);
-    return res.status(200).json({ success: true, message: "Clocked out successfully", data: attendance });
+    const dbName = (req as any).user.dbName;
+
+    const attendance = await clockOutService(dbName, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Clock Out successfully",
+      data: attendance,
+    });
   } catch (error: any) {
-    return res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-export const startBreak = async (req: Request, res: Response) => {
+// Start Break
+export const startBreakController = async (req: Request, res: Response) => {
   try {
-    const { userId: staffId, dbName } = getCtx(req);
-    const attendance = await startBreakService(dbName, Number(staffId), req.body || {});
-    return res.status(200).json({ success: true, message: "Break started successfully", data: attendance });
+     const dbName = (req as any).user.dbName;
+
+    const attendance = await startBreakService(dbName, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Break started",
+      data: attendance,
+    });
   } catch (error: any) {
-    return res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-export const endBreak = async (req: Request, res: Response) => {
+// End Break
+export const endBreakController = async (req: Request, res: Response) => {
   try {
-    const { userId: staffId, dbName } = getCtx(req);
-    const attendance = await endBreakService(dbName, Number(staffId), req.body || {});
-    return res.status(200).json({ success: true, message: "Break ended successfully", data: attendance });
+    const dbName = (req as any).user.dbName;
+
+    const attendance = await endBreakService(dbName, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Break ended",
+      data: attendance,
+    });
   } catch (error: any) {
-    return res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
+// Get Employee Shift
+export const getStaffShiftController = async (req: Request, res: Response) => {
+  try {
+   const dbName = (req as any).user.dbName;
+
+    const staffId = Number(req.params.staffId);
+
+    const shift = await getStaffShiftService(dbName, staffId);
+
+    res.status(200).json({
+      success: true,
+      data: shift,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Check Holiday
+export const checkHolidayController = async (req: Request, res: Response) => {
+  try {
+ const dbName = (req as any).user.dbName;
+
+    const date = String(req.params.date);
+
+    const holiday = await checkHolidayService(dbName, date);
+
+    res.status(200).json({
+      success: true,
+      data: holiday,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+// 2222222222222222
 export const getTodayAttendance = async (req: Request, res: Response) => {
   try {
     const { userId: staffId, dbName } = getCtx(req);
@@ -77,7 +288,7 @@ export const getAttendanceHistory = async (req: Request, res: Response) => {
       dbName,
       Number(staffId),
       startDate as string,
-      endDate as string
+      endDate as string,
     );
     return res.status(200).json({ success: true, data: history });
   } catch (error: any) {
@@ -98,8 +309,14 @@ export const getStaffDashboard = async (req: Request, res: Response) => {
 export const createMyRequest = async (req: Request, res: Response) => {
   try {
     const { userId: staffId, dbName } = getCtx(req);
-    const data = await createAttendanceRequestService(dbName, Number(staffId), req.body);
-    return res.status(201).json({ success: true, message: "Request submitted", data });
+    const data = await createAttendanceRequestService(
+      dbName,
+      Number(staffId),
+      req.body,
+    );
+    return res
+      .status(201)
+      .json({ success: true, message: "Request submitted", data });
   } catch (error: any) {
     return res.status(400).json({ success: false, message: error.message });
   }
@@ -119,7 +336,12 @@ export const resetAttendance = async (req: Request, res: Response) => {
   try {
     const { userId: staffId, dbName } = getCtx(req);
     await resetAttendanceService(dbName, Number(staffId));
-    return res.status(200).json({ success: true, message: "Today's attendance reset successfully" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Today's attendance reset successfully",
+      });
   } catch (error: any) {
     return res.status(400).json({ success: false, message: error.message });
   }

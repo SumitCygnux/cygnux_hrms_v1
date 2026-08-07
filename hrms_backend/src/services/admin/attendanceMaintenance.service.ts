@@ -13,7 +13,7 @@ import { Shift } from "../../entity/tenant/shift.entity";
 import { Holiday } from "../../entity/tenant/holiday.entity";
 import { Staff } from "../../entity/tenant/staff.entity";
 import { Leave } from "../../entity/tenant/staff/staff.leave.entity";
-import {
+import { 
   resolveActiveShift,
   finalizeWorkingTime,
   getShiftEnd,
@@ -34,37 +34,37 @@ const loadSettings = async (ds: DataSource): Promise<AttendanceSettings> => {
  *   - otherwise flag as Missed Punch.
  */ 
 
-const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings) => {
-  const today = dayjs().format("YYYY-MM-DD");
-  const attRepo = ds.getRepository(StaffAttendance);
+// const finalizeOpenRecords = async (ds: DataSource, settings: AttendanceSettings) => {
+//   const today = dayjs().format("YYYY-MM-DD");
+//   const attRepo = ds.getRepository(StaffAttendance);
 
-  const open = await attRepo.find({
-    where: { date: LessThan(today), clockOut: IsNull() },
-  });
+//   const open = await attRepo.find({
+//     where: { date: LessThan(today), clockOut: IsNull() },
+//   });
  
-  for (const rec of open) {
-    if (!rec.clockIn) continue;
-    const shift = rec.shiftId
-      ? await ds.getRepository(Shift).findOne({ where: { id: rec.shiftId } })
-      : await resolveActiveShift(ds, rec.staffId, rec.date);
+//   for (const rec of open) {
+//     if (!rec.clockIn) continue;
+//     const shift = rec.shiftId
+//       ? await ds.getRepository(Shift).findOne({ where: { id: rec.shiftId } })
+//       : await resolveActiveShift(ds, rec.staffId, rec.date);
 
-    if (settings.autoClockOutEnabled && shift && shift.autoClockOut) {
-      const end = getShiftEnd(rec.date, shift);
-      rec.clockOut = dayjs(end).add(shift.autoClockOutAfterMinutes || 0, "minute").toDate();
-      const result = finalizeWorkingTime(rec, shift, settings);
-      rec.workingHours = result.workingHours;
-      rec.breakDuration = result.breakDuration;
-      rec.overtimeMinutes = result.overtimeMinutes;
-      rec.earlyExitMinutes = result.earlyExitMinutes;
-      rec.status = result.status;
-      rec.clockOutApproval = ClockOutApproval.AUTO;
-      rec.notes = (rec.notes ? rec.notes + " | " : "") + "Auto clock-out";
-    } else {
-      rec.status = AttendanceStatus.MISSED_PUNCH;
-    }
-    await attRepo.save(rec);
-  }
-};
+//     if (settings.autoClockOutEnabled && shift && shift.autoClockOut) {
+//       const end = getShiftEnd(rec.date, shift);
+//       rec.clockOut = dayjs(end).add(shift.autoClockOutAfterMinutes || 0, "minute").toDate();
+//       const result = finalizeWorkingTime(rec, shift, settings);
+//       rec.workingHours = result.workingHours;
+//       rec.breakDuration = result.breakDuration;
+//       rec.overtimeMinutes = result.overtimeMinutes;
+//       rec.earlyExitMinutes = result.earlyExitMinutes;
+//       rec.status = result.status;
+//       rec.clockOutApproval = ClockOutApproval.AUTO;
+//       rec.notes = (rec.notes ? rec.notes + " | " : "") + "Auto clock-out";
+//     } else {
+//       rec.status = AttendanceStatus.MISSED_PUNCH;
+//     }
+//     await attRepo.save(rec);
+//   }
+// };
 
 /**
  * For yesterday, create marker rows for staff with no punch:
@@ -118,7 +118,7 @@ const markYesterday = async (ds: DataSource, settings: AttendanceSettings) => {
 export const runMaintenanceForTenant = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
   const settings = await loadSettings(ds);
-  await finalizeOpenRecords(ds, settings);
+  // await finalizeOpenRecords(ds, settings);
   await markYesterday(ds, settings);
 };
 
