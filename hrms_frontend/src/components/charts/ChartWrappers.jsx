@@ -115,3 +115,33 @@ export const PieChartComponent = ({ data = [], nameKey = "name", valueKey = "val
     </ResponsiveContainer>
   );
 };
+
+
+export const StackedBarChartComponent = ({ data = [], xKey = "day", bars = [] }) => {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data} barSize={30} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+        <XAxis dataKey={xKey} stroke="#64748b" fontSize={11} tickLine={false} />
+        <YAxis domain={[0, 10]} ticks={[0, 2, 4, 6, 8, 10]} stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+        <Tooltip content={<CustomTooltip />} />
+        {bars.map((bar, index) => (
+          <Bar
+            key={index}
+            dataKey={bar.key}
+            name={bar.name}
+            stackId="a"
+            fill={bar.color}
+            radius={
+              index === 0 
+                ? [0, 0, 4, 4] 
+                : index === bars.length - 1 
+                ? [4, 4, 0, 0] 
+                : [0, 0, 0, 0]
+            }
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};

@@ -862,7 +862,6 @@ export const getAttendanceHistoryService = async (
   });
 };
 
-
 // 2222 
 export const getStaffDashboardService = async (dbName: string, staffId: number) => {
   const ds = await getTenantConnection(dbName);
@@ -941,7 +940,6 @@ export const getStaffDashboardService = async (dbName: string, staffId: number) 
     pendingRequests,
   };
 };
-
 
 export const createAttendanceRequestService = async (
   dbName: string,

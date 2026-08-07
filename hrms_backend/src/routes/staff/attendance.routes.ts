@@ -54,8 +54,8 @@ router.use(authMiddleware);
 
 router.post("/clock-in", clockInController);
 router.post("/clock-out", clockOutController);
-router.post("/start-break", startBreakController);
-router.post("/end-break", endBreakController);
+router.post("/break-in", startBreakController);
+router.post("/break-out", endBreakController);
 router.get("/shift/:staffId", getStaffShiftController);
 router.get("/holiday/:date", checkHolidayController);
 
