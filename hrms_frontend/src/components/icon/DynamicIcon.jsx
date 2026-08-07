@@ -12,3 +12,4 @@ export const DynamicIcon = ({ iconName }) => {
 
   return <IconComponent style={{ fontSize: '20px' }} />;
 };
+export default DynamicIcon;

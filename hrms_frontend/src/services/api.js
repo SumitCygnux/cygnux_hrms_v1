@@ -92,12 +92,16 @@ export const updateLeaveStatus = (id, status) => {
   return api.put(`/staff/leave/${id}/status`, { status });
 };
 
+// clockin
+
 export const clockIn = () => api.post("/attendance/clock-in");
 export const clockOut = (data) => api.post("/attendance/clock-out", data);
 export const breakIn = (data) => api.post("/attendance/break-in", data);
 export const breakOut = (data) => api.post("/attendance/break-out", data);
 
+
 export const getTodayAttendance = () => api.get("/attendance/today");
+
 export const getAttendanceHistory = (params) =>
   api.get("/attendance/history", { params });
 export const getStaffAttendanceDashboard = () =>
@@ -105,6 +109,7 @@ export const getStaffAttendanceDashboard = () =>
 export const getMyAttendanceRequests = () => api.get("/attendance/my-requests");
 export const createMyAttendanceRequest = (data) =>
   api.post("/attendance/requests", data); 
+
 export const resetTodayAttendance = () => api.delete("/attendance/reset");
 
 export const getAttendanceMetrics = () =>
@@ -142,6 +147,8 @@ export const getAttendanceSummaryReport = (params) =>
 export const getShiftReport = () => api.get("/attendance/reports/shift");
 export const getHolidayReport = () => api.get("/attendance/reports/holiday");
 
+// Shift
+
 export const createShift = (data) => api.post("/attendance/shifts", data);
 export const getShifts = () => api.get("/attendance/shifts");
 export const getShiftById = (id) => api.get(`/attendance/shifts/${id}`);
@@ -149,7 +156,7 @@ export const updateShift = (id, data) =>
   api.put(`/attendance/shifts/${id}`, data);
 export const deleteShift = (id) => api.delete(`/attendance/shifts/${id}`);
 
-// assinment
+// assignment
 
 export const createShiftAssignment = (data) =>
   api.post("/attendance/shift-assignment", data);
@@ -172,7 +179,7 @@ export const getAttendanceSettings = () =>
 export const updateAttendanceSettings = (data) =>
   api.put("/attendance/settings", data);
 
-
+//Holiday
 export const createHoliday = (data) =>
    api.post("/attendance/holidays", data);
 export const getHolidays = () =>
@@ -190,6 +197,7 @@ export const approveAttendanceRequest = (id, data) =>
   api.put(`/attendance/requests/${id}/approve`, data);
 export const rejectAttendanceRequest = (id, data) =>
   api.put(`/attendance/requests/${id}/reject`, data);
+
 
 //get staff profile
 

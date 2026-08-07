@@ -3,10 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import Button from "../../../../components/common/Button";
 import { applyLeave } from "../../../../services/api";
 import { toast } from "react-toastify";
-
+import { useHRMSData } from "../../../../context/HRMSDataContext";
 const ApplyLeave = ({ refreshLeaves }) => {
   const [showModal, setShowModal] = useState(false);
-
+const { leavePolicies } = useHRMSData();
   const [isMultiDay, setIsMultiDay] = useState(false);
 
   const [form, setForm] = useState({
@@ -91,18 +91,23 @@ const ApplyLeave = ({ refreshLeaves }) => {
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                     Leave Type
                   </label>
-                  <select
-                    value={form.leaveType}
-                    onChange={(e) =>
-                      setForm({ ...form, leaveType: e.target.value })
-                    }
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
-                  >
-                    <option value="" disabled > Select Leave</option>
-                    <option value="Casual Leave">Casual Leave</option>
-                    <option value="Sick Leave">Sick Leave</option>
-                    <option value="Paid Leave">Paid Leave</option>
-                  </select>
+                 <select
+  value={form.leaveType}
+  onChange={(e) =>
+    setForm({ ...form, leaveType: e.target.value })
+  }
+  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 bg-slate-50 outline-none focus:border-primary transition-all"
+>
+  <option value="" disabled>
+    Select Leave
+  </option>
+
+  {leavePolicies?.map((policy) => (
+    <option key={policy.id} value={policy.leaveType}>
+      {policy.leaveType}
+    </option>
+  ))}
+</select>
                 </div>
 
                 <div className="flex items-center gap-2 mb-1">
