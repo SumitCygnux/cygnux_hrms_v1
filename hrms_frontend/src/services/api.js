@@ -149,16 +149,18 @@ export const updateShift = (id, data) =>
   api.put(`/attendance/shifts/${id}`, data);
 export const deleteShift = (id) => api.delete(`/attendance/shifts/${id}`);
 
+// assinment
+
 export const createShiftAssignment = (data) =>
   api.post("/attendance/shift-assignment", data);
+
 export const getShiftAssignments = () =>
   api.get("/attendance/shift-assignment");
+
 export const updateShiftAssignment = (id, data) =>
   api.put(`/attendance/shift-assignment/${id}`, data);
-// Add this alongside your other exports like getShiftAssignments, createShiftAssignment, etc.
 
 export const deleteShiftAssignment = async (id) => {
-  // IMPORTANT: Adjust the URL below to match your actual backend route for deleting shift assignments
   return await axios.delete(`/api/shift-assignments/${id}`);
 };
 

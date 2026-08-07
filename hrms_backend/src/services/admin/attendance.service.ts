@@ -18,7 +18,6 @@ import { Designation } from "../../entity/tenant/designation.entity";
 import dayjs from "dayjs";
 import { finalizeWorkingTime, resolveActiveShift } from "../../utils/attendance.util";
 
-
 export const getShiftsService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
   return await ds.getRepository(Shift).find({ order: { createdAt: "DESC" } });
@@ -56,6 +55,8 @@ export const deleteShiftService = async (dbName: string, id: string) => {
 };
 
 
+// shift assignment
+
 export const getShiftAssignmentsService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
 
@@ -65,7 +66,7 @@ export const getShiftAssignmentsService = async (dbName: string) => {
     .leftJoin(Staff, "s", "s.id = sa.employeeId")
     .leftJoin(Department, "dept", "dept.id = s.departmentId")
     .leftJoin(Shift, "shift", "shift.id::text = sa.shiftId")
-    .select("sa.id", "id")
+    .select("sa.id", "id") 
     .addSelect("sa.employeeId", "employeeId")
     .addSelect("sa.shiftId", "shiftId")
     .addSelect("sa.effectiveFrom", "effectiveFrom")
@@ -82,7 +83,7 @@ export const getShiftAssignmentsService = async (dbName: string) => {
 
 export const createShiftAssignmentService = async (dbName: string, data: any) => {
   const ds = await getTenantConnection(dbName);
-  const repo = ds.getRepository(ShiftAssignment);
+  const repo = ds.getRepository(ShiftAssignment); 
   const staffRepo = ds.getRepository(Staff);
 
   const { assignmentType, employeeId, bulkEmployeeIds, departmentId, shiftId, effectiveFrom, effectiveTo, remarks, assignedBy } = data;
@@ -91,9 +92,14 @@ export const createShiftAssignmentService = async (dbName: string, data: any) =>
 
   if (assignmentType === "Single" && employeeId) {
     employeeIds = [Number(employeeId)];
-  } else if (assignmentType === "Bulk" && bulkEmployeeIds?.length) {
+
+  }
+   else if (assignmentType === "Bulk" && bulkEmployeeIds?.length) 
+  {
     employeeIds = bulkEmployeeIds.map(Number);
-  } else if (assignmentType === "Department" && departmentId) {
+  }
+   else if (assignmentType === "Department" && departmentId) 
+  {
     const staff = await staffRepo.find({ where: { departmentId } });
     employeeIds = staff.map((s) => s.id);
   }
@@ -102,13 +108,13 @@ export const createShiftAssignmentService = async (dbName: string, data: any) =>
 
   for (const empId of employeeIds) {
     await repo
-      .createQueryBuilder()
+      .createQueryBuilder() 
       .update(ShiftAssignment)
       .set({ status: "Inactive", effectiveTo: effectiveFrom })
-      .where("employeeId = :empId AND status = :status", { empId, status: "Active" })
-      .execute();
+      .where("employeeId = :empId AND status = :status", { empId, status: "Active" }) 
+      .execute(); 
   }
-
+ 
   const assignments = employeeIds.map((empId) =>
     repo.create({
       employeeId: empId,
@@ -120,17 +126,16 @@ export const createShiftAssignmentService = async (dbName: string, data: any) =>
       remarks: remarks || null,
     })
   );
-
   return await repo.save(assignments);
 };
 
 export const updateShiftAssignmentService = async (dbName: string, id: string, data: any) => {
-  const ds = await getTenantConnection(dbName);
+  const ds = await getTenantConnection(dbName); 
   const repo = ds.getRepository(ShiftAssignment);
   const assignment = await repo.findOne({ where: { id } });
   if (!assignment) throw new Error("Assignment not found");
   Object.assign(assignment, data);
-  return await repo.save(assignment);
+  return await repo.save(assignment); 
 };
 
 // setting 
@@ -157,6 +162,7 @@ export const updateAttendanceSettingsService = async(dbName: string, data: any) 
   Object.assign(existing, data);
   return await repo.save(existing);
 };
+
 
 export const getHolidaysService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
@@ -233,7 +239,6 @@ export const getAttendanceRecordsService = async (dbName: string, filters: any) 
   }));
 };
 
-
 export const updateAttendanceRecordService = async (dbName: string, id: string, data: any) => {
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(StaffAttendance);
@@ -249,53 +254,53 @@ export const updateAttendanceRecordService = async (dbName: string, id: string, 
   return await repo.save(record); 
 };
 
-/**
+/** 
  * Manually create an attendance record (admin manual entry) for a given date.
  */
 
-export const createManualAttendanceService = async (dbName: string, data: any) => {
-  const ds = await getTenantConnection(dbName);
-  const repo = ds.getRepository(StaffAttendance);
-  const settingsRepo = ds.getRepository(AttendanceSettings);
+// export const createManualAttendanceService = async (dbName: string, data: any) => {
+//   const ds = await getTenantConnection(dbName);
+//   const repo = ds.getRepository(StaffAttendance);
+//   const settingsRepo = ds.getRepository(AttendanceSettings);
 
-  const staffId = Number(data.staffId);
-  const date = data.date;
-  if (!staffId || !date) throw new Error("staffId and date are required");
+//   const staffId = Number(data.staffId);
+//   const date = data.date;
+//   if (!staffId || !date) throw new Error("staffId and date are required");
 
-  let record = await repo.findOne({ where: { staffId, date } });
-  if (!record) record = repo.create({ staffId, date, breaks: [] });
+//   let record = await repo.findOne({ where: { staffId, date } });
+//   if (!record) record = repo.create({ staffId, date, breaks: [] });
 
-  if (data.clockIn) record.clockIn = new Date(data.clockIn);
-  if (data.clockOut) record.clockOut = new Date(data.clockOut);
-  record.isManual = true;
-  record.notes = data.notes || record.notes || null;
+//   if (data.clockIn) record.clockIn = new Date(data.clockIn);
+//   if (data.clockOut) record.clockOut = new Date(data.clockOut);
+//   record.isManual = true;
+//   record.notes = data.notes || record.notes || null;
 
-  const shift = data.shiftId
-    ? await ds.getRepository(Shift).findOne({ where: { id: data.shiftId } })
-    : await resolveActiveShift(ds, staffId, date);
-  record.shiftId = shift ? shift.id : record.shiftId || null;
+//   const shift = data.shiftId
+//     ? await ds.getRepository(Shift).findOne({ where: { id: data.shiftId } })
+//     : await resolveActiveShift(ds, staffId, date);
+//   record.shiftId = shift ? shift.id : record.shiftId || null;
 
-  const settings =
-    (await settingsRepo.findOne({ where: { id: 1 } })) || settingsRepo.create({ id: 1 });
+//   const settings =
+//     (await settingsRepo.findOne({ where: { id: 1 } })) || settingsRepo.create({ id: 1 });
  
-  if (record.clockIn && record.clockOut) {
-    const result = finalizeWorkingTime(record, shift, settings);
-    record.workingHours = result.workingHours;
-    record.breakDuration = result.breakDuration;
-    record.overtimeMinutes = result.overtimeMinutes;
-    record.earlyExitMinutes = result.earlyExitMinutes;
-    record.status = data.status || result.status;
-  } else {
-    record.status = data.status || record.status;
-  }
-  record.clockOutApproval = ClockOutApproval.APPROVED;
-  return repo.save(record);
-};
+//   if (record.clockIn && record.clockOut) {
+//     const result = finalizeWorkingTime(record, shift, settings);
+//     record.workingHours = result.workingHours;
+//     record.breakDuration = result.breakDuration;
+//     record.overtimeMinutes = result.overtimeMinutes;
+//     record.earlyExitMinutes = result.earlyExitMinutes;
+//     record.status = data.status || result.status;
+//   } else {
+//     record.status = data.status || record.status;
+//   }
+//   record.clockOutApproval = ClockOutApproval.APPROVED;
+//   return repo.save(record);
+// }; 
 
 export const getAttendanceMetricsService = async (dbName: string) => { 
   const ds = await getTenantConnection(dbName);
   const today = dayjs().format("YYYY-MM-DD");
-
+  
   const [totalEmployees, activeShifts, pendingRequests, pendingClockOuts, todayRecords] =
     await Promise.all([
       ds.getRepository(Staff).count({ where: { status: "Active" } }),
@@ -334,7 +339,6 @@ export const getAttendanceMetricsService = async (dbName: string) => {
     attendancePercentage,
   };
 };
-
 
 export const getAttendanceChartsService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
@@ -427,7 +431,6 @@ export const getAttendanceChartsService = async (dbName: string) => {
   return { monthlyTrend, weeklyTrend, departmentAttendance, shiftUtilization }; 
 };
 
-
 export const getAttendanceRequestsService = async (dbName: string) => {
   const ds = await getTenantConnection(dbName);
 
@@ -461,21 +464,15 @@ export const getAttendanceRequestByIdService = async (dbName: string, id: string
   const request = await ds.getRepository(AttendanceRequest).findOne({ where: { id } });
   if (!request) throw new Error("Request not found");
   return request;
-};
+}; 
 
-/**
- * Apply an approved request's effect to the underlying attendance record.
- * Upserts the StaffAttendance row for (employee, date) and recomputes hours.
- */
-const applyApprovedRequest = async (ds: any, request: AttendanceRequest) => {
+const  applyApprovedRequest = async (ds: any, request: AttendanceRequest) => {
   const attRepo = ds.getRepository(StaffAttendance);
   const settingsRepo = ds.getRepository(AttendanceSettings);
-  const settings =
-    (await settingsRepo.findOne({ where: { id: 1 } })) || settingsRepo.create({ id: 1 });
-
-  const staffId = request.employeeId;
+  const settings = (await settingsRepo.findOne({ where: { id: 1 } })) || settingsRepo.create({ id: 1 });
+  const staffId = request.employeeId; 
   const date = request.requestDate;
-  const payload = request.payload || {};
+  const payload = request.payload || {}; 
 
   // Clock-out approval: just release the held record.
   if (request.requestType === AttendanceRequestType.CLOCK_OUT_APPROVAL) {
@@ -514,9 +511,10 @@ const applyApprovedRequest = async (ds: any, request: AttendanceRequest) => {
     rec.status = AttendanceStatus.ON_DUTY;
   }
 
+
   if (rec.clockIn && rec.clockOut) {
     const shift = rec.shiftId
-      ? await ds.getRepository(Shift).findOne({ where: { id: rec.shiftId } })
+      ? await ds.getRepository(Shift).findOne({ where: { id: rec.shiftId }})
       : null;
     const result = finalizeWorkingTime(rec, shift, settings);
     rec.workingHours = result.workingHours;
@@ -540,7 +538,7 @@ export const approveAttendanceRequestService = async (
   dbName: string,
   id: string,
   data: any
-) => {
+) => { 
   const ds = await getTenantConnection(dbName);
   const repo = ds.getRepository(AttendanceRequest);
   const request = await repo.findOne({ where: { id } });
@@ -558,7 +556,7 @@ export const approveAttendanceRequestService = async (
   } catch (e) {
     // Approval succeeds even if the record could not be auto-applied; surfaced via logs.
     console.error("Failed to apply approved attendance request:", e);
-  }
+  } 
 
   return saved;
 };

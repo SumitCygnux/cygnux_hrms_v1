@@ -30,16 +30,16 @@ import {
 } from "react-icons/md";
 import {
   getStaffAttendanceDashboard,
-  clockIn as apiClockIn,
-  clockOut as apiClockOut,
-  breakIn as apiBreakIn,
-  breakOut as apiBreakOut,
+  // clockIn as apiClockIn,
+  // clockOut as apiClockOut,
+  // breakIn as apiBreakIn,
+  // breakOut as apiBreakOut,
   getLeave,
   getMyProfile,
   getHolidays,
   getAttendanceHistory,
   getMyAttendanceRequests,
-  createMyAttendanceRequest,
+  // createMyAttendanceRequest,
 } from "../../../services/api";
 
 const BREAK_LIMIT_MINS = 60; // 60 minutes break limit
@@ -440,21 +440,20 @@ const StaffDashboard = () => {
   const requiredHours = shift?.requiredHours ? Number(shift.requiredHours) : 8;
   const workProgressPct = Math.min(Math.round((totalWorkedHours / requiredHours) * 100), 100);
   const breakProgressPct = Math.min(Math.round((totalBreakMins / 60) * 100), 100);
-
   if (loading) {
     return (
       <div className="flex flex-col gap-6 animate-pulse">
-        <PageHeader title="My Dashboard" subtitle="Loading staff portal statistics..." />
-
+        <PageHeader title="My Dashboard" subtitle="Loading staff portal statistics..." /> 
+        
         {/* KPI Row Skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm h-32 flex flex-col justify-between" />
           ))}
-        </div>
+        </div> 
 
         {/* Content Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="bg-white rounded-3xl p-6 border border-slate-100 h-96" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -479,11 +478,11 @@ const StaffDashboard = () => {
           <p className="text-sm text-slate-500">{error}</p>
         </div>
         <Button variant="primary" onClick={fetchAllData} iconBefore={<MdRefresh />}>
-          Retry Connection
+          Retry Connection 
         </Button>
       </div>
     );
-  }
+  } 
 
   return (
     <div>
@@ -917,7 +916,7 @@ const StaffDashboard = () => {
                   </span>
                 </div>
 
-                {/* sequence buttons */}
+                {/* sequence buttons */} 
                 <div className="flex flex-col gap-3">
                   {eligibleCorrection ? (
                     showCorrectionFormInline ? (
@@ -926,7 +925,7 @@ const StaffDashboard = () => {
                           handleCorrectionSubmit(e);
                         }}
                         className="flex flex-col gap-3 bg-slate-50 p-4 border border-slate-100 rounded-2xl"
-                      >
+                      > 
                         <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-1">
                           <span className="text-[10px] font-extrabold text-slate-700 uppercase">Correction: {dayjs(eligibleCorrection.date).format("MMM DD")}</span>
                           <button type="button" onClick={() => setShowCorrectionFormInline(false)} className="text-slate-400 hover:text-slate-600 text-xs">Cancel</button>
@@ -948,7 +947,7 @@ const StaffDashboard = () => {
                             value={correctionForm.clockOut}
                             onChange={(e) => setCorrectionForm({ ...correctionForm, clockOut: e.target.value })}
                             className="p-2 border border-slate-200 rounded-xl bg-white text-xs text-slate-700 outline-none focus:border-primary"
-                          />
+                          />  
                         </div>
                         <div className="flex flex-col gap-1">
                           <label className="text-[9px] font-bold text-slate-400 uppercase">Reason</label>
@@ -959,7 +958,7 @@ const StaffDashboard = () => {
                             onChange={(e) => setCorrectionForm({ ...correctionForm, reason: e.target.value })}
                             placeholder="Why was this missed?..."
                             className="p-2 border border-slate-200 rounded-xl bg-white text-xs text-slate-700 outline-none focus:border-primary resize-none"
-                          />
+                          /> 
                         </div>
                         <Button type="submit" variant="primary" disabled={busy} className="w-full mt-1.5 flex justify-center py-2.5 text-xs">
                           {busy ? "Submitting..." : "Submit Correction"}
@@ -1167,17 +1166,11 @@ const StaffDashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div> 
   );
 };
 
-export default StaffDashboard;
-
-
-
-
-
-
+export default StaffDashboard; 
 
 
 

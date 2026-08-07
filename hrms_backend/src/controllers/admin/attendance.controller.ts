@@ -7,8 +7,8 @@ import {
   createShiftService,
   getShiftByIdService,
   updateshiftservice,
-  deleteShiftService,
-
+  deleteShiftService, 
+  
   // shif assignment
 
   getShiftAssignmentsService,
@@ -26,9 +26,11 @@ import {
   updateHolidayService,
   deleteHolidayService,
    
+  // attenda records
+  
   getAttendanceRecordsService,
   updateAttendanceRecordService,
-  createManualAttendanceService,
+  // createManualAttendanceService,
   getAttendanceMetricsService,
   getAttendanceChartsService,
 
@@ -40,18 +42,19 @@ import {
   rejectAttendanceRequestService,
   
 } from "../../services/admin/attendance.service";
+
 import { runMaintenanceForTenant } from "../../services/admin/attendanceMaintenance.service";
  
 const getUser = (req: Request) => (req as any).user as { userId: string; dbName: string };
 
 export const getShifts = async (req: Request, res: Response) => {
-  try {
+  try { 
      const dbName = (req as any).user.dbName;
     const data = await getShiftsService(dbName);
     return res.json({ success: true, data });
   } catch (e: any) {
     return res.status(400).json({ success: false, message: e.message });
-  }
+  } 
 };
 
 export const createShift = async (req: Request, res: Response) => {
@@ -83,7 +86,6 @@ export const updateShift = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
 export const deleteShift = async (req: Request, res: Response) => {
   try {
       const dbName = (req as any).user.dbName;
@@ -94,37 +96,41 @@ export const deleteShift = async (req: Request, res: Response) => {
   }
 };
 
-// ===== SHIFT ASSIGNMENTS =====
+// assignments
 
 export const getShiftAssignments = async (req: Request, res: Response) => {
-  try {
-    const { dbName } = getUser(req);
+  try { 
+    const dbName = (req as any).user.dbName;
     const data = await getShiftAssignmentsService(dbName);
     return res.json({ success: true, data });
-  } catch (e: any) {
-    return res.status(400).json({ success: false, message: e.message });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const createShiftAssignment = async (req: Request, res: Response) => {
-  try {
-    const { dbName, userId } = getUser(req);
+  try { 
+
+      const userId = (req as any).user.userId;
+      const dbName = (req as any).user.dbName;
     const data = await createShiftAssignmentService(dbName, { ...req.body, assignedBy: userId });
     return res.status(201).json({ success: true, data });
-  } catch (e: any) {
-    return res.status(400).json({ success: false, message: e.message });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const updateShiftAssignment = async (req: Request, res: Response) => {
   try {
-    const { dbName } = getUser(req);
+     const dbName = (req as any).user.dbName;
     const data = await updateShiftAssignmentService(dbName, String(req.params.id), req.body);
     return res.json({ success: true, data });
-  } catch (e: any) {
-    return res.status(400).json({ success: false, message: e.message });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// setting
 
 export const getAttendanceSettings = async (req: Request, res: Response) => {
   try {
@@ -145,8 +151,6 @@ export const updateAttendanceSettings = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
-// ===== HOLIDAYS ===== 
 
 export const getHolidays = async (req: Request, res: Response) => {
   try {
@@ -188,19 +192,16 @@ export const deleteHoliday = async (req: Request, res: Response) => {
   }
 };
 
-// ===== ATTENDANCE RECORDS =====
-
 export const getAttendanceRecords = async (req: Request, res: Response) => {
   try {
     const { dbName } = getUser(req);
     const { date, status, shiftId, departmentId } = req.query;
     const data = await getAttendanceRecordsService(dbName, { date, status, shiftId, departmentId });
     return res.json({ success: true, data });
-  } catch (e: any) {
+  } catch (e: any) { 
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
 export const updateAttendanceRecord = async (req: Request, res: Response) => {
   try { 
     const { dbName } = getUser(req);
@@ -210,16 +211,16 @@ export const updateAttendanceRecord = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
- 
-export const createManualAttendance = async (req: Request, res: Response) => {
-  try {
-    const { dbName } = getUser(req);
-    const data = await createManualAttendanceService(dbName, req.body);
-    return res.status(201).json({ success: true, data });
-  } catch (e: any) {
-    return res.status(400).json({ success: false, message: e.message });
-  }
-};
+
+// export const createManualAttendance = async (req: Request, res: Response) => {
+//   try {
+//     const { dbName } = getUser(req);
+//     const data = await createManualAttendanceService(dbName, req.body);
+//     return res.status(201).json({ success: true, data });
+//   } catch (e: any) {
+//     return res.status(400).json({ success: false, message: e.message });
+//   }
+// };
 
 export const runMaintenance = async (req: Request, res: Response) => {
   try {
@@ -230,8 +231,6 @@ export const runMaintenance = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: e.message });
   }
 };
-
-// ===== DASHBOARD =====
 
 export const getAttendanceMetrics = async (req: Request, res: Response) => {
   try {
